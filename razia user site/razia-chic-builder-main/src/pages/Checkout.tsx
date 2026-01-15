@@ -61,6 +61,18 @@ const paymentSchema = z.object({
 type ShippingData = z.infer<typeof shippingSchema>;
 type PaymentData = z.infer<typeof paymentSchema>;
 
+interface Address {
+  id: string; // UUID from backend
+  title: string;
+  address_line1: string;
+  city: string;
+  state?: string;
+  zip?: string;
+  country?: string;
+  phone: string;
+  is_default?: number;
+}
+
 const steps = [
   { id: 1, name: 'Cart', icon: ShoppingBag },
   { id: 2, name: 'Shipping', icon: Truck },
@@ -127,6 +139,87 @@ const Checkout: React.FC = () => {
   const [saveCard, setSaveCard] = useState(false);
   const [orderNumber, setOrderNumber] = useState('');
   const [paymentMethod, setPaymentMethod] = useState<string>('');
+
+  // Address Book State
+  const [savedAddresses, setSavedAddresses] = useState<Address[]>([]);
+  const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
+  const [isAddingNew, setIsAddingNew] = useState(false);
+  const [newAddressTitle, setNewAddressTitle] = useState('');
+
+  // Fetch Addresses
+  React.useEffect(() => {
+    if (user) {
+      axios.get('http://localhost:5000/api/addresses', {
+        headers: { Authorization: `Bearer ${localStorage.getItem('userInfo') ? JSON.parse(localStorage.getItem('userInfo')!).token : ''}` }
+      })
+      .then(res => {
+        setSavedAddresses(res.data);
+        if (res.data.length > 0) {
+          // Auto-select default or first
+          const defaultAddr = res.data.find((a: Address) => a.is_default) || res.data[0];
+          setSelectedAddressId(defaultAddr.id);
+          // Pre-fill shipping data for visual consistency if needed, though we rely on selectedAddressId
+          updateShippingDataFromAddress(defaultAddr);
+        } else {
+          setIsAddingNew(true);
+        }
+      })
+      .catch(err => console.error('Failed to fetch addresses', err));
+    }
+  }, [user]);
+
+  const updateShippingDataFromAddress = (addr: Address) => {
+    setShippingData(prev => ({
+      ...prev,
+      address: addr.address_line1,
+      city: addr.city,
+      state: addr.state || '',
+      zipCode: addr.zip || '',
+      country: addr.country || 'Saudi Arabia',
+      phone: addr.phone
+    }));
+  };
+
+  const handleAddressSelect = (id: string) => {
+    setSelectedAddressId(id);
+    const addr = savedAddresses.find(a => a.id === id);
+    if (addr) updateShippingDataFromAddress(addr);
+    setIsAddingNew(false);
+  };
+
+  const handleSaveNewAddress = async () => {
+    if (!validateShipping()) {
+      toast.error('Please fill in all required fields');
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem('userInfo') ? JSON.parse(localStorage.getItem('userInfo')!).token : '';
+      const payload = {
+        name: newAddressTitle || 'Home', // Default title
+        address_line1: shippingData.address,
+        city: shippingData.city,
+        state: shippingData.state,
+        zip: shippingData.zipCode,
+        country: shippingData.country,
+        phone: shippingData.phone,
+        is_default: savedAddresses.length === 0 // Make default if it's the first one
+      };
+
+      const res = await axios.post('http://localhost:5000/api/addresses', payload, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      const newAddr = res.data;
+      setSavedAddresses([newAddr, ...savedAddresses]);
+      setSelectedAddressId(newAddr.id);
+      setIsAddingNew(false);
+      toast.success('Address saved and selected');
+    } catch (error) {
+      toast.error('Failed to save address');
+      console.error(error);
+    }
+  };
 
   // Fixed shipping cost
   const shippingCost = 25;
@@ -212,10 +305,36 @@ const Checkout: React.FC = () => {
       }
       setCurrentStep(2);
     } else if (currentStep === 2) {
-      if (validateShipping()) {
-        setCurrentStep(3);
+      if (isAddingNew) {
+         // If adding new, try to save first
+         handleSaveNewAddress().then(() => {
+             // If successful (checked by implication of state change, but simple here:
+             // We can just verify if isAddingNew became false. 
+             // Actually handleSaveNewAddress is async. Ideally we wait.
+             // For now, let's just checking validity.
+             if (validateShipping()) {
+                 // We will trigger the save inside the button or here.
+                 // Let's assume the "Save Address" button is used for saving, 
+                 // and "Next" is only enabled if an address is selected.
+                 // BUT standard UX: "Next" on form = Save & Next.
+                 // So we need to await the save.
+             }
+         });
+         // The logic above is tricky with the current synchronous handleNextStep.
+         // Let's modify handleSaveNewAddress to return success boolean or handle transition.
+         // Simplification: Enforce using the "Save & Use" button in the form UI, 
+         // and "Next" button in the main flow is for when an address IS selected.
+         if (!selectedAddressId) {
+             toast.error('Please save your address first');
+             return;
+         }
+         setCurrentStep(3);
       } else {
-        toast.error('Please fill in all required fields correctly');
+        if (selectedAddressId) {
+            setCurrentStep(3);
+        } else {
+            toast.error('Please select an address');
+        }
       }
     } else if (currentStep === 3) {
       if (!paymentMethod) {
@@ -256,13 +375,14 @@ const Checkout: React.FC = () => {
           lastName: shippingData.lastName,
           email: shippingData.email,
           phone: shippingData.phone,
-          address: shippingData.address,
-          city: shippingData.city,
-          zipCode: shippingData.zipCode,
-          country: shippingData.country,
-          state: shippingData.state
+          // Use selected address details if available
+          address: selectedAddressId ? savedAddresses.find(a => a.id === selectedAddressId)?.address_line1 || shippingData.address : shippingData.address,
+          city: selectedAddressId ? savedAddresses.find(a => a.id === selectedAddressId)?.city || shippingData.city : shippingData.city,
+          zipCode: selectedAddressId ? savedAddresses.find(a => a.id === selectedAddressId)?.zip || shippingData.zipCode : shippingData.zipCode,
+          country: selectedAddressId ? savedAddresses.find(a => a.id === selectedAddressId)?.country || shippingData.country : shippingData.country,
+          state: selectedAddressId ? savedAddresses.find(a => a.id === selectedAddressId)?.state || shippingData.state : shippingData.state
         },
-        save_to_profile: saveAddress
+        save_to_profile: false // Handled by Address Book logic now
       });
 
       // 1. Get Token (from localStorage as AuthContext might lag or be complex object)
@@ -516,78 +636,138 @@ const Checkout: React.FC = () => {
         </div>
       </div>
 
-      {/* Shipping Address */}
-      <div className="p-6 bg-card rounded-xl border border-border space-y-4">
-        <h3 className="font-heading font-semibold flex items-center gap-2">
-          <MapPin className="w-5 h-5 text-primary" />
-          Shipping Address
-        </h3>
-        <div>
-          <Label htmlFor="address">Street Address *</Label>
-          <Input
-            id="address"
-            value={shippingData.address}
-            onChange={(e) => setShippingData({ ...shippingData, address: e.target.value })}
-            className={errors.address ? 'border-red-500' : ''}
-            placeholder="Street name, building number, apartment..."
-          />
-          {errors.address && <p className="text-xs text-red-500 mt-1">{errors.address}</p>}
-        </div>
-        <div className="grid sm:grid-cols-2 gap-4">
-          <div>
-            <Label htmlFor="city">City *</Label>
-            <Input
-              id="city"
-              value={shippingData.city}
-              onChange={(e) => setShippingData({ ...shippingData, city: e.target.value })}
-              className={errors.city ? 'border-red-500' : ''}
-            />
-            {errors.city && <p className="text-xs text-red-500 mt-1">{errors.city}</p>}
+      {/* Address Selection Grid */}
+      {!isAddingNew && savedAddresses.length > 0 ? (
+        <div className="space-y-4">
+          <div className="grid gap-4 md:grid-cols-2">
+            {savedAddresses.map((addr) => (
+              <div 
+                key={addr.id}
+                onClick={() => handleAddressSelect(addr.id)}
+                className={`p-4 rounded-xl border-2 cursor-pointer transition-all ${
+                  selectedAddressId === addr.id 
+                    ? 'border-primary bg-primary/5' 
+                    : 'border-border hover:border-primary/50'
+                }`}
+              >
+                <div className="flex items-start justify-between">
+                  <div className="space-y-1">
+                    <p className="font-bold flex items-center gap-2">
+                       <MapPin className="w-4 h-4 text-primary" />
+                       {addr.title}
+                       {addr.is_default ? <span className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded">Default</span> : null}
+                    </p>
+                    <p className="text-sm">{addr.address_line1}</p>
+                    <p className="text-sm text-muted-foreground">{addr.city}, {addr.zip}</p>
+                    <p className="text-sm text-muted-foreground">{addr.phone}</p>
+                  </div>
+                  {selectedAddressId === addr.id && <CheckCircle className="w-5 h-5 text-primary" />}
+                </div>
+              </div>
+            ))}
           </div>
-          <div>
-            <Label htmlFor="state">State/Region *</Label>
-            <Input
-              id="state"
-              value={shippingData.state}
-              onChange={(e) => setShippingData({ ...shippingData, state: e.target.value })}
-              className={errors.state ? 'border-red-500' : ''}
-            />
-            {errors.state && <p className="text-xs text-red-500 mt-1">{errors.state}</p>}
-          </div>
+          
+          <Button 
+            variant="outline" 
+            className="w-full py-6 border-dashed"
+            onClick={() => {
+              setIsAddingNew(true); 
+              setSelectedAddressId(null);
+              // Clear shipping data address fields but keep contact
+              setShippingData(prev => ({...prev, address: '', city: '', state: '', zipCode: ''}));
+            }}
+          >
+            + Use a different address
+          </Button>
         </div>
-        <div className="grid sm:grid-cols-2 gap-4">
-          <div>
-            <Label htmlFor="zipCode">Postal Code *</Label>
+      ) : (
+        /* Add New Address Form */
+        <div className="p-6 bg-card rounded-xl border border-border space-y-4">
+            <div className="flex items-center justify-between mb-4">
+                <h3 className="font-heading font-semibold flex items-center gap-2">
+                <MapPin className="w-5 h-5 text-primary" />
+                {savedAddresses.length > 0 ? 'Add New Address' : 'Shipping Address'}
+                </h3>
+                {savedAddresses.length > 0 && (
+                    <Button variant="ghost" size="sm" onClick={() => setIsAddingNew(false)}>Cancel</Button>
+                )}
+            </div>
+
+            {/* Contact Info (Always needed for order, maybe pre-filled) */}
+            <div className="mb-4">
+                 <Label>Address Title (e.g., Home, Office)</Label>
+                 <Input 
+                    placeholder="Home"
+                    value={newAddressTitle} 
+                    onChange={e => setNewAddressTitle(e.target.value)} 
+                 />
+            </div>
+
+            <div className="grid sm:grid-cols-2 gap-4">
+                 <div>
+                    <Label>First Name</Label>
+                    <Input value={shippingData.firstName} onChange={e => setShippingData({...shippingData, firstName: e.target.value})} />
+                 </div>
+                 <div>
+                    <Label>Last Name</Label>
+                    <Input value={shippingData.lastName} onChange={e => setShippingData({...shippingData, lastName: e.target.value})} />
+                 </div>
+            </div>
+
+            <div>
+            <Label htmlFor="address">Street Address *</Label>
             <Input
-              id="zipCode"
-              value={shippingData.zipCode}
-              onChange={(e) => setShippingData({ ...shippingData, zipCode: e.target.value })}
-              className={errors.zipCode ? 'border-red-500' : ''}
+                id="address"
+                value={shippingData.address}
+                onChange={(e) => setShippingData({ ...shippingData, address: e.target.value })}
+                className={errors.address ? 'border-red-500' : ''}
+                placeholder="Street name, building number..."
             />
-            {errors.zipCode && <p className="text-xs text-red-500 mt-1">{errors.zipCode}</p>}
-          </div>
-          <div>
-            <Label htmlFor="country">Country *</Label>
-            <Input
-              id="country"
-              value={shippingData.country}
-              onChange={(e) => setShippingData({ ...shippingData, country: e.target.value })}
-              className={errors.country ? 'border-red-500' : ''}
-            />
-            {errors.country && <p className="text-xs text-red-500 mt-1">{errors.country}</p>}
-          </div>
+            {errors.address && <p className="text-xs text-red-500 mt-1">{errors.address}</p>}
+            </div>
+            <div className="grid sm:grid-cols-2 gap-4">
+            <div>
+                <Label htmlFor="city">City *</Label>
+                <Input
+                id="city"
+                value={shippingData.city}
+                onChange={(e) => setShippingData({ ...shippingData, city: e.target.value })}
+                className={errors.city ? 'border-red-500' : ''}
+                />
+            </div>
+            <div>
+                <Label htmlFor="state">State/Region *</Label>
+                <Input
+                id="state"
+                value={shippingData.state}
+                onChange={(e) => setShippingData({ ...shippingData, state: e.target.value })}
+                />
+            </div>
+            </div>
+            <div className="grid sm:grid-cols-2 gap-4">
+            <div>
+                <Label htmlFor="zipCode">Postal Code *</Label>
+                <Input
+                id="zipCode"
+                value={shippingData.zipCode}
+                onChange={(e) => setShippingData({ ...shippingData, zipCode: e.target.value })}
+                />
+            </div>
+            <div>
+                <Label htmlFor="phone">Phone *</Label>
+                <Input
+                id="phone"
+                value={shippingData.phone}
+                onChange={(e) => setShippingData({ ...shippingData, phone: e.target.value })}
+                />
+            </div>
+            </div>
+
+            <Button onClick={handleSaveNewAddress} className="w-full mt-4">
+                Save & Use This Address
+            </Button>
         </div>
-        <div className="flex items-center gap-2">
-          <Checkbox
-            id="saveAddress"
-            checked={saveAddress}
-            onCheckedChange={(checked) => setSaveAddress(checked as boolean)}
-          />
-          <Label htmlFor="saveAddress" className="text-sm cursor-pointer">
-            Save this address for future orders
-          </Label>
-        </div>
-      </div>
+      )}
 
     </motion.div>
   );

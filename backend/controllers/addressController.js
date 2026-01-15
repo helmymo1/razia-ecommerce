@@ -21,9 +21,23 @@ const getAddresses = async (req, res, next) => {
 // @desc    Add new address
 // @route   POST /api/users/addresses
 // @access  Private
+// @desc    Add new address
+// @route   POST /api/users/addresses
+// @access  Private
 const addAddress = async (req, res, next) => {
-  const { name, address_line1, city, state, zip, country, phone, is_default } = req.body;
+  // Map frontend 'name' -> DB 'title', and 'address' -> 'address_line1'
+  let { name, address, address_line1, city, state, zip, country, phone, is_default } = req.body;
   const userId = req.user.id;
+
+  // Handle address field mapping
+  address_line1 = address_line1 || address;
+  const title = name || 'Home';
+
+  // Validation
+  if (!address_line1 || !city || !phone) {
+    res.status(400);
+    throw new Error('Please fill in all required fields (Address, City, Phone)');
+  }
 
   try {
     // If setting as default, unset other defaults
@@ -33,9 +47,9 @@ const addAddress = async (req, res, next) => {
 
     const id = uuidv4();
     await db.query(
-      `INSERT INTO addresses (id, user_id, name, address_line1, city, state, zip, country, phone, is_default)
+      `INSERT INTO addresses (id, user_id, title, address_line1, city, state, zip, country, phone, is_default)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [id, userId, name, address_line1, city, state, zip, country, phone, is_default ? 1 : 0]
+      [id, userId, title, address_line1, city, state, zip, country, phone, is_default ? 1 : 0]
     );
 
     const [newAddress] = await db.query('SELECT * FROM addresses WHERE id = ?', [id]);
@@ -50,8 +64,10 @@ const addAddress = async (req, res, next) => {
 // @access  Private
 const updateAddress = async (req, res, next) => {
   const { id } = req.params;
-  const { name, address_line1, city, state, zip, country, phone, is_default } = req.body;
+  let { name, address, address_line1, city, state, zip, country, phone, is_default } = req.body;
   const userId = req.user.id;
+
+  address_line1 = address_line1 || address;
 
   try {
     // Check ownership
@@ -68,7 +84,7 @@ const updateAddress = async (req, res, next) => {
 
     await db.query(
       `UPDATE addresses 
-       SET name = ?, address_line1 = ?, city = ?, state = ?, zip = ?, country = ?, phone = ?, is_default = ?
+       SET title = ?, address_line1 = ?, city = ?, state = ?, zip = ?, country = ?, phone = ?, is_default = ?
        WHERE id = ?`,
       [name, address_line1, city, state, zip, country, phone, is_default ? 1 : 0, id]
     );
@@ -92,7 +108,7 @@ const deleteAddress = async (req, res, next) => {
     
     if (result.affectedRows === 0) {
       res.status(404);
-      throw new Error('Address not found');
+      throw new Error('Address not found or not authorized');
     }
 
     res.status(200).json({ message: 'Address deleted' });

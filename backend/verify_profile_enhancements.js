@@ -42,27 +42,29 @@ const DB_CONFIG = {
             name: 'Home', address_line1: '123 Test St', city: 'TestCity', 
             zip: '12345', country: 'TestLand', phone: '111222333'
         };
-        const resAddrAdd = await axios.post(`${API_URL}/users/addresses`, addrPayload, { headers });
+        const resAddrAdd = await axios.post(`${API_URL}/addresses`, addrPayload, { headers });
         console.log(`✅ Address Added: ${resAddrAdd.data.id}`);
+        if(resAddrAdd.data.title === 'Home') console.log('✅ Title mapped correctly from name');
+        else console.error('❌ Title mapping failed:', resAddrAdd.data);
         const addrId = resAddrAdd.data.id;
 
         // 4. Test Get Addresses
         console.log('\n[TEST] Get Addresses');
-        const resAddrGet = await axios.get(`${API_URL}/users/addresses`, { headers });
+        const resAddrGet = await axios.get(`${API_URL}/addresses`, { headers });
         const found = resAddrGet.data.find(a => a.id === addrId);
         if (found) console.log(`✅ Address Found (Total: ${resAddrGet.data.length})`);
         else console.error('❌ Address NOT Found');
 
         // 5. Test Update Address
         console.log('\n[TEST] Update Address');
-        const resAddrUpd = await axios.put(`${API_URL}/users/addresses/${addrId}`, { ...addrPayload, city: 'UpdatedCity' }, { headers });
+        const resAddrUpd = await axios.put(`${API_URL}/addresses/${addrId}`, { ...addrPayload, city: 'UpdatedCity' }, { headers });
         if (resAddrUpd.data.city === 'UpdatedCity') console.log('✅ Address City Updated');
         else console.error('❌ Address Update Failed');
 
         // 6. Test Delete Address
         console.log('\n[TEST] Delete Address');
-        await axios.delete(`${API_URL}/users/addresses/${addrId}`, { headers });
-        const resAddrCheck = await axios.get(`${API_URL}/users/addresses`, { headers });
+        await axios.delete(`${API_URL}/addresses/${addrId}`, { headers });
+        const resAddrCheck = await axios.get(`${API_URL}/addresses`, { headers });
         if (!resAddrCheck.data.find(a => a.id === addrId)) console.log('✅ Address Deleted');
         else console.error('❌ Address Deletion Failed');
 

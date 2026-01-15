@@ -590,8 +590,12 @@ const Profile: React.FC = () => {
                     <CardHeader><CardTitle>{language === 'ar' ? 'تغيير كلمة المرور' : 'Change Password'}</CardTitle></CardHeader>
                     <CardContent>
                         {!userData.has_password ? (
-                            <div className="text-center py-6 text-muted-foreground bg-muted/20 rounded-lg">
-                                <p>{language === 'ar' ? 'أنت مسجل الدخول باستخدام حساب اجتماعي. لا يمكنك تغيير كلمة المرور هنا.' : 'You are logged in via a Social Account (Google/Apple). You cannot change your password here.'}</p>
+                            <div className="p-6 bg-gray-50 dark:bg-muted/50 rounded-lg border border-gray-200 dark:border-muted text-center">
+                                <div className="text-4xl mb-2">🔒</div>
+                                <h3 className="text-lg font-medium text-gray-900 dark:text-foreground">Social Account Linked</h3>
+                                <p className="text-gray-500 dark:text-muted-foreground mt-1">
+                                    You are logged in via Google/Apple. You manage your security through their platform.
+                                </p>
                             </div>
                         ) : (
                             <div className="max-w-md space-y-4">

@@ -7,6 +7,7 @@ interface User {
   email?: string;
   role?: string;
   profile_pic?: string;
+  has_password?: boolean;
   [key: string]: any;
 }
 
