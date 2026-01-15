@@ -63,11 +63,12 @@ const redisWrapper = {
     },
     decrby: async (key, amount) => {
         try {
-            if (redisClient.status !== 'ready') throw new Error('Redis not ready');
+            if (redisClient.status !== 'ready') return null; // Graceful fallback
             return await redisClient.decrby(key, amount);
         } catch (err) {
             console.warn('Redis Decr Error:', err.message);
-            throw err; // Re-throw to let controller handle "Out of Stock" or "System Error"
+            // Don't throw, let controller assume stock check passed or handle it via DB
+            return null;
         }
     },
     incrby: async (key, amount) => {

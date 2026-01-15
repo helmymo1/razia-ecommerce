@@ -66,7 +66,25 @@ const swaggerUi = require('swagger-ui-express');
 const swaggerSpecs = require('./config/swagger');
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpecs));
 
-// Error Handling Middleware
+// Custom Error Handling for Multer and JSON Syntax
+const multer = require('multer');
+
+app.use((err, req, res, next) => {
+  // Multer Error Handler
+  if (err instanceof multer.MulterError) {
+    return res.status(400).json({ message: `Upload Error: ${err.message}` });
+  }
+
+  // JSON Syntax Error Handler
+  if (err instanceof SyntaxError && err.status === 400 && 'body' in err) {
+    console.error('Bad JSON received:', err.message);
+    return res.status(400).json({ message: 'Invalid JSON format' });
+  }
+
+  next(err);
+});
+
+// General Error Handling Middleware
 app.use(notFound);
 app.use(errorHandler);
 

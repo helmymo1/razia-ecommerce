@@ -18,7 +18,7 @@ const validateRequest = (schema, property = 'body') => {
     });
 
     if (error) {
-      const message = error.details.map((detail) => detail.message).join(', ');
+      const message = error.details.map((detail) => detail.message.replace(/"/g, '')).join(', ');
       console.error('❌ Validation Error:', message, 'Sent:', req[property]);
       return res.status(400).json({ 
         message: `Validation Error: ${message}` 

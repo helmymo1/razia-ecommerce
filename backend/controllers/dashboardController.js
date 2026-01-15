@@ -65,16 +65,18 @@ const getSalesChart = async (req, res, next) => {
 // @access  Private/Admin
 const getRecentOrders = async (req, res, next) => {
     try {
-        const [rows] = await db.query(`
-            SELECT o.id, o.total_amount, o.status, o.created_at, u.name as user_name 
-            FROM orders o
-            JOIN users u ON o.user_id = u.id
-            ORDER BY o.created_at DESC 
-            LIMIT 5
-        `);
-        res.status(200).json(rows);
+        const sql = `
+          SELECT o.id, o.order_number, o.total_amount, o.status, o.created_at, u.name AS user_name
+          FROM orders o
+          JOIN users u ON o.user_id = u.id
+          ORDER BY o.created_at DESC
+          LIMIT 5
+        `;
+        const [orders] = await db.query(sql);
+        res.json(orders);
     } catch (error) {
-        next(error);
+        console.error('Recent Orders Error:', error);
+        res.status(500).json({ message: 'Server Error' });
     }
 }
 
@@ -84,7 +86,7 @@ const getRecentOrders = async (req, res, next) => {
 const getBestSellers = async (req, res, next) => {
     try {
         const [rows] = await db.query(`
-            SELECT p.name, SUM(oi.quantity) as sold, p.image_url as image, p.price
+            SELECT p.name_en as name, SUM(oi.quantity) as sold, (SELECT image_url FROM product_images WHERE product_id = p.id AND is_primary = 1 LIMIT 1) as image, p.price
             FROM order_items oi 
             JOIN products p ON oi.product_id = p.id 
             GROUP BY p.id 
@@ -102,16 +104,17 @@ const getBestSellers = async (req, res, next) => {
 // @access  Private/Admin
 const getLowStock = async (req, res, next) => {
     try {
-        const [rows] = await db.query(`
-            SELECT id, name, stock, image_url as image, sku
-            FROM products 
-            WHERE stock < 5 
-            ORDER BY stock ASC
-            LIMIT 10
-        `);
-        res.status(200).json(rows);
+        const sql = `
+          SELECT id, name, quantity, image_url
+          FROM products
+          WHERE quantity < 5 AND is_deleted = 0
+          LIMIT 10
+        `;
+        const [products] = await db.query(sql);
+        res.json(products);
     } catch (error) {
-        next(error);
+        console.error('Low Stock Error:', error);
+        res.status(500).json({ message: 'Server Error' });
     }
 }
 

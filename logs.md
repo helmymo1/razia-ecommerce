@@ -2329,3 +2329,30 @@ Stack: Error: Not Found - /api/addresses/cd3fe057-901f-41f9-aa34-72c0acac04ff
     at Function.handle (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\index.js:175:3)
     at router (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\index.js:47:12)
 
+[2026-01-15T22:49:49.236Z] GET /api/dashboard/recent-orders - Unknown column 'o.total_amount' in 'field list'
+Stack: Error: Unknown column 'o.total_amount' in 'field list'
+    at PromisePool.query (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\mysql2\lib\promise\pool.js:36:22)
+    at getRecentOrders (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\controllers\dashboardController.js:68:33)
+    at Layer.handle [as handle_request] (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\route.js:149:13)
+    at authStatusCheck (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\middleware\authStatusCheck.js:23:9)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+
+[2026-01-15T22:49:49.268Z] GET /api/dashboard/best-sellers - Unknown column 'p.name' in 'field list'
+Stack: Error: Unknown column 'p.name' in 'field list'
+    at PromisePool.query (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\mysql2\lib\promise\pool.js:36:22)
+    at getBestSellers (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\controllers\dashboardController.js:86:33)
+    at Layer.handle [as handle_request] (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\route.js:149:13)
+    at authStatusCheck (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\middleware\authStatusCheck.js:23:9)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+
+[2026-01-15T22:49:49.309Z] GET /api/dashboard/low-stock - Unknown column 'name' in 'field list'
+Stack: Error: Unknown column 'name' in 'field list'
+    at PromisePool.query (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\mysql2\lib\promise\pool.js:36:22)
+    at getLowStock (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\controllers\dashboardController.js:105:33)
+    at Layer.handle [as handle_request] (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\route.js:149:13)
+    at authStatusCheck (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\middleware\authStatusCheck.js:23:9)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+
