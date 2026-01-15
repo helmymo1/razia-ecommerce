@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  backend:
+    build: ./backend
+    restart: always
+    ports:
+      - "5000:5000"
+    environment:
+      - NODE_ENV=development
+      - PORT=5000
+      - DB_HOST=db
+      - DB_USER=root
+      - DB_PASSWORD=your_root_password
+      - DB_NAME=ebazer_shop
+      - JWT_SECRET=your_jwt_secret_dev
+    depends_on:
+      - db
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+
+  db:
+    image: mysql:8.0
+    restart: always
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=your_root_password
+      - MYSQL_DATABASE=ebazer_shop
+    volumes:
+      - mysql_data:/var/lib/mysql
+      # Initialize DB with schema on first run
+      - ./backend/database_schema.sql:/docker-entrypoint-initdb.d/1_schema.sql
+
+volumes:
+  mysql_data:

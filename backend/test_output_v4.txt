@@ -1,0 +1,13 @@
+2026-01-13 12:17:48 [[32MINFO[39M]: Connected to MySQL Database
+2026-01-13 12:17:48 [[32MINFO[39M]: Starting Phase 1: Redis Reservation
+2026-01-13 12:17:48 [[32MINFO[39M]: Starting Phase 2: MySQL Transaction
+2026-01-13 12:17:48 [[32MINFO[39M]: POST /api/orders 201 - 77ms - IP: ::ffff:127.0.0.1
+PASS tests/integration/security_order.test.js (6.204 s)
+  Security: Secure Order Creation
+    ΓêÜ should IGNORE client-provided price and use DB price (126 ms)
+
+Test Suites: 1 passed, 1 total
+Tests:       1 passed, 1 total
+Snapshots:   0 total
+Time:        6.586 s
+Ran all test suites matching backend/tests/integration/security_order.test.js.

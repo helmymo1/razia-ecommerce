@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>API Connection Diagnostics</title>
+    <style>
+        body { font-family: monospace; padding: 20px; background: #222; color: #eee; }
+        .log-entry { margin-bottom: 5px; border-bottom: 1px solid #444; padding: 5px; }
+        .success { color: #4f4; }
+        .error { color: #f44; }
+        .info { color: #4af; }
+        button { padding: 10px 20px; font-size: 16px; cursor: pointer; background: #444; color: white; border: 1px solid #666; }
+        button:hover { background: #555; }
+    </style>
+</head>
+<body>
+    <h1>🔌 API Connection Diagnostics</h1>
+    <p>Use this page to verify if your browser can talk to the backend.</p>
+    
+    <div>
+        <button onclick="runDiagnostics()">Run Diagnostics 🚀</button>
+        <button onclick="window.location.href='user-list.html'">Go to User List</button>
+        <button onclick="window.location.href='login.html'">Go to Login</button>
+    </div>
+
+    <div id="logs" style="margin-top: 20px; border: 1px solid #666; padding: 10px; min-height: 300px;"></div>
+
+    <!-- Load Dependencies -->
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="assets/js/api.js"></script>
+
+    <script>
+        const logDiv = document.getElementById('logs');
+
+        function log(msg, type = 'info') {
+            const div = document.createElement('div');
+            div.className = `log-entry ${type}`;
+            div.textContent = `${new Date().toLocaleTimeString()} - ${msg}`;
+            logDiv.appendChild(div);
+            console.log(msg);
+        }
+
+        async function runDiagnostics() {
+            logDiv.innerHTML = '';
+            log("Starting diagnostics...", 'info');
+
+            // 1. Check Dependencies
+            if (typeof axios !== 'undefined') {
+                log("✅ Axios is loaded", 'success');
+            } else {
+                log("❌ Axios is MISSING", 'error');
+                return;
+            }
+
+            if (window.api && window.apiClient) {
+                log("✅ API Client is loaded", 'success');
+            } else {
+                log("❌ API Client is MISSING (check api.js)", 'error');
+                return;
+            }
+
+            // 2. Check Auth Status (Local)
+            const token = localStorage.getItem('token'); // Not used by cookie auth but check anyway
+            const isLoggedIn = localStorage.getItem('isLoggedIn');
+            log(`ℹ️ LocalStorage Status: isLoggedIn=${isLoggedIn}`, 'info');
+
+            // 3. Test Endpoint: Public (Categories)
+            try {
+                log("🔄 Testing Public Endpoint (Categories)...", 'info');
+                const cats = await api.get('/categories');
+                log(`✅ Categories fetch success! Found ${cats.length} categories.`, 'success');
+            } catch (err) {
+                log(`❌ Categories fetch failed: ${err.message}`, 'error');
+                if (err.response) log(`   Status: ${err.response.status}`, 'error');
+            }
+
+            // 4. Test Endpoint: Protected (Me)
+            try {
+                log("🔄 Testing Protected Endpoint (Auth Check)...", 'info');
+                const me = await api.auth.me();
+                log(`✅ Auth Check success! User: ${me.data.name} (${me.data.email})`, 'success');
+            } catch (err) {
+                log(`❌ Auth Check failed: ${err.message}`, 'error');
+                if (err.response) {
+                     log(`   Status: ${err.response.status}`, 'error');
+                     if (err.response.status === 401) {
+                         log("⚠️ You are NOT logged in. Cookies might be missing or blocked.", 'error');
+                         log("👉 Please go to Login page and try again.", 'info');
+                     }
+                }
+            }
+
+            // 5. Test Endpoint: Users
+            try {
+                log("🔄 Testing Users List...", 'info');
+                const users = await api.get('/users');
+                log(`✅ Users fetch success! Found ${users.length} users.`, 'success');
+                console.table(users);
+            } catch (err) {
+                log(`❌ Users fetch failed: ${err.message}`, 'error');
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>eBazer - Tailwind CSS eCommerce Admin Template</title>
+    <link rel="shortcut icon" href="assets/img/logo/favicon.png" type="image/x-icon">
+
+    <!-- css links -->
+    <link rel="stylesheet" href="assets/css/perfect-scrollbar.css">
+    <link rel="stylesheet" href="assets/css/choices.css">
+    <link rel="stylesheet" href="assets/css/apexcharts.css">
+    <link rel="stylesheet" href="assets/css/quill.css">
+    <link rel="stylesheet" href="assets/css/rangeslider.css">
+    <link rel="stylesheet" href="assets/css/custom.css">
+    <link rel="stylesheet" href="assets/css/main.css">
+</head>
+<body>
+
+    <!--  -->
+    <div class="tp-main-wrapper bg-slate-100 h-screen" x-data="{ sideMenu: false }">
+        <aside class="w-[300px] lg:w-[250px] xl:w-[300px] border-r border-gray overflow-y-scroll sidebar-scrollbar fixed left-0 top-0 h-full bg-white z-50 transition-transform duration-300" :class="sideMenu ? 'translate-x-[0px]' : ' -translate-x-[300px] lg:translate-x-[0]'">
+            <div class="">
+                <div class="py-4 pb-8 px-8 border-b border-gray h-[78px]">
+                    <a href="index.html">
+                        <img class="w-[140px]" src="assets/img/logo/logo.svg" alt="">
+                    </a>
+                </div>
+                <div class="px-4 py-5" x-data="{nav:null}">
+                    <ul>
+                        <li>
+                            <a 
+                            @click="nav !== 0 ? nav = 0 : nav = null" 
+                            :class="nav == 0 ? 'bg-themeLight hover:bg-themeLight text-theme' : ''"
+                            href="index.html" 
+                            class="group rounded-md relative text-black text-lg font-medium inline-flex items-center w-full transition-colors ease-in-out duration-300 px-5 py-[9px] mb-2 hover:bg-gray sidebar-link-active"
+
+                            >
+                                <span class="inline-block  mr-[10px] text-xl" >
+                                    <svg class="-translate-y-[4px]" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16">
+                                        <path fill="currentColor" d="M7,0H4A4,4,0,0,0,0,4V7a4,4,0,0,0,4,4H7a4,4,0,0,0,4-4V4A4,4,0,0,0,7,0ZM9,7A2,2,0,0,1,7,9H4A2,2,0,0,1,2,7V4A2,2,0,0,1,4,2H7A2,2,0,0,1,9,4Z"/>
+                                        <path fill="currentColor" d="M20,0H17a4,4,0,0,0-4,4V7a4,4,0,0,0,4,4h3a4,4,0,0,0,4-4V4A4,4,0,0,0,20,0Zm2,7a2,2,0,0,1-2,2H17a2,2,0,0,1-2-2V4a2,2,0,0,1,2-2h3a2,2,0,0,1,2,2Z"/>
+                                        <path fill="currentColor" d="M7,13H4a4,4,0,0,0-4,4v3a4,4,0,0,0,4,4H7a4,4,0,0,0,4-4V17A4,4,0,0,0,7,13Zm2,7a2,2,0,0,1-2,2H4a2,2,0,0,1-2-2V17a2,2,0,0,1,2-2H7a2,2,0,0,1,2,2Z"/>
+                                        <path fill="currentColor" d="M20,13H17a4,4,0,0,0-4,4v3a4,4,0,0,0,4,4h3a4,4,0,0,0,4-4V17A4,4,0,0,0,20,13Zm2,7a2,2,0,0,1-2,2H17a2,2,0,0,1-2-2V17a2,2,0,0,1,2-2h3a2,2,0,0,1,2,2Z"/></svg>
+                                </span>
+                                Dashboard
+                            </a>
+                        </li>
+                        <li>
+                            <a 
+                            @click="nav !== 1 ? nav = 1 : nav = null"  
+                            :class="nav == 1 ? 'bg-themeLight hover:bg-themeLight text-theme' : ''" 
+                            href="javascript:void(0);" 
+                            class="group rounded-md relative text-black text-lg font-medium inline-flex items-center w-full transition-colors ease-in-out duration-300 px-5 py-[9px] mb-3 hover:bg-gray sidebar-link-active">
+                                <span class="inline-block translate-y-[1px] mr-[10px] text-xl" >
+                                    <svg class="-translate-y-[4px]" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16">
+                                        <path fill="currentColor" d="M23.621,6.836l-1.352-2.826c-.349-.73-.99-1.296-1.758-1.552L14.214,.359c-1.428-.476-3-.476-4.428,0L3.49,2.458c-.769,.256-1.41,.823-1.759,1.554L.445,6.719c-.477,.792-.567,1.742-.247,2.609,.309,.84,.964,1.49,1.802,1.796l-.005,6.314c-.002,2.158,1.372,4.066,3.418,4.748l4.365,1.455c.714,.238,1.464,.357,2.214,.357s1.5-.119,2.214-.357l4.369-1.457c2.043-.681,3.417-2.585,3.419-4.739l.005-6.32c.846-.297,1.508-.946,1.819-1.79,.317-.858,.228-1.799-.198-2.499ZM10.419,2.257c1.02-.34,2.143-.34,3.162,0l4.248,1.416-5.822,1.95-5.834-1.95,4.246-1.415ZM2.204,7.666l1.327-2.782c.048,.025,7.057,2.373,7.057,2.373l-1.621,3.258c-.239,.398-.735,.582-1.173,.434l-5.081-1.693c-.297-.099-.53-.325-.639-.619-.109-.294-.078-.616,.129-.97Zm3.841,12.623c-1.228-.409-2.052-1.554-2.051-2.848l.005-5.648,3.162,1.054c1.344,.448,2.792-.087,3.559-1.371l.278-.557-.005,10.981c-.197-.04-.391-.091-.581-.155l-4.366-1.455Zm11.897-.001l-4.37,1.457c-.19,.063-.384,.115-.581,.155l.005-10.995,.319,.64c.556,.928,1.532,1.459,2.561,1.459,.319,0,.643-.051,.96-.157l3.161-1.053-.005,5.651c0,1.292-.826,2.435-2.052,2.844Zm4-11.644c-.105,.285-.331,.504-.619,.6l-5.118,1.706c-.438,.147-.934-.035-1.136-.365l-1.655-3.323s7.006-2.351,7.054-2.377l1.393,2.901c.157,.261,.186,.574,.081,.859Z"/></svg>
+                                </span>
+                                Products
+
+                                <span class="absolute right-4 top-[52%] transition-transform duration-300 origin-center w-4 h-4" :class="nav == 1 ? 'translate-y-[-10px] rotate-90' : 'translate-y-[-10px]'">
+                                    <svg class="-translate-y-[5px]"  xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16"><path fill="currentColor" d="M15.4,9.88,10.81,5.29a1,1,0,0,0-1.41,0,1,1,0,0,0,0,1.42L14,11.29a1,1,0,0,1,0,1.42L9.4,17.29a1,1,0,0,0,1.41,1.42l4.59-4.59A3,3,0,0,0,15.4,9.88Z"/></svg>
+                                </span>
+                            </a>
+                            <ul x-show="nav == 1" class="pl-[42px] pr-[20px] pb-3">
+                                <li>
+                                    <a href="product-list.html" class="block font-normal w-full text-[#6D6F71] hover:text-theme nav-dot">Product List</a>
+                                </li>
+                                <li>
+                                    <a href="product-grid.html" class="block font-normal w-full text-[#6D6F71] hover:text-theme nav-dot">Product Grid</a>
+                                </li>
+                                <li>
+                                    <a href="add-product.html" class="block font-normal w-full text-[#6D6F71] hover:text-theme nav-dot">Add Product</a>
+                                </li>
+                                <li>
+                                    <a href="edit-product.html" class="block font-normal w-full text-[#6D6F71] hover:text-theme nav-dot">Edit Product</a>
+                                </li>
+                            </ul>
+                        </li>
+                        <li>
+                            <a 
+                            href="category.html" 
+                            class="group rounded-md relative text-black text-lg font-medium inline-flex items-center w-full transition-colors ease-in-out duration-300 px-5 py-[9px] mb-3 hover:bg-gray sidebar-link-active">
+                                <span class="inline-block translate-y-[1px] mr-[10px] text-xl">
+                                    <svg class="-translate-y-[4px]"  xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16">
+                                        <path fill="currentColor" d="M22.713,4.077A2.993,2.993,0,0,0,20.41,3H4.242L4.2,2.649A3,3,0,0,0,1.222,0H1A1,1,0,0,0,1,2h.222a1,1,0,0,1,.993.883l1.376,11.7A5,5,0,0,0,8.557,19H19a1,1,0,0,0,0-2H8.557a3,3,0,0,1-2.82-2h11.92a5,5,0,0,0,4.921-4.113l.785-4.354A2.994,2.994,0,0,0,22.713,4.077ZM21.4,6.178l-.786,4.354A3,3,0,0,1,17.657,13H5.419L4.478,5H20.41A1,1,0,0,1,21.4,6.178Z"/><circle fill="currentColor" cx="7" cy="22" r="2"/><circle fill="currentColor" cx="17" cy="22" r="2"/></svg>
+                                </span>
+                                Categories
+
+                            </a>
+                        </li>
+                        <li class="hidden">
+                            <a 
+                            @click="nav !== 3 ? nav = 3 : nav = null" 
+                            :class="nav == 3 ? 'bg-themeLight hover:bg-themeLight text-theme' : ''" 
+                            href="javascript:void(0);" 
+                            class="group rounded-md relative text-black text-lg font-medium inline-flex items-center w-full transition-colors ease-in-out duration-300 px-5 py-[9px] mb-3 hover:bg-gray sidebar-link-active">
+                                <span class="inline-block translate-y-[1px] mr-[10px] text-xl">
+                                    <svg class="-translate-y-[4px]" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16">
+                                        <path fill="currentColor" d="M12,16a4,4,0,1,1,4-4A4,4,0,0,1,12,16Zm0-6a2,2,0,1,0,2,2A2,2,0,0,0,12,10Zm6,13A6,6,0,0,0,6,23a1,1,0,0,0,2,0,4,4,0,0,1,8,0,1,1,0,0,0,2,0ZM18,8a4,4,0,1,1,4-4A4,4,0,0,1,18,8Zm0-6a2,2,0,1,0,2,2A2,2,0,0,0,18,2Zm6,13a6.006,6.006,0,0,0-6-6,1,1,0,0,0,0,2,4,4,0,0,1,4,4,1,1,0,0,0,2,0ZM6,8a4,4,0,1,1,4-4A4,4,0,0,1,6,8ZM6,2A2,2,0,1,0,8,4,2,2,0,0,0,6,2ZM2,15a4,4,0,0,1,4-4A1,1,0,0,0,6,9a6.006,6.006,0,0,0-6,6,1,1,0,0,0,2,0Z"/></svg>
+                                </span>
+                                Customers
+
+                                <span class="absolute right-4 top-[52%] transition-transform duration-300 origin-center w-4 h-4" :class="nav == 3 ? 'translate-y-[-10px] rotate-90' : 'translate-y-[-10px]'">
+                                    <svg class="-translate-y-[5px]"  xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16"><path fill="currentColor" d="M15.4,9.88,10.81,5.29a1,1,0,0,0-1.41,0,1,1,0,0,0,0,1.42L14,11.29a1,1,0,0,1,0,1.42L9.4,17.29a1,1,0,0,0,1.41,1.42l4.59-4.59A3,3,0,0,0,15.4,9.88Z"/></svg>
+                                </span>
+                            </a>
+                            <ul x-show="nav == 3" class="pl-[42px] pr-[20px] pb-3">
+                                <li>
+                                    <a href="customer-list.html" class="block font-normal w-full text-[#6D6F71] hover:text-theme nav-dot">Customers List</a>
+                                </li>
+                                <li>
+                                    <a href="#" class="block font-normal w-full text-[#6D6F71] hover:text-theme nav-dot">Customer Details</a>
+                                </li>
+                            </ul>
+                        </li>
+                        <li>
+                            <a 
+                            @click="nav !== 4 ? nav = 4 : nav = null" 
+                            :class="nav == 4 ? 'bg-themeLight hover:bg-themeLight text-theme' : ''"
+                            href="javascript:void(0);" 
+                            class="group rounded-md relative text-black text-lg font-medium inline-flex items-center w-full transition-colors ease-in-out duration-300 px-5 py-[9px] mb-3 hover:bg-gray sidebar-link-active">
+                                <span class="inline-block translate-y-[1px] mr-[10px] text-xl">
+                                    <svg class="-translate-y-[4px]" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16"><path fill="currentColor" d="m11.349,24H0V3C0,1.346,1.346,0,3,0h12c1.654,0,3,1.346,3,3v5.059c-.329-.036-.662-.059-1-.059s-.671.022-1,.059V3c0-.552-.448-1-1-1H3c-.552,0-1,.448-1,1v19h7.518c.506.756,1.125,1.429,1.831,2Zm0-14h-7.349v2h5.518c.506-.756,1.125-1.429,1.831-2Zm-7.349,7h4c0-.688.084-1.356.231-2h-4.231v2Zm20,0c0,3.859-3.141,7-7,7s-7-3.141-7-7,3.141-7,7-7,7,3.141,7,7Zm-2,0c0-2.757-2.243-5-5-5s-5,2.243-5,5,2.243,5,5,5,5-2.243,5-5ZM14,5H4v2h10v-2Zm5.589,9.692l-3.228,3.175-1.63-1.58-1.393,1.436,1.845,1.788c.314.315.733.489,1.179.489s.865-.174,1.173-.482l3.456-3.399-1.402-1.426Z"/></svg>
+                                </span>
+                                Orders
+
+                                <span class="absolute right-4 top-[52%] transition-transform duration-300 origin-center w-4 h-4" :class="nav == 4 ? 'translate-y-[-10px] rotate-90' : 'translate-y-[-10px]'">
+                                    <svg class="-translate-y-[5px]"  xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16"><path fill="currentColor" d="M15.4,9.88,10.81,5.29a1,1,0,0,0-1.41,0,1,1,0,0,0,0,1.42L14,11.29a1,1,0,0,1,0,1.42L9.4,17.29a1,1,0,0,0,1.41,1.42l4.59-4.59A3,3,0,0,0,15.4,9.88Z"/></svg>
+                                </span>
+                            </a>
+                            <ul x-show="nav == 4" class="pl-[42px] pr-[20px] pb-3">
+                                <li>
+                                    <a href="order-list.html" class="block font-normal w-full text-[#6D6F71] hover:text-theme nav-dot">Orders List</a>
+                                </li>
+                                <li>
+                                    <a href="order-details.html" class="block font-normal w-full text-[#6D6F71] hover:text-theme nav-dot">Order Details</a>
+                                </li>
+                                <li>
+                                    <a href="transaction.html" class="block font-normal w-full text-[#6D6F71] hover:text-theme nav-dot">Transactions</a>
+                                </li>
+                            </ul>
+                        </li>
+                        <li>
+                            <a 
+                            href="reviews.html" 
+                            class="group rounded-md relative text-black text-lg font-medium inline-flex items-center w-full transition-colors ease-in-out duration-300 px-5 py-[9px] mb-3 hover:bg-gray sidebar-link-active">
+                                <span class="inline-block translate-y-[1px] mr-[10px] text-xl">
+                                    <svg class="-translate-y-[3px]" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16"><path fill="currentColor" d="M12.01,23.67c-.48,0-.96-.17-1.34-.51l-3.75-3.16h-2.92c-2.21,0-4-1.79-4-4V4C0,1.79,1.79,0,4,0H20c2.21,0,4,1.79,4,4v12c0,2.21-1.79,4-4,4h-2.85l-3.85,3.18c-.36,.32-.83,.49-1.29,.49ZM4,2c-1.1,0-2,.9-2,2v12c0,1.1,.9,2,2,2h3.29c.24,0,.46,.08,.64,.24l4.05,3.41,4.17-3.42c.18-.15,.4-.23,.64-.23h3.21c1.1,0,2-.9,2-2V4c0-1.1-.9-2-2-2H4Zm5.01,13.35c-.19,0-.39-.06-.55-.18-.31-.23-.44-.64-.32-1.01l.86-2.76-2.18-1.77c-.29-.25-.4-.65-.27-1.01,.13-.36,.48-.6,.86-.6h2.75l.97-2.61c.13-.36,.48-.6,.86-.6s.73,.24,.86,.6l.97,2.61h2.75c.38,0,.73,.24,.86,.6s.02,.77-.27,1.02l-2.17,1.77,.9,2.73c.12,.37,0,.78-.31,1.01-.31,.24-.73,.25-1.06,.04l-2.52-1.64-2.48,1.66c-.15,.1-.33,.15-.51,.15Z"/></svg>
+                                </span>
+                                Reviews
+                            </a>
+                        </li>
+                        <li>
+                            <a 
+                            href="coupon.html" 
+                            class="group rounded-md relative text-black text-lg font-medium inline-flex items-center w-full transition-colors ease-in-out duration-300 px-5 py-[9px] mb-3 hover:bg-gray sidebar-link-active">
+                                <span class="inline-block translate-y-[1px] mr-[10px] text-xl">
+                                    <svg class="-translate-y-[4px]" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16">
+                                        <path fill="currentColor" d="M16,0h-.13a2.02,2.02,0,0,0-1.941,1.532,2,2,0,0,1-3.858,0A2.02,2.02,0,0,0,8.13,0H8A5.006,5.006,0,0,0,3,5V21a3,3,0,0,0,3,3H8.13a2.02,2.02,0,0,0,1.941-1.532,2,2,0,0,1,3.858,0A2.02,2.02,0,0,0,15.87,24H18a3,3,0,0,0,3-3V5A5.006,5.006,0,0,0,16,0Zm2,22-2.143-.063A4,4,0,0,0,8.13,22H6a1,1,0,0,1-1-1V17H7a1,1,0,0,0,0-2H5V5A3,3,0,0,1,8,2l.143.063A4.01,4.01,0,0,0,12,5a4.071,4.071,0,0,0,3.893-3H16a3,3,0,0,1,3,3V15H17a1,1,0,0,0,0,2h2v4A1,1,0,0,1,18,22Z"/><path fill="currentColor" d="M13,15H11a1,1,0,0,0,0,2h2a1,1,0,0,0,0-2Z"/></svg>
+                                </span>
+                                Coupons
+                            </a>
+                        </li>
+                        <li>
+                            <a 
+                            href="profile.html" 
+                            class="group rounded-md relative text-black text-lg font-medium inline-flex items-center w-full transition-colors ease-in-out duration-300 px-5 py-[9px] mb-3 hover:bg-gray sidebar-link-active">
+                                <span class="inline-block translate-y-[1px] mr-[10px] text-xl">
+                                    <svg class="-translate-y-[4px]" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16"><path fill="currentColor" d="m12,0C5.383,0,0,5.383,0,12s5.383,12,12,12,12-5.383,12-12S18.617,0,12,0Zm-4,21.164v-.164c0-2.206,1.794-4,4-4s4,1.794,4,4v.164c-1.226.537-2.578.836-4,.836s-2.774-.299-4-.836Zm9.925-1.113c-.456-2.859-2.939-5.051-5.925-5.051s-5.468,2.192-5.925,5.051c-2.47-1.823-4.075-4.753-4.075-8.051C2,6.486,6.486,2,12,2s10,4.486,10,10c0,3.298-1.605,6.228-4.075,8.051Zm-5.925-15.051c-2.206,0-4,1.794-4,4s1.794,4,4,4,4-1.794,4-4-1.794-4-4-4Zm0,6c-1.103,0-2-.897-2-2s.897-2,2-2,2,.897,2,2-.897,2-2,2Z"/></svg>
+                                </span>
+                                Profile
+                            </a>
+                        </li>
+                    </ul>
+                    <div class="border-t border-gray pt-3 mt-3" x-data="{moreNav:null}">
+                        <a 
+                            href="site-settings.html" 
+                            class="group rounded-md relative text-black text-lg font-medium inline-flex items-center w-full transition-colors ease-in-out duration-300 px-5 py-[9px] mb-3 hover:bg-gray sidebar-link-active">
+                                <span class="inline-block translate-y-[1px] mr-[10px] text-xl">
+                                        <svg class="-translate-y-[3px]" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16">
+                                            <path fill="currentColor" d="M24,10a.988.988,0,0,0-.024-.217l-1.3-5.868A4.968,4.968,0,0,0,17.792,0H6.208a4.968,4.968,0,0,0-4.88,3.915L.024,9.783A.988.988,0,0,0,0,10v1a3.984,3.984,0,0,0,1,2.643V19a5.006,5.006,0,0,0,5,5H18a5.006,5.006,0,0,0,5-5V13.643A3.984,3.984,0,0,0,24,11ZM2,10.109l1.28-5.76A2.982,2.982,0,0,1,6.208,2H7V5A1,1,0,0,0,9,5V2h6V5a1,1,0,0,0,2,0V2h.792A2.982,2.982,0,0,1,20.72,4.349L22,10.109V11a2,2,0,0,1-2,2H19a2,2,0,0,1-2-2,1,1,0,0,0-2,0,2,2,0,0,1-2,2H11a2,2,0,0,1-2-2,1,1,0,0,0-2,0,2,2,0,0,1-2,2H4a2,2,0,0,1-2-2ZM18,22H6a3,3,0,0,1-3-3V14.873A3.978,3.978,0,0,0,4,15H5a3.99,3.99,0,0,0,3-1.357A3.99,3.99,0,0,0,11,15h2a3.99,3.99,0,0,0,3-1.357A3.99,3.99,0,0,0,19,15h1a3.978,3.978,0,0,0,1-.127V19A3,3,0,0,1,18,22Z"/>
+                                        </svg>
+                                </span>
+                                Shop Settings
+                            </a>
+
+                            <a 
+                            @click="moreNav !== 1 ? moreNav = 1 : moreNav = null"  
+                            :class="moreNav == 1 ? 'bg-themeLight hover:bg-themeLight text-theme' : ''" 
+                            href="javascript:void(0);" 
+                            class="group rounded-md relative text-black text-lg font-medium inline-flex items-center w-full transition-colors ease-in-out duration-300 px-5 py-[9px] mb-3 hover:bg-gray sidebar-link-active">
+                                <span class="inline-block translate-y-[1px] mr-[10px] text-xl" >
+                                    <svg class="-translate-y-[5px]" height="16" viewBox="-78 -18 560 560.00187" width="16" xmlns="http://www.w3.org/2000/svg">
+                                        <path fill="currentColor" d="m260.722656 3.878906-.128906-.125c-2.355469-2.429687-5.605469-3.7890622-8.996094-3.74999975-.417968-.01953125-.839844.01953125-1.25.12890575h-191.953125c-34.503906.007813-62.46875 27.976563-62.484375 62.484376v399.898437c.015625 34.503906 27.980469 62.472656 62.484375 62.484375h278.308594c34.503906-.011719 62.472656-27.980469 62.484375-62.484375v-315.175781c-.023438-3.308594-1.320312-6.484375-3.625-8.867188zm3.371094 38.742188 92.726562 92.476562h-55.234374c-20.679688-.0625-37.433594-16.8125-37.492188-37.488281zm72.734375 457.261718h-278.433594c-20.679687-.058593-37.425781-16.8125-37.492187-37.492187v-399.902344c.066406-20.675781 16.8125-37.429687 37.492187-37.488281h180.707031v72.609375c.011719 34.5 27.980469 62.46875 62.484376 62.484375h72.609374v302.296875c.039063 20.671875-16.695312 37.464844-37.367187 37.492187zm0 0"/>
+                                        <path fill="currentColor" d="m76.015625 241.195312h135.09375c6.898437 0 12.5-5.59375 12.5-12.496093 0-6.902344-5.601563-12.496094-12.5-12.496094h-135.09375c-6.902344 0-12.496094 5.59375-12.496094 12.496094 0 6.902343 5.59375 12.496093 12.496094 12.496093zm0 0"/>
+                                        <path fill="currentColor" d="m319.207031 310.679688h-243.191406c-6.902344 0-12.496094 5.59375-12.496094 12.496093 0 6.898438 5.59375 12.496094 12.496094 12.496094h243.191406c6.898438 0 12.5-5.597656 12.5-12.496094 0-6.902343-5.601562-12.496093-12.5-12.496093zm0 0"/>
+                                        <path fill="currentColor" d="m319.207031 405.28125h-243.191406c-6.902344 0-12.496094 5.59375-12.496094 12.496094s5.59375 12.496094 12.496094 12.496094h243.191406c6.898438 0 12.5-5.59375 12.5-12.496094s-5.601562-12.496094-12.5-12.496094zm0 0"/>
+                                        </svg>
+                                </span>
+                                Pages
+
+                                <span class="absolute right-4 top-[52%] transition-transform duration-300 origin-center w-4 h-4" :class="moreNav == 1 ? 'translate-y-[-10px] rotate-90' : 'translate-y-[-10px]'">
+                                    <svg class="-translate-y-[5px]" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16"><path fill="currentColor" d="M15.4,9.88,10.81,5.29a1,1,0,0,0-1.41,0,1,1,0,0,0,0,1.42L14,11.29a1,1,0,0,1,0,1.42L9.4,17.29a1,1,0,0,0,1.41,1.42l4.59-4.59A3,3,0,0,0,15.4,9.88Z"/></svg>
+                                </span>
+                            </a>
+                            <ul x-show="moreNav == 1" class="pl-[42px] pr-[20px] pb-3">
+                                <li>
+                                    <a href="blank.html" class="block font-normal w-full text-[#6D6F71] hover:text-theme nav-dot">Blank Page</a>
+                                </li>
+                                <li>
+                                    <a href="register.html" class="block font-normal w-full text-[#6D6F71] hover:text-theme nav-dot">Register</a>
+                                </li>
+                                <li>
+                                    <a href="login.html" class="block font-normal w-full text-[#6D6F71] hover:text-theme nav-dot">Login</a>
+                                </li>
+                                <li>
+                                    <a href="forgot.html" class="block font-normal w-full text-[#6D6F71] hover:text-theme nav-dot">Forgot Password</a>
+                                </li>
+                                <li>
+                                    <a href="otp.html" class="block font-normal w-full text-[#6D6F71] hover:text-theme nav-dot">Verify OTP</a>
+                                </li>
+                                <li>
+                                    <a href="verify-mail.html" class="block font-normal w-full text-[#6D6F71] hover:text-theme nav-dot">Verify Mail</a>
+                                </li>
+                            </ul>
+                        
+                    </div>
+                </div>
+            </div>
+
+        </aside>
+
+        <div class="fixed top-0 left-0 w-full h-full z-40 bg-black/70 transition-all duration-300" :class="sideMenu ? 'visible opacity-1' : '  invisible opacity-0 '" x-on:click="sideMenu = ! sideMenu"> </div>
+
+        <div class="tp-main-content lg:ml-[250px] xl:ml-[300px] w-[calc(100% - 300px)]"  x-data="{ searchOverlay: false }">
+
+            <header class="relative z-10 bg-white border-b border-gray border-solid py-5 px-8 pr-8">
+                <div class="flex justify-between">
+                    <div class="flex items-center space-x-6 lg:space-x-0">
+                        <button type="button" class="block lg:hidden text-2xl text-black" x-on:click="sideMenu = ! sideMenu">
+                            <svg width="20" height="12" viewBox="0 0 20 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M1 1H19" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                <path d="M1 6H19" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                <path d="M1 11H19" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                            </svg>
+                        </button>
+                        <div class="w-[30%] hidden md:block">
+                            <form action="#">
+                                <div class="w-[250px] relative">
+                                    <input class="input h-12 w-full pr-[45px]" type="text" placeholder="Search Here...">
+                                    <button class="absolute top-1/2 right-6 translate-y-[-50%] hover:text-theme">
+                                        <svg class="-translate-y-[2px]" width="16" height="16" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M9 17C13.4183 17 17 13.4183 17 9C17 4.58172 13.4183 1 9 1C4.58172 1 1 4.58172 1 9C1 13.4183 4.58172 17 9 17Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+                                            <path d="M18.9999 19L14.6499 14.65" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+                                         </svg>
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                   
+                    <div class="flex items-center justify-end space-x-6">
+                        <div class="md:hidden">
+                            <button class="relative w-[40px] h-[40px] leading-[40px] rounded-md text-textBody border border-gray hover:bg-themeLight hover:text-theme hover:border-themeLight" x-on:click="searchOverlay = ! searchOverlay">
+                                <svg class="-translate-y-[2px]" width="16" height="16" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M9 17C13.4183 17 17 13.4183 17 9C17 4.58172 13.4183 1 9 1C4.58172 1 1 4.58172 1 9C1 13.4183 4.58172 17 9 17Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+                                    <path d="M18.9999 19L14.6499 14.65" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+                                 </svg>
+                            </button>
+                        </div>
+                        <div class="relative" x-data="{ notificationTable: false }">
+                            <button x-on:click="notificationTable = ! notificationTable" class="relative w-[40px] h-[40px] leading-[40px] rounded-md text-gray border border-gray hover:bg-themeLight hover:text-theme hover:border-themeLight">
+                                <svg class="-translate-y-[1px]" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16">
+                                <g>
+                                    <path stroke="currentColor" d="M23.259,16.2l-2.6-9.371A9.321,9.321,0,0,0,2.576,7.3L.565,16.35A3,3,0,0,0,3.493,20H7.1a5,5,0,0,0,9.8,0h3.47a3,3,0,0,0,2.89-3.8ZM12,22a3,3,0,0,1-2.816-2h5.632A3,3,0,0,1,12,22Zm9.165-4.395a.993.993,0,0,1-.8.395H3.493a1,1,0,0,1-.976-1.217l2.011-9.05a7.321,7.321,0,0,1,14.2-.372l2.6,9.371A.993.993,0,0,1,21.165,17.605Z"/></g>
+                                </svg>
+                                <span class="w-[20px] h-[20px] inline-block bg-danger rounded-full absolute -top-[4px] -right-[4px] border-[2px] border-white text-xs leading-[18px] font-medium text-white">05</span>
+                            </button>
+                            <div
+                                x-show="notificationTable"
+                                x-on:click.outside="notificationTable = false"
+                                x-transition:enter="transition ease-out duration-200 origin-top"
+                                x-transition:enter-start="opacity-0 scale-y-90"
+                                x-transition:enter-end="opacity-100 scale-y-100"
+                                x-transition:leave="transition ease-in duration-200 origin-top"
+                                x-transition:leave-start="opacity-100 scale-y-200"
+                                x-transition:leave-end="opacity-0 scale-y-90"
+                                class="absolute w-[280px] sm:w-[350px] h-[285px] overflow-y-scroll overflow-item top-full -right-[60px] sm:right-0 shadow-lg rounded-md bg-white py-5 px-5"
+                            >
+
+                            <div class="flex items-center justify-between last:border-0 border-b border-gray pb-4 mb-4 last:pb-0 last:mb-0">
+                                <div class="flex items-center space-x-3">
+                                    <div class="">
+                                        <img class="w-[40px] h-[40px] rounded-md" src="assets/img/product/prodcut-1.jpg" alt="img">
+                                    </div>
+                                    <div class="">
+                                        <h5 class="text-base mb-0 leading-none">Green shirt for women</h5>
+                                        <span class="text-tiny leading-none">Jan 21, 2023 08:30 AM</span>
+                                    </div>
+                                </div>
+                                <div class="">
+                                    <button class="hover:text-danger">
+                                        <svg class="-translate-y-[3px]" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16">
+                                        <path fill="currentColor" d="M18,6h0a1,1,0,0,0-1.414,0L12,10.586,7.414,6A1,1,0,0,0,6,6H6A1,1,0,0,0,6,7.414L10.586,12,6,16.586A1,1,0,0,0,6,18H6a1,1,0,0,0,1.414,0L12,13.414,16.586,18A1,1,0,0,0,18,18h0a1,1,0,0,0,0-1.414L13.414,12,18,7.414A1,1,0,0,0,18,6Z"/></svg>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="flex items-center justify-between last:border-0 border-b border-gray pb-4 mb-4 last:pb-0 last:mb-0">
+                                <div class="flex items-center space-x-3">
+                                    <div class="">
+                                        <img class="w-[40px] h-[40px] rounded-md" src="assets/img/product/prodcut-2.jpg" alt="img">
+                                    </div>
+                                    <div class="">
+                                        <h5 class="text-base mb-0 leading-none">Red School Bag</h5>
+                                        <span class="text-tiny leading-none">Jan 25, 2023 10:05 PM</span>
+                                    </div>
+                                </div>
+                                <div class="">
+                                    <button class="hover:text-danger">
+                                        <svg class="-translate-y-[3px]" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16">
+                                        <path fill="currentColor" d="M18,6h0a1,1,0,0,0-1.414,0L12,10.586,7.414,6A1,1,0,0,0,6,6H6A1,1,0,0,0,6,7.414L10.586,12,6,16.586A1,1,0,0,0,6,18H6a1,1,0,0,0,1.414,0L12,13.414,16.586,18A1,1,0,0,0,18,18h0a1,1,0,0,0,0-1.414L13.414,12,18,7.414A1,1,0,0,0,18,6Z"/></svg>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="flex items-center justify-between last:border-0 border-b border-gray pb-4 mb-4 last:pb-0 last:mb-0">
+                                <div class="flex items-center space-x-3">
+                                    <div class="">
+                                        <img class="w-[40px] h-[40px] rounded-md" src="assets/img/product/prodcut-3.jpg" alt="img">
+                                    </div>
+                                    <div class="">
+                                        <h5 class="text-base mb-0 leading-none">Shoe for men</h5>
+                                        <span class="text-tiny leading-none">Feb 20, 2023 05:00 PM</span>
+                                    </div>
+                                </div>
+                                <div class="">
+                                    <button class="hover:text-danger">
+                                        <svg class="-translate-y-[3px]" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16">
+                                        <path fill="currentColor" d="M18,6h0a1,1,0,0,0-1.414,0L12,10.586,7.414,6A1,1,0,0,0,6,6H6A1,1,0,0,0,6,7.414L10.586,12,6,16.586A1,1,0,0,0,6,18H6a1,1,0,0,0,1.414,0L12,13.414,16.586,18A1,1,0,0,0,18,18h0a1,1,0,0,0,0-1.414L13.414,12,18,7.414A1,1,0,0,0,18,6Z"/></svg>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="flex items-center justify-between last:border-0 border-b border-gray pb-4 mb-4 last:pb-0 last:mb-0">
+                                <div class="flex items-center space-x-3">
+                                    <div class="">
+                                        <img class="w-[40px] h-[40px] rounded-md" src="assets/img/product/prodcut-4.jpg" alt="img">
+                                    </div>
+                                    <div class="">
+                                        <h5 class="text-base mb-0 leading-none">Yellow Bag for women</h5>
+                                        <span class="text-tiny leading-none">Feb 10, 2023 11:15 AM</span>
+                                    </div>
+                                </div>
+                                <div class="">
+                                    <button class="hover:text-danger">
+                                        <svg class="-translate-y-[3px]" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16">
+                                        <path fill="currentColor" d="M18,6h0a1,1,0,0,0-1.414,0L12,10.586,7.414,6A1,1,0,0,0,6,6H6A1,1,0,0,0,6,7.414L10.586,12,6,16.586A1,1,0,0,0,6,18H6a1,1,0,0,0,1.414,0L12,13.414,16.586,18A1,1,0,0,0,18,18h0a1,1,0,0,0,0-1.414L13.414,12,18,7.414A1,1,0,0,0,18,6Z"/></svg>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="flex items-center justify-between last:border-0 border-b border-gray pb-4 mb-4 last:pb-0 last:mb-0">
+                                <div class="flex items-center space-x-3">
+                                    <div class="">
+                                        <img class="w-[40px] h-[40px] rounded-md" src="assets/img/product/prodcut-5.jpg" alt="img">
+                                    </div>
+                                    <div class="">
+                                        <h5 class="text-base mb-0 leading-none">Blavk Bag for women</h5>
+                                        <span class="text-tiny leading-none">Feb 15, 2023 01:20 PM</span>
+                                    </div>
+                                </div>
+                                <div class="">
+                                    <button class="hover:text-danger">
+                                        <svg class="-translate-y-[3px]" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16">
+                                        <path fill="currentColor" d="M18,6h0a1,1,0,0,0-1.414,0L12,10.586,7.414,6A1,1,0,0,0,6,6H6A1,1,0,0,0,6,7.414L10.586,12,6,16.586A1,1,0,0,0,6,18H6a1,1,0,0,0,1.414,0L12,13.414,16.586,18A1,1,0,0,0,18,18h0a1,1,0,0,0,0-1.414L13.414,12,18,7.414A1,1,0,0,0,18,6Z"/></svg>
+                                    </button>
+                                </div>
+                            </div>
+
+                            </div>
+                        </div>
+                        <div class="relative w-[70%] flex justify-end items-center" x-data="{ userOption: false }">
+                            <button class="relative" type="button" x-on:click="userOption = ! userOption">
+                                <img class="w-[40px] h-[40px] rounded-md" src="assets/img/users/user-10.jpg" alt="">
+                                <span class="w-[12px] h-[12px] inline-block bg-green-500 rounded-full absolute -top-[4px] -right-[4px] border-[2px] border-white"></span>
+                            </button>
+                            <div 
+                                x-show="userOption"
+                                x-on:click.outside="userOption = false"
+                                x-transition:enter="transition ease-out duration-200 origin-top"
+                                x-transition:enter-start="opacity-0 scale-y-90"
+                                x-transition:enter-end="opacity-100 scale-y-100"
+                                x-transition:leave="transition ease-in duration-200 origin-top"
+                                x-transition:leave-start="opacity-100 scale-y-200"
+                                x-transition:leave-end="opacity-0 scale-y-90"
+                                class="absolute w-[280px] top-full right-0 shadow-lg rounded-md bg-white py-5 px-5"
+    
+                            >
+                                <div class="flex items-center space-x-3 border-b border-gray pb-3 mb-2">
+                                    <div class="">
+                                        <img class="w-[50px] h-[50px] rounded-md" src="assets/img/users/user-10.jpg" alt="">
+                                    </div>
+                                    <div class="">
+                                        <h5 class="text-base mb-1 leading-none">Shahnewaz</h5>
+                                        <p class="mb-0 text-tiny leading-none">shahnewaz@mail.com</p>
+                                    </div>
+                                </div>
+                                <ul>
+                                    <li>
+                                        <a href="index.html" class="px-5 py-2 w-full block hover:bg-gray rounded-md hover:text-theme text-base">Dashboard</a>
+                                    </li>
+                                    <li>
+                                        <a href="profile.html" class="px-5 py-2 w-full block hover:bg-gray rounded-md hover:text-theme text-base">
+                                            Account Settings
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="login.html" class="px-5 py-2 w-full block hover:bg-gray rounded-md hover:text-theme text-base">
+                                            Logout
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- search -->
+                <div class="fixed top-0 left-0 w-full bg-white p-10 z-50 transition-transform duration-300 md:hidden" :class="searchOverlay ? 'translate-y-[0px]' : ' -translate-y-[230px] lg:translate-y-[0]'">
+                    <form action="#">
+                        <div class="relative mb-3">
+                            <input class="input h-12 w-full pr-[45px]" type="text" placeholder="Search Here...">
+                            <button class="absolute top-1/2 right-6 translate-y-[-50%] hover:text-theme">
+                                <svg class="-translate-y-[2px]" width="16" height="16" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M9 17C13.4183 17 17 13.4183 17 9C17 4.58172 13.4183 1 9 1C4.58172 1 1 4.58172 1 9C1 13.4183 4.58172 17 9 17Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+                                    <path d="M18.9999 19L14.6499 14.65" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+                                 </svg>
+                            </button>
+                        </div>
+                    </form>
+                    <div class="">
+                        <span class="text-tiny mr-2">Keywords :</span>
+                        <a href="#" class="inline-block px-3 py-1 border border-gray6 text-tiny leading-none rounded-[4px] hover:text-white hover:bg-theme hover:border-theme">Customer</a>
+                        <a href="#" class="inline-block px-3 py-1 border border-gray6 text-tiny leading-none rounded-[4px] hover:text-white hover:bg-theme hover:border-theme">Product</a>
+                        <a href="#" class="inline-block px-3 py-1 border border-gray6 text-tiny leading-none rounded-[4px] hover:text-white hover:bg-theme hover:border-theme">Orders</a>
+                    </div>
+                </div>
+                <div 
+                    class="fixed top-0 left-0 w-full h-full z-40 bg-black/70 transition-all duration-300" 
+                    :class="searchOverlay ? 'visible opacity-1' : '  invisible opacity-0 '"
+                    x-on:click="searchOverlay = ! searchOverlay"
+                >
+                </div>
+            </header>
+
+            <div class="body-content px-8 py-8 bg-slate-100">
+                <div class="grid grid-cols-12">
+                    <div class="col-span-12 2xl:col-span-10">
+                        <div class="flex justify-between mb-10 items-end flex-wrap">
+                            <div class="page-title mb-6 sm:mb-0">
+                                <h3 class="mb-0 text-[28px]">Add Product</h3>
+                                <ul class="text-tiny font-medium flex items-center space-x-3 text-text3">
+                                    <li class="breadcrumb-item text-muted">
+                                        <a href="./product-list.html" class="text-hover-primary"> Home</a>
+                                    </li>
+                                    <li class="breadcrumb-item flex items-center">
+                                        <span class="inline-block bg-text3/60 w-[4px] h-[4px] rounded-full"></span>
+                                    </li>
+                                    <li class="breadcrumb-item text-muted">Add Product</li>          
+                                </ul>
+                            </div>
+                            <div class="mb-2 flex sm:justify-end items-center flex-wrap">
+                                <button class="tp-btn px-10 py-2 mr-2 sm:mb-0 mb-2">Publish</button>
+                                <button class="tp-btn px-10 py-2 border border-[#dfdfdf] bg-transparent text-black hover:text-black hover:bg-white hover:border-white sm:mb-0 mb-2">Save Draft</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- add product -->
+                <div class="grid grid-cols-12">
+                    <div class="col-span-12 2xl:col-span-10" x-data="{ addProductTab: 1, colors: [], sizes: [], newColor: '', newSize: '' }">
+                        <div class=" mb-3 hidden" >
+                            <div class="flex items-center bg-white rounded-md px-4 py-3">
+                                <button 
+                                    class="text-base  py-1 px-5 rounded-md border-b border-transparent " 
+                                    @click="addProductTab = 1"
+                                    :class="addProductTab == 1 ? 'bg-theme text-white' : ' bg-white text-textBody'">
+                                    
+                                    General
+                                </button>
+                                <button 
+                                    class="text-base  py-1 px-5 rounded-md" 
+                                    @click="addProductTab = 2"
+                                    :class="addProductTab == 2 ? 'bg-theme text-white' : 'text-textBody bg-white'">
+                                    Advanced
+                                </button>
+                            </div>
+                        </div>
+                        <div class="">
+                            <!-- general tab content -->
+                            <div class="" x-show="addProductTab === 1">
+                                <div class="grid grid-cols-12 gap-6 mb-6">
+                                    <div class="col-span-12 xl:col-span-8 2xl:col-span-9 ">
+                                        <div class="mb-6 bg-white px-8 py-8 rounded-md">    
+                                            <h4 class="text-[22px]">General</h4>        
+                                            <!-- input -->
+                                            <div class="mb-5">
+                                                <p class="mb-0 text-base text-black">Product Name <span class="text-red">*</span></p>
+                                                <input id="productName" class="input w-full h-[44px] rounded-md border border-gray6 px-6 text-base" type="text" placeholder="Product name">
+                                                <div class="tp-checkbox flex items-center mt-3">
+                                                    <input id="isFeatured" type="checkbox">
+                                                    <label for="isFeatured" class="text-tiny select-none">Mark as Featured Product</label>
+                                                </div>
+                                                <span class="text-tiny">A product name is required and recommended to be unique.</span>
+                                            </div>
+                                            <div class="mb-5">
+                                                <p class="mb-0 text-base text-black">Description</p>
+                                                <div class="min-h-[200px]" id="editor">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="bg-white px-8 py-8 rounded-md mb-6">
+                                             
+                                             <h4 class="text-[22px]">Details</h4> 
+                                             <!-- tax vat -->
+                                             <div class="grid sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-x-6">
+        
+                                                <div class="mb-5">
+                                                    <p class="mb-0 text-base text-black">Base Price <span class="text-red">*</span></p>
+                                                    <input id="productPrice" class="input w-full h-[44px] rounded-md border border-gray6 px-6 text-base" type="text" placeholder="Product price">
+                                                    <span class="text-tiny leading-4">Set the base price of product.</span>
+                                                </div>
+                                                <!-- input -->
+                                                <div class="mb-5">
+                                                    <p class="mb-0 text-base text-black">SKU <span class="text-red">*</span></p>
+                                                    <input id="productSku" class="input w-full h-[44px] rounded-md border border-gray6 px-6 text-base" type="text" placeholder="SKU">
+                                                    <span class="text-tiny leading-4">Enter the product SKU.</span>
+                                                </div>
+                                                <!-- input -->
+                                                <div class="mb-5">
+                                                    <p class="mb-0 text-base text-black">Qantity <span class="text-red">*</span></p>
+                                                    <input id="productQuantity" class="input w-full h-[44px] rounded-md border border-gray6 px-6 text-base" type="text" placeholder="Qantity">
+                                                    <span class="text-tiny leading-4">Enter the product quantity.</span>
+                                                </div>
+                                                <!-- input -->
+                                                <div class="mb-5">
+                                                    <p class="mb-0 text-base text-black">VAT Ammount (%)</p>
+                                                    <input class="input w-full h-[44px] rounded-md border border-gray6 px-6 text-base" type="text" placeholder="VAT">
+                                                    <span class="text-tiny leading-4">Set the product VAT about.</span>
+                                                </div>
+                                            </div>
+        
+                                            <!-- discount -->
+                                            <div class="" x-data="{ priceData: 3 }">
+                                                <p class="mb-0 text-base text-black">Discount Type <span class="text-red">*</span></p>
+                                                <div class="flex items-center sm:space-x-3 flex-wrap mb-5">
+                                                    <div class="tp-checkbox-secondary mb-4">
+                                                        <label 
+                                                        for="noDiscount"
+                                                        class="border border-gray6 px-4 sm:px-10 py-5 rounded-md hover:cursor-pointer"  
+                                                        x-on:click="priceData = 3"
+                                                        >
+                                                            <small class="flex items-center">
+                                                                <input id="noDiscount" type="radio" name="priceDiscount">
+                                                                <span class="text-base font-medium">No Discount</span>
+                                                            </small>
+                                                        </label>
+                                                    </div>
+                                                    <div class="tp-checkbox-secondary mb-4">
+                                                        <label 
+                                                        for="percentDiscount"
+                                                        class="border border-gray6 px-4 sm:px-10 py-5 rounded-md hover:cursor-pointer"  
+                                                        x-on:click="priceData = 1"
+                                                        >
+                                                            <small class="flex items-center">
+                                                                <input id="percentDiscount" type="radio" name="priceDiscount">
+                                                                <span class="text-base font-medium">Fixed Discount</span>
+                                                            </small>
+                                                        </label>
+                                                    </div>
+                                                    <div class="tp-checkbox-secondary mb-4">
+                                                        <label 
+                                                        for="fixedDiscount"
+                                                        class="border border-gray6 px-4 sm:px-10 py-5 rounded-md hover:cursor-pointer" 
+                                                        x-on:click="priceData = 2"
+                                                        >
+                                                            <small class="flex items-center">
+                                                                <input id="fixedDiscount" type="radio" name="priceDiscount">
+                                                                <span class="text-base font-medium">Percent Discount</span>
+                                                            </small>
+                                                        </label>
+                                                    </div>
+                                                </div>
+    
+                                                <div class="mb-5 mx-6" x-show="priceData === 1">
+                                                    <p class="mb-0 text-base text-black">Price <span class="text-red">*</span></p>
+                                                    <input class="input w-full h-[44px] rounded-md border border-gray6 px-6 text-base" type="text" placeholder="Price">
+                                                </div>
+                                                <div class="mb-5 mx-6" x-show="priceData === 2">
+                                                    <p class="mb-2 text-base text-black">Percent <span class="text-red">*</span></p>
+                                                    <input type="number" id="discountValue" class="input w-full h-[44px] rounded-md border border-gray6 px-6 text-base" placeholder="Discount Percentage or Amount" />
+                                                </div>
+                                                
+                                                <!-- range slider -->
+                                                <div class="mt-10 hidden">
+                                                    <div class="w-full">
+                                                        <div class="relative h-5 w-full" id="my-slider" data-se-min="00" data-se-step="1" data-se-min-value="0" data-se-max-value="40" data-se-max="100" >
+                                                          <div class="slider-touch-left w-5 h-5 rounded-md absolute z-10 hover:cursor-pointer">
+                                                            <span class="block w-full h-full bg-white rounded-full shadow-sm"></span>
+                                                          </div>
+                                                          <div class="slider-touch-right w-5 h-5 rounded-md absolute z-10 hover:cursor-pointer">
+                                                            <span class="block w-full h-full bg-white rounded-full shadow-sm"></span>
+                                                          </div>
+                                                          <div class="slider-line absolute w-[calc(100%-5rem)] h-1 left-[18px] top-[7px] rounded bg-[#f9f9f9] overflow-hidden">
+                                                            <span class="block h-full w-0 bg-theme"></span>
+                                                          </div>
+                                                        </div>
+                                                    </div>
+                                                    <div id="result" class="">Min: 0 Max: 100</div>
+                                                </div>
+
+                                            </div>
+                                            
+                                           
+                                        </div>
+
+                                        <!-- Shipping Information removed -->
+                                    </div>
+                                    <div class="col-span-12 xl:col-span-4 2xl:col-span-3 ">
+                                        <div class="bg-white px-8 py-8 rounded-md mb-6">
+                                            <p class="mb-2 text-base text-black">Upload Images</p>
+                                            <div class="text-center">
+                                                <img class="w-[100px] h-auto mx-auto" src="assets/img/icons/upload.png" alt="">
+                                            </div>
+                                            <span class="text-tiny text-center w-full inline-block mb-3">Image size must be less than 5Mb</span>
+                                            <div class="">
+                                                <form action="#">
+                                                    <input type="file" id="productImage" class="hidden" multiple>
+                                                    <label for="productImage" class="text-tiny w-full inline-block py-1 px-4 rounded-md border border-gray6 text-center hover:cursor-pointer hover:bg-theme hover:text-white hover:border-theme transition">Upload Images</label>
+                                                </form>
+                                            </div>
+                                            <div id="imagePreviewContainer" class="flex flex-wrap gap-2 mt-4">
+                                                <!-- Previews will appear here -->
+                                            </div>
+                                        </div>
+                                        <div class="bg-white px-8 py-8 rounded-md mb-6">
+                                            <p class="mb-5 text-base text-black">Product Details</p>
+                                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-5">
+                                                <div class="select-bordered">
+                                                    <h5 class="text-tiny mb-1">Category</h5>
+                                                    <select id="productCategory">
+                                                        <option value="">Electronics</option>
+                                                        <option value="">Fashion</option>
+                                                        <option value="">Jewellery</option>
+                                                        <option value="">Beauty</option>
+                                                        <option value="">Grocery</option>
+                                                    </select>
+                                                </div>
+                                                <!-- Sub Category removed -->
+                                            </div>
+                                            <!-- Tags removed -->
+                                        </div>
+                                        <div class="bg-white px-8 py-8 rounded-md">
+                                            <p class="mb-5 text-base text-black">Product Attribute</p>
+                                            <div class="">
+                                                <!-- Visual Size Selector -->
+                                                <div class="mb-4" x-data="{ 
+                                                    selectedSizes: [], 
+                                                    options: ['XS', 'S', 'M', 'L', 'XL', 'XXL', '3XL', 'One Size'], 
+                                                    toggle(s) { 
+                                                        if (this.selectedSizes.includes(s)) 
+                                                            this.selectedSizes = this.selectedSizes.filter(i => i !== s);
+                                                        else 
+                                                            this.selectedSizes.push(s);
+                                                    }
+                                                }">
+                                                    <label class="block text-sm font-medium text-gray-700 mb-2">Available Sizes</label>
+                                                    
+                                                    <div class="flex items-center space-x-2 overflow-x-auto pb-2">
+                                                        <template x-for="size in options" :key="size">
+                                                            <div @click="toggle(size)" 
+                                                                 class="flex-shrink-0 px-4 py-2 rounded-md text-sm font-bold cursor-pointer transition-colors border select-none"
+                                                                 :class="selectedSizes.includes(size) ? 'bg-black text-white border-black' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-100'">
+                                                                 <span x-text="size"></span>
+                                                            </div>
+                                                        </template>
+                                                    </div>
+                                                    
+                                                    <input type="hidden" id="productSize" name="sizes" :value="JSON.stringify(selectedSizes)">
+                                                </div>
+
+                                                <!-- Visual Color Selector -->
+                                                <!-- Visual Color Selector -->
+                                                <div class="mb-4" x-data="{ 
+                                                    selectedColors: [], 
+                                                    defaults: ['#000000', '#FFFFFF', '#FF0000', '#008000', '#FFFF00', '#808080', '#FFC0CB'],
+                                                    customHex: '',
+                                                    defaultsPlusSelected() {
+                                                        return [...new Set([...this.defaults, ...this.selectedColors])];
+                                                    },
+                                                    toggle(c) { 
+                                                        if (this.selectedColors.includes(c)) 
+                                                            this.selectedColors = this.selectedColors.filter(i => i !== c);
+                                                        else 
+                                                            this.selectedColors.push(c);
+                                                    },
+                                                    addCustom() {
+                                                        if(this.customHex) {
+                                                            let color = this.customHex.trim();
+                                                            if(!color.startsWith('#')) color = '#' + color;
+                                                            // Validate Hex (3 or 6 chars)
+                                                            if(/^#[0-9A-F]{3}$/i.test(color) || /^#[0-9A-F]{6}$/i.test(color)) {
+                                                                if(!this.selectedColors.includes(color)) this.selectedColors.push(color);
+                                                                this.customHex = '';
+                                                            } else {
+                                                                alert('Invalid Hex Color Code (e.g. #FF0000)');
+                                                            }
+                                                        }
+                                                    }
+                                                }">
+                                                    <label class="block text-sm font-medium text-gray-700 mb-2">Available Colors</label>
+                                                    
+                                                    <!-- Color Squares -->
+                                                    <div class="flex flex-wrap items-center gap-2 mb-3 bg-gray-50 p-2 rounded-md border border-gray-200">
+                                                        <template x-for="color in defaultsPlusSelected()" :key="color">
+                                                            <div @click="toggle(color)" 
+                                                                 class="w-8 h-8 rounded-md cursor-pointer shadow-sm border-2 relative transition-transform"
+                                                                 :class="selectedColors.includes(color) ? 'border-blue-600 scale-110 ring-2 ring-blue-100' : 'border-gray-200 hover:scale-105'"
+                                                                 :style="`background-color: ${color}`">
+                                                                 
+                                                                 <div x-show="selectedColors.includes(color)" class="absolute inset-0 flex items-center justify-center">
+                                                                    <!-- Checkmark (dark for light colors?) - keeping simple white with shadow for now -->
+                                                                    <svg class="w-5 h-5 text-white drop-shadow-md" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                                                                 </div>
+                                                            </div>
+                                                        </template>
+                                                    </div>
+
+                                                    <!-- Add New Hex -->
+                                                    <label class="block text-xs font-medium text-gray-500 mb-1">Add Custom Color</label>
+                                                    <div class="flex items-center space-x-2">
+                                                        <div class="relative rounded-md shadow-sm">
+                                                            <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                                                              <span class="text-gray-500 sm:text-sm">#</span>
+                                                            </div>
+                                                            <input type="text" x-model="customHex" @keydown.enter.prevent="addCustom()" 
+                                                                class="block w-32 h-[38px] rounded-md border border-gray-300 pl-7 pr-3 py-2 text-sm focus:border-theme focus:ring-theme" 
+                                                                placeholder="Hex Code">
+                                                         </div>
+                                                         <button type="button" @click="addCustom()" class="h-[38px] px-4 bg-black text-white rounded-md text-sm font-medium hover:bg-gray-800 transition">Add</button>
+                                                         
+                                                         <!-- Native Picker Fallback -->
+                                                         <div class="relative w-[38px] h-[38px] overflow-hidden rounded-md border border-gray-300 cursor-pointer hover:border-gray-400" title="Pick from Color Wheel">
+                                                             <input type="color" class="absolute -top-[50%] -left-[50%] w-[200%] h-[200%] cursor-pointer p-0 border-0" 
+                                                                    @change="toggle($event.target.value)">
+                                                             <div class="absolute inset-0 pointer-events-none flex items-center justify-center text-xs text-gray-500 bg-white/50">+</div>
+                                                         </div>
+                                                    </div>
+                                                    
+                                                    <input type="hidden" id="productColor" name="colors" :value="JSON.stringify(selectedColors)">
+                                                    
+                                                    <div class="mt-2 text-xs text-gray-500" x-show="selectedColors.length > 0">
+                                                        Selected: <span x-text="selectedColors.join(', ')"></span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="">
+                                    <button id="publishBtn" class="tp-btn px-10 py-2 mb-2">Publish</button>
+                                    <button class="tp-btn px-10 py-2 border border-[#dfdfdf] bg-transparent text-black hover:text-black hover:bg-white hover:border-white mb-2">Save Draft</button>
+                                </div>
+                            </div>
+                            <!-- general tab content -->
+                            <div class="" x-show="addProductTab === 2"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="assets/js/alpine.js"></script>
+    <script src="assets/js/perfect-scrollbar.js"></script>
+    <script src="assets/js/choices.js"></script>
+    <script src="assets/js/chart.js"></script>
+    <script src="assets/js/apexchart.js"></script>
+    <script src="assets/js/quill.js"></script>
+    <script src="assets/js/rangeslider.min.js"></script>
+    <script src="assets/js/main.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="assets/js/api.js"></script>
+    <script src="assets/js/auth.js"></script>
+    <script src="assets/js/product-add.js"></script>
+    
+</body>
+</html>

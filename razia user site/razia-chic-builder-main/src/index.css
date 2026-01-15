@@ -1,0 +1,210 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Razia - Luxury Fashion Design System */
+
+@layer base {
+  :root {
+    /* Core brand colors (HSL) */
+    --background: 60 33% 99%;
+    --foreground: 191 80% 15%;
+
+    --card: 60 33% 99%;
+    --card-foreground: 191 80% 15%;
+
+    --popover: 60 33% 99%;
+    --popover-foreground: 191 80% 15%;
+
+    /* Primary brand colors */
+    --primary: 186 100% 20%;
+    --primary-foreground: 60 33% 99%;
+
+    /* Accent colors from palette */
+    --secondary: 43 16% 70%;
+    --secondary-foreground: 191 80% 15%;
+
+    --muted: 176 5% 85%;
+    --muted-foreground: 270 1% 27%;
+
+    --accent: 49 100% 50%;
+    --accent-foreground: 191 80% 15%;
+
+    /* Special brand accents */
+    --teal: 174 100% 33%;
+    --teal-foreground: 60 33% 99%;
+    
+    --coral: 343 93% 46%;
+    --coral-foreground: 60 33% 99%;
+    
+    --gold: 49 100% 50%;
+    --gold-foreground: 191 80% 15%;
+    
+    --sand: 43 16% 70%;
+    --sand-light: 43 16% 85%;
+    
+    --navy: 191 80% 15%;
+    --navy-light: 186 100% 20%;
+
+    --destructive: 343 93% 46%;
+    --destructive-foreground: 60 33% 99%;
+
+    --border: 43 16% 85%;
+    --input: 43 16% 85%;
+    --ring: 186 100% 20%;
+
+    --radius: 0.25rem;
+
+    /* Typography */
+    --font-heading: 'Baloo Bhaijaan 2', cursive;
+    --font-body: 'IBM Plex Sans Arabic', sans-serif;
+
+    /* Luxury gradients */
+    --gradient-hero: linear-gradient(135deg, hsl(191 80% 15%) 0%, hsl(186 100% 20%) 50%, hsl(174 100% 33%) 100%);
+    --gradient-gold: linear-gradient(135deg, hsl(49 100% 50%) 0%, hsl(43 16% 70%) 100%);
+    --gradient-coral: linear-gradient(135deg, hsl(343 93% 46%) 0%, hsl(343 93% 56%) 100%);
+    
+    /* Shadows */
+    --shadow-sm: 0 1px 2px 0 hsl(191 80% 15% / 0.05);
+    --shadow-md: 0 4px 6px -1px hsl(191 80% 15% / 0.1);
+    --shadow-lg: 0 10px 15px -3px hsl(191 80% 15% / 0.1);
+    --shadow-xl: 0 20px 25px -5px hsl(191 80% 15% / 0.1);
+    --shadow-luxury: 0 25px 50px -12px hsl(191 80% 15% / 0.25);
+
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+
+  .dark {
+    --background: 191 80% 8%;
+    --foreground: 60 33% 95%;
+
+    --card: 191 80% 10%;
+    --card-foreground: 60 33% 95%;
+
+    --popover: 191 80% 10%;
+    --popover-foreground: 60 33% 95%;
+
+    --primary: 49 100% 50%;
+    --primary-foreground: 191 80% 15%;
+
+    --secondary: 186 100% 20%;
+    --secondary-foreground: 60 33% 95%;
+
+    --muted: 191 80% 20%;
+    --muted-foreground: 43 16% 70%;
+
+    --accent: 174 100% 33%;
+    --accent-foreground: 60 33% 99%;
+
+    --destructive: 343 93% 46%;
+    --destructive-foreground: 60 33% 99%;
+
+    --border: 191 80% 20%;
+    --input: 191 80% 20%;
+    --ring: 49 100% 50%;
+
+    --sidebar-background: 240 5.9% 10%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 224.3 76.3% 48%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+
+  /* RTL Support */
+  [dir="rtl"] {
+    font-family: var(--font-body);
+  }
+
+  [dir="ltr"] {
+    font-family: var(--font-body);
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-family: var(--font-body);
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-heading);
+    @apply font-bold tracking-tight;
+  }
+}
+
+@layer components {
+  .luxury-heading {
+    font-family: var(--font-heading);
+    @apply text-foreground tracking-tight;
+  }
+
+  .luxury-body {
+    font-family: var(--font-body);
+    @apply text-muted-foreground leading-relaxed;
+  }
+
+  .glass-effect {
+    @apply backdrop-blur-md bg-background/80;
+  }
+
+  .gradient-hero {
+    background: var(--gradient-hero);
+  }
+
+  .gradient-gold {
+    background: var(--gradient-gold);
+  }
+
+  .hover-lift {
+    @apply transition-all duration-300 ease-out;
+  }
+
+  .hover-lift:hover {
+    @apply -translate-y-1;
+    box-shadow: var(--shadow-luxury);
+  }
+
+  .product-image-hover {
+    @apply transition-transform duration-500 ease-out;
+  }
+
+  .product-image-hover:hover {
+    @apply scale-105;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .animation-delay-200 {
+    animation-delay: 200ms;
+  }
+
+  .animation-delay-400 {
+    animation-delay: 400ms;
+  }
+
+  .animation-delay-600 {
+    animation-delay: 600ms;
+  }
+}

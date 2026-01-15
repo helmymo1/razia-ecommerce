@@ -1,0 +1,65 @@
+2026-01-13 12:16:25 [[32MINFO[39M]: Connected to MySQL Database
+2026-01-13 12:16:25 [[32MINFO[39M]: Starting Phase 1: Redis Reservation
+2026-01-13 12:16:25 [[32MINFO[39M]: Starting Phase 2: MySQL Transaction
+2026-01-13 12:16:25 [[32MINFO[39M]: Rolling back Redis reservation...
+  console.error
+    Error: Unknown column 'unit_price' in 'field list'
+        at PromisePoolConnection.query (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\mysql2\lib\promise\connection.js:29:22)
+        at query (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\controllers\orderController.js:200:24)
+        at processTicksAndRejections (node:internal/process/task_queues:105:5)
+
+    [0m [90m 13 |[39m   })[33m;[39m
+     [90m 14 |[39m
+    [31m[1m>[22m[39m[90m 15 |[39m   console[33m.[39merror(err[33m.[39mstack)[33m;[39m [90m// Keep console logging for dev[39m
+     [90m    |[39m           [31m[1m^[22m[39m
+     [90m 16 |[39m
+     [90m 17 |[39m   res[33m.[39mstatus(statusCode)[33m;[39m
+     [90m 18 |[39m   res[33m.[39mjson({[0m
+
+      at error (D:\evanto\New folder (3)../../../../ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc/backend/middleware/errorMiddleware.js:15:11)
+      at Layer.handle_error (D:\evanto\New folder (3)../../../../ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc/backend/node_modules/express/lib/router/layer.js:71:5)
+      at trim_prefix (D:\evanto\New folder (3)../../../../ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc/backend/node_modules/express/lib/router/index.js:326:13)
+      at D:\evanto\New folder (3)../../../../ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc/backend/node_modules/express/lib/router/index.js:286:9
+      at Function.process_params (D:\evanto\New folder (3)../../../../ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc/backend/node_modules/express/lib/router/index.js:346:12)
+      at next (D:\evanto\New folder (3)../../../../ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc/backend/node_modules/express/lib/router/index.js:280:10)
+      at Layer.handle_error (D:\evanto\New folder (3)../../../../ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc/backend/node_modules/express/lib/router/layer.js:67:12)
+      at trim_prefix (D:\evanto\New folder (3)../../../../ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc/backend/node_modules/express/lib/router/index.js:326:13)
+      at D:\evanto\New folder (3)../../../../ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc/backend/node_modules/express/lib/router/index.js:286:9
+      at Function.process_params (D:\evanto\New folder (3)../../../../ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc/backend/node_modules/express/lib/router/index.js:346:12)
+      at next (D:\evanto\New folder (3)../../../../ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc/backend/node_modules/express/lib/router/index.js:280:10)
+      at D:\evanto\New folder (3)../../../../ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc/backend/node_modules/express/lib/router/index.js:646:15
+      at next (D:\evanto\New folder (3)../../../../ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc/backend/node_modules/express/lib/router/index.js:265:14)
+      at next (D:\evanto\New folder (3)../../../../ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc/backend/node_modules/express/lib/router/route.js:141:14)
+      at next (D:\evanto\New folder (3)../../../../ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc/backend/controllers/orderController.js:223:5)
+
+2026-01-13 12:16:25 [[33MWARN[39M]: POST /api/orders 500 - 117ms - IP: ::ffff:127.0.0.1
+FAIL tests/integration/security_order.test.js
+  Security: Secure Order Creation
+    ├ù should IGNORE client-provided price and use DB price (152 ms)
+
+  ΓùÅ Security: Secure Order Creation ΓÇ║ should IGNORE client-provided price and use DB price
+
+    expected 201 "Created", got 500 "Internal Server Error"
+
+      79 |       .post('/api/orders')
+      80 |       .send(payload)
+    > 81 |       .expect(201);
+         |        ^
+      82 |
+      83 |     // Verify Response Total
+      84 |     const expectedTotal = realPrice * quantity; // 200.00
+
+      at Object.expect (D:\evanto\New folder (3)../../../../ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc/backend/tests/integration/security_order.test.js:81:8)
+      ----
+      at Test._assertStatus (D:\evanto\New folder (3)../../../../ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc/backend/node_modules/supertest/lib/test.js:309:14)
+      at D:\evanto\New folder (3)../../../../ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc/backend/node_modules/supertest/lib/test.js:365:13
+      at Test._assertFunction (D:\evanto\New folder (3)../../../../ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc/backend/node_modules/supertest/lib/test.js:342:13)
+      at Test.assert (D:\evanto\New folder (3)../../../../ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc/backend/node_modules/supertest/lib/test.js:195:23)
+      at localAssert (D:\evanto\New folder (3)../../../../ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc/backend/node_modules/supertest/lib/test.js:138:14)
+      at Server.<anonymous> (D:\evanto\New folder (3)../../../../ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc/backend/node_modules/supertest/lib/test.js:152:11)
+
+Test Suites: 1 failed, 1 total
+Tests:       1 failed, 1 total
+Snapshots:   0 total
+Time:        3.099 s, estimated 4 s
+Ran all test suites matching backend/tests/integration/security_order.test.js.

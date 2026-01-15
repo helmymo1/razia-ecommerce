@@ -1,0 +1,28 @@
+2026-01-13 12:14:06 [[32MINFO[39M]: Connected to MySQL Database
+FAIL tests/integration/security_order.test.js (6.53 s)
+  Security: Secure Order Creation
+    × should IGNORE client-provided price and use DB price (4 ms)
+
+  ● Security: Secure Order Creation › should IGNORE client-provided price and use DB price
+
+    Cannot add or update a child row: a foreign key constraint fails (`ebazer_shop`.`products`, CONSTRAINT `products_ibfk_1` FOREIGN KEY (`category_id`) REFERENCES `categories` (`id`) ON DELETE SET NULL)
+
+      25 |   beforeAll(async () => {
+      26 |     // 1. Create a product with a known price
+    > 27 |     const [result] = await db.query(
+         |                               ^
+      28 |       `INSERT INTO products (name, sku, price, stock, category_id) 
+      29 |        VALUES ('Security Test Product', 'SEC-001', 100.00, 50, 1)`
+      30 |     );
+
+      at PromisePool.query (D:\evanto\New folder (3)../../../../ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc/backend/node_modules/mysql2/lib/promise/pool.js:36:22)
+      at Object.query (D:\evanto\New folder (3)../../../../ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc/backend/tests/integration/security_order.test.js:27:31)
+
+Test Suites: 1 failed, 1 total
+Tests:       1 failed, 1 total
+Snapshots:   0 total
+Time:        6.857 s, estimated 11 s
+Ran all test suites matching backend/tests/integration/security_order.test.js.
+Jest did not exit one second after the test run has completed.
+
+'This usually means that there are asynchronous operations that weren't stopped in your tests. Consider running Jest with `--detectOpenHandles` to troubleshoot this issue.

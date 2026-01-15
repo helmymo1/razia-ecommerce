@@ -1,0 +1,58 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    html, body {
+        font-family: 'Poppins', sans-serif;
+        font-size: 14px;
+        line-height: 26px;
+        color: #55585B;
+   }
+    img, svg{
+        display: inline-block;
+   }
+    h1, h2, h3, h4, h5, h6{
+        font-family: 'Poppins', sans-serif;
+        font-weight: 500;
+        line-height: 1.2;
+        margin-bottom: 15px;
+        color: #010F1C;
+   }
+    h1 {
+        font-size: 40px;
+   }
+    h2 {
+        font-size: 36px;
+   }
+    h3 {
+        font-size: 24px;
+   }
+    h4 {
+        font-size: 20px;
+   }
+    h5 {
+        font-size: 16px;
+   }
+    h6 {
+        font-size: 14px;
+   }
+    p{
+        font-family: 'Poppins', sans-serif;
+        font-size: 14px;
+        line-height: 26px;
+        color: #55585B;
+        margin-bottom: 15px;
+   }
+    a, .btn, p, button, input, select, textarea, li, img, .transition-3, h1, h2, h3, h4, h5, h6 {
+        -webkit-transition: all .3s ease-out 0s;
+        -moz-transition: all .3s ease-out 0s;
+        -ms-transition: all .3s ease-out 0s;
+        -o-transition: all .3s ease-out 0s;
+        transition: all .3s ease-out 0s;
+   }
+
+
+   
+}

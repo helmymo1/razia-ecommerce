@@ -1,0 +1,26 @@
+{
+  "name": "ebazer-ecommerce-monorepo",
+  "version": "1.0.0",
+  "description": "Root package for eBazer eCommerce Project",
+  "private": true,
+  "scripts": {
+    "start": "cd backend && npm start",
+    "dev": "cd backend && npm run dev",
+    "test": "cd backend && npm test",
+    "postinstall": "cd backend && npm install",
+    "db:check": "node backend/scripts/db_health_check.js"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "keywords": [
+    "ecommerce",
+    "admin-panel",
+    "backend"
+  ],
+  "author": "Antigravity",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^1.13.2"
+  }
+}
