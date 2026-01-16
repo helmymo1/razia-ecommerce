@@ -120,7 +120,7 @@ window.handleFormSubmit = async function(e) {
     try {
         if (isEditing && currentUserId) {
             valLog("Updating user " + currentUserId);
-            await api.put(`/users/${currentUserId}`, userData);
+            await api.put(`/admin/users/${currentUserId}`, userData);
             alert('User updated successfully');
         } else {
             valLog("Creating new user");
@@ -128,7 +128,7 @@ window.handleFormSubmit = async function(e) {
                 alert('Password is required for new users');
                 return;
             }
-            await api.post('/users', userData);
+            await api.post('/admin/users', userData);
             alert('User added successfully');
         }
         window.closeModal();
@@ -143,7 +143,7 @@ window.deleteUser = async function(id) {
     if (!confirm('Are you sure you want to delete this user?')) return;
     try {
         valLog("Deleting user " + id);
-        await api.delete(`/users/${id}`);
+        await api.delete(`/admin/users/${id}`);
         alert('User deleted successfully');
         fetchUsers();
     } catch (error) {
@@ -156,7 +156,7 @@ async function fetchUsers() {
     valLog("fetchUsers called");
     const userListBody = getEl('user-list-body');
     try {
-        const users = await api.get('/users');
+        const users = await api.get('/admin/users');
         valLog(`Fetched ${users.length} users`);
         renderUsers(users);
     } catch (error) {

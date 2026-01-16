@@ -1,28 +1,22 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import CartDrawer from '@/components/CartDrawer';
-import CategoryCard from '@/components/CategoryCard';
 import { useLanguage } from '@/contexts/LanguageContext';
-import categoryDresses from '@/assets/category-dresses.jpg';
-import categoryAbayas from '@/assets/category-abayas.jpg';
-import categoryTops from '@/assets/category-tops.jpg';
-import categorySkirts from '@/assets/category-skirts.jpg';
-import categoryAccessories from '@/assets/category-accessories.jpg';
-import categoryNew from '@/assets/category-new.jpg';
+import { categoryService } from '@/services/api';
 
-const categoriesData = [
-  { id: 'dresses', name: 'Dresses', nameAr: 'فساتين', image: categoryDresses },
-  { id: 'abayas', name: 'Abayas', nameAr: 'عباءات', image: categoryAbayas },
-  { id: 'tops', name: 'Tops', nameAr: 'قمصان', image: categoryTops },
-  { id: 'skirts', name: 'Skirts', nameAr: 'تنانير', image: categorySkirts },
-  { id: 'accessories', name: 'Accessories', nameAr: 'إكسسوارات', image: categoryAccessories },
-  { id: 'new-in', name: 'New In', nameAr: 'جديدنا', image: categoryNew },
-];
+const PLACEHOLDER_IMAGE = 'https://via.placeholder.com/400x500?text=Category';
 
 const Categories: React.FC = () => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+
+  const { data: categories = [], isLoading } = useQuery({
+    queryKey: ['categories'],
+    queryFn: categoryService.getAll,
+  });
 
   return (
     <div className="min-h-screen bg-background">
@@ -42,16 +36,54 @@ const Categories: React.FC = () => {
             <div className="w-20 h-1 bg-gold mx-auto" />
           </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {categoriesData.map((category, index) => (
-              <CategoryCard
-                key={category.id}
-                category={category}
-                index={index}
-                size="large"
-              />
-            ))}
-          </div>
+          {isLoading ? (
+            <div className="text-center py-12">
+              <p className="text-muted-foreground">Loading categories...</p>
+            </div>
+          ) : categories.length === 0 ? (
+            <div className="text-center py-12">
+              <p className="text-muted-foreground">No categories found.</p>
+            </div>
+          ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {categories.map((category: any, index: number) => (
+                    <motion.div
+                      key={category.id}
+                      initial={{ opacity: 0, y: 30 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: index * 0.1 }}
+                    >
+                      <Link
+                        to={`/shop?category=${category.id}`}
+                        className="group relative block aspect-[4/5] rounded-2xl overflow-hidden shadow-lg"
+                      >
+                        {/* Background Image */}
+                        <img
+                          src={category.image || PLACEHOLDER_IMAGE}
+                          alt={language === 'ar' ? (category.name_ar || category.name) : category.name}
+                          className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                        />
+
+                        {/* Gradient Overlay */}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
+
+                        {/* Category Name */}
+                        <div className="absolute bottom-0 left-0 right-0 p-6">
+                          <h3 className="font-heading text-2xl md:text-3xl font-bold text-white">
+                            {language === 'ar' ? (category.name_ar || category.name) : category.name}
+                          </h3>
+                          <p className="text-white/80 mt-2 text-sm">
+                            {t('shopNow')} →
+                          </p>
+                        </div>
+
+                        {/* Hover Effect Border */}
+                        <div className="absolute inset-0 border-4 border-transparent group-hover:border-gold/50 rounded-2xl transition-colors duration-300" />
+                      </Link>
+                    </motion.div>
+                  ))}
+                </div>
+          )}
         </div>
       </main>
 

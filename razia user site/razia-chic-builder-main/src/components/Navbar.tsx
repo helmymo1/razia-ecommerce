@@ -7,9 +7,6 @@ import { useCart } from '@/contexts/CartContext';
 import { cn } from '@/lib/utils';
 import Logo from './Logo';
 
-import { useQuery } from '@tanstack/react-query';
-import { categoryService } from '@/services/api';
-
 const Navbar: React.FC = () => {
   const { t, language, setLanguage, direction } = useLanguage();
   const { totalItems, openCart } = useCart();
@@ -17,11 +14,6 @@ const Navbar: React.FC = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const location = useLocation();
-
-  const { data: categories = [] } = useQuery({
-    queryKey: ['categories'],
-    queryFn: categoryService.getAll,
-  });
 
   useEffect(() => {
     const handleScroll = () => {
@@ -34,13 +26,7 @@ const Navbar: React.FC = () => {
   const navLinks = [
     { path: '/', label: t('home') },
     { path: '/shop', label: t('shop') },
-    // Dynamic Categories
-    ...categories.map((cat: any) => ({
-      path: `/shop?category=${cat.id}`,
-      label: language === 'ar' ? (cat.name_ar || cat.name) : cat.name
-    })),
-    // Fallback if no categories
-    ...(categories.length === 0 ? [{ path: '/categories', label: t('categories') }] : []),
+    { path: '/categories', label: t('categories') },
     { path: '/outfit-builder', label: t('outfitBuilder') },
     { path: '/about', label: t('about') },
     { path: '/contact', label: t('contact') },

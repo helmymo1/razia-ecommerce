@@ -51,6 +51,7 @@ app.use('/api/coupons', require('./routes/couponRoutes'));
 app.use('/api/addresses', require('./routes/addressRoutes'));
 app.use('/api/wishlist', require('./routes/wishlistRoutes'));
 app.use('/api/users', require('./routes/userRoutes'));
+app.use('/api/admin', require('./routes/adminRoutes'));
 const paymentRoutes = require('./routes/paymentRoutes');
 app.use('/api/payment', paymentRoutes);
 // app.use('/api/cart', require('./routes/cartRoutes'));

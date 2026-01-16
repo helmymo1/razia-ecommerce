@@ -597,6 +597,54 @@
     </div>
 
 
+    <!-- User Modal -->
+    <div id="user-modal"
+        class="fixed inset-0 z-[99999] hidden items-center justify-center bg-black/50 overflow-y-auto w-full h-full">
+        <div class="relative w-full max-w-md p-6 bg-white rounded-lg shadow-lg">
+            <div class="flex items-center justify-between mb-4">
+                <h3 id="modal-title" class="text-xl font-semibold text-gray-900">Add User</h3>
+                <button type="button" onclick="window.closeModal()" class="text-gray-400 hover:text-gray-900">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
+                        </path>
+                    </svg>
+                </button>
+            </div>
+            <form id="user-form" onsubmit="window.handleFormSubmit(event)">
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Name</label>
+                        <input type="text" id="user-name" class="input w-full h-[44px] rounded-md border border-gray6 px-4"
+                            required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Email</label>
+                        <input type="email" id="user-email"
+                            class="input w-full h-[44px] rounded-md border border-gray6 px-4" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Role</label>
+                        <select id="user-role" class="input w-full h-[44px] rounded-md border border-gray6 px-4">
+                            <option value="customer">Customer</option>
+                            <option value="admin">Admin</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Password</label>
+                        <input type="password" id="user-password"
+                            class="input w-full h-[44px] rounded-md border border-gray6 px-4" placeholder="Password">
+                    </div>
+                </div>
+                <div class="flex justify-end gap-3 mt-6">
+                    <button type="button" onclick="window.closeModal()"
+                        class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50">Cancel</button>
+                    <button type="submit" id="user-submit-btn"
+                        class="px-4 py-2 text-sm font-medium text-white bg-theme rounded-md hover:bg-theme-dark">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script src="assets/js/alpine.js"></script>
     <script src="assets/js/perfect-scrollbar.js"></script>
     <script src="assets/js/choices.js"></script>

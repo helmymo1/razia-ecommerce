@@ -2356,3 +2356,62 @@ Stack: Error: Unknown column 'name' in 'field list'
     at authStatusCheck (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\middleware\authStatusCheck.js:23:9)
     at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
 
+[2026-01-15T23:31:54.836Z] GET /api/admin/users - Not Found - /api/admin/users
+Stack: Error: Not Found - /api/admin/users
+    at notFound (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\middleware\errorMiddleware.js:25:17)
+    at Layer.handle [as handle_request] (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\layer.js:95:5)
+    at trim_prefix (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\index.js:328:13)
+    at D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\index.js:286:9
+    at Function.process_params (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\index.js:280:10)
+    at Layer.handle [as handle_request] (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\layer.js:91:12)
+    at trim_prefix (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\index.js:328:13)
+    at D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\index.js:286:9
+    at Function.process_params (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\index.js:346:12)
+
+[2026-01-15T23:32:18.924Z] GET /api/admin/users - Not Found - /api/admin/users
+Stack: Error: Not Found - /api/admin/users
+    at notFound (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\middleware\errorMiddleware.js:25:17)
+    at Layer.handle [as handle_request] (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\layer.js:95:5)
+    at trim_prefix (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\index.js:328:13)
+    at D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\index.js:286:9
+    at Function.process_params (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\index.js:280:10)
+    at Layer.handle [as handle_request] (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\layer.js:91:12)
+    at trim_prefix (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\index.js:328:13)
+    at D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\index.js:286:9
+    at Function.process_params (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\index.js:346:12)
+
+[2026-01-15T23:33:09.744Z] HEAD /api/admin/users - Not Found - /api/admin/users
+Stack: Error: Not Found - /api/admin/users
+    at notFound (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\middleware\errorMiddleware.js:25:17)
+    at Layer.handle [as handle_request] (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\layer.js:95:5)
+    at trim_prefix (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\index.js:328:13)
+    at D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\index.js:286:9
+    at Function.process_params (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\index.js:280:10)
+    at Layer.handle [as handle_request] (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\layer.js:91:12)
+    at trim_prefix (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\index.js:328:13)
+    at D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\index.js:286:9
+    at Function.process_params (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\index.js:346:12)
+
+[2026-01-15T23:36:43.277Z] POST /api/admin/users - Field 'id' doesn't have a default value
+Stack: Error: Field 'id' doesn't have a default value
+    at PromisePool.query (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\mysql2\lib\promise\pool.js:36:22)
+    at addUser (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\controllers\adminController.js:52:31)
+
+[2026-01-15T23:37:48.606Z] POST /api/admin/users - Field 'id' doesn't have a default value
+Stack: Error: Field 'id' doesn't have a default value
+    at PromisePool.query (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\mysql2\lib\promise\pool.js:36:22)
+    at addUser (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\controllers\adminController.js:52:31)
+
+[2026-01-15T23:38:28.143Z] POST /api/admin/users - Field 'id' doesn't have a default value
+Stack: Error: Field 'id' doesn't have a default value
+    at PromisePool.query (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\mysql2\lib\promise\pool.js:36:22)
+    at addUser (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\controllers\adminController.js:52:31)
+
+[2026-01-15T23:41:20.868Z] POST /api/admin/users - Field 'id' doesn't have a default value
+Stack: Error: Field 'id' doesn't have a default value
+    at PromisePool.query (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\mysql2\lib\promise\pool.js:36:22)
+    at addUser (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\controllers\adminController.js:52:31)
+
