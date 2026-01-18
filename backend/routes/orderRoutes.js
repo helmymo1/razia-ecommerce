@@ -7,9 +7,7 @@ const {
     getOrderById,
     createOrder,
     updateOrderStatus,
-    deleteOrder,
-    requestRefund,
-    cancelOrder
+    deleteOrder
 } = require('../controllers/orderController');
 const { protect, admin } = require('../middleware/authMiddleware');
 const validate = require('../middleware/validateRequest');
@@ -26,9 +24,6 @@ router.get('/mine', protect, require('../middleware/authStatusCheck'), getUserOr
 router.route('/:id')
     .get(protect, require('../middleware/authStatusCheck'), getOrderById)
     .delete(protect, admin, require('../middleware/authStatusCheck'), deleteOrder);
-
-router.post('/:id/refund-request', protect, require('../middleware/authStatusCheck'), requestRefund);
-router.put('/:id/cancel', protect, require('../middleware/authStatusCheck'), cancelOrder);
 
 router.route('/:id/status')
     .put(protect, admin, require('../middleware/authStatusCheck'), updateOrderStatus);

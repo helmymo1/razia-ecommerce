@@ -140,15 +140,6 @@ const Checkout: React.FC = () => {
   const [orderNumber, setOrderNumber] = useState('');
   const [paymentMethod, setPaymentMethod] = useState<string>('');
 
-  // Auto-apply Referral Code
-  React.useEffect(() => {
-    const savedRef = localStorage.getItem('active_referral');
-    if (savedRef && !appliedPromo) {
-      setAppliedPromo({ code: savedRef, discount: 10 });
-      toast.success(language === 'ar' ? 'تم تطبيق كود الإحالة تلقائياً' : 'Referral code auto-applied');
-    }
-  }, []);
-
   // Address Book State
   const [savedAddresses, setSavedAddresses] = useState<Address[]>([]);
   const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
@@ -372,12 +363,9 @@ const Checkout: React.FC = () => {
       toast.loading('Processing payment...');
       
       // Extract product ID from cart item ID (format: "id-timestamp-random")
-      // Extract product ID - ensure it's a string UUID
-      // Handle composite IDs (UUID-Timestamp-Random) by taking first 36 chars
       const orderItems = items.map(item => ({
-        product_id: (item.product_id || item.id).toString().substring(0, 36),
-        quantity: item.quantity,
-        unit_price: item.price // Ensure price is passed as per request
+        product_id: parseInt(item.id.toString().split('-')[0]),
+        quantity: item.quantity
       }));
 
       const response = await orderService.createOrder({
@@ -394,10 +382,7 @@ const Checkout: React.FC = () => {
           country: selectedAddressId ? savedAddresses.find(a => a.id === selectedAddressId)?.country || shippingData.country : shippingData.country,
           state: selectedAddressId ? savedAddresses.find(a => a.id === selectedAddressId)?.state || shippingData.state : shippingData.state
         },
-        save_to_profile: false,
-        // Only send referralCode if it's a referral (starts with RAZIA check or if appliedPromo exists)
-        // Since backend validates existence in users table, we only send if we think it's one.
-        referralCode: appliedPromo?.code?.toUpperCase().startsWith('RAZIA') ? appliedPromo.code : undefined
+        save_to_profile: false // Handled by Address Book logic now
       });
 
       // 1. Get Token (from localStorage as AuthContext might lag or be complex object)
@@ -410,9 +395,9 @@ const Checkout: React.FC = () => {
           return;
       }
 
-      // 2. Initiate Payment (Paymob) - SKIPPED FOR TESTING
+      // 2. Initiate Payment (Paymob)
+      // Note: orderItems passed here are for Paymob display/metadata. 
       // The actual order is already created in DB.
-      /*
       const paymentResponse = await axios.post(
           'http://localhost:5000/api/payment/initiate',
           { 
@@ -426,7 +411,6 @@ const Checkout: React.FC = () => {
               }
           }
       );
-      
 
       toast.dismiss();
       
@@ -439,14 +423,6 @@ const Checkout: React.FC = () => {
         setCurrentStep(4);
         toast.success('Order placed!');
       }
-      */
-
-      // MANUAL SUCCESS FOR TESTING
-      toast.dismiss();
-      setOrderNumber(response.id);
-      clearCart();
-      setCurrentStep(4);
-      toast.success('Order placed! (Payment Skipped)');
 
     } catch (error: any) {
       toast.dismiss();

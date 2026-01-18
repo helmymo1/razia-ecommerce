@@ -12,8 +12,6 @@ import { productService } from '@/services/api';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useCart } from '@/contexts/CartContext';
 import { Button } from '@/components/ui/button';
-import SEO from '@/components/SEO';
-import { buildProductSchema } from '@/utils/generateSchema';
 
 const ProductPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -81,15 +79,6 @@ const ProductPage: React.FC = () => {
     <div className="min-h-screen bg-background">
       <Navbar />
       <CartDrawer />
-
-      <SEO
-        title={language === 'ar' ? product.nameAr : product.name}
-        description={language === 'ar' ? product.descriptionAr : product.description}
-        ogImage={product.images[0]}
-        lang={language === 'ar' ? 'ar' : 'en'}
-        structuredData={buildProductSchema(product, language === 'ar' ? 'ar' : 'en')}
-        path={`/products/${product.id}`}
-      />
 
       <main className="pt-20 md:pt-24 pb-12 md:pb-20">
         <div className="container mx-auto px-3 sm:px-4 md:px-6 lg:px-8">

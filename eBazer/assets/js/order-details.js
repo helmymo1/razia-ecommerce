@@ -103,13 +103,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // Save Status
     elements.saveBtn.addEventListener('click', async () => {
         const newStatus = elements.statusSelect.value;
-
-        if (newStatus === 'refunded') {
-            if (!confirm('Have you processed the refund in the Payment Gateway (e.g. Paymob)? This action will trigger a "Refund Processed" email to the user.')) {
-                return;
-            }
-        }
-
         const originalText = elements.saveBtn.textContent;
         elements.saveBtn.textContent = 'Saving...';
         elements.saveBtn.disabled = true;

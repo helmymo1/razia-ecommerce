@@ -231,7 +231,7 @@
 
         </aside>
 
-        <div class="fixed top-0 left-0 w-full h-full z-40 bg-black/70 transition-all duration-300 invisible opacity-0" :class="sideMenu ? 'visible opacity-1' : '  invisible opacity-0 '" x-on:click="sideMenu = ! sideMenu"> </div>
+        <div class="fixed top-0 left-0 w-full h-full z-40 bg-black/70 transition-all duration-300" :class="sideMenu ? 'visible opacity-1' : '  invisible opacity-0 '" x-on:click="sideMenu = ! sideMenu"> </div>
 
         <div class="tp-main-content lg:ml-[250px] xl:ml-[300px] w-[calc(100% - 300px)]"  x-data="{ searchOverlay: false }">
 
@@ -444,7 +444,7 @@
                     </div>
                 </div>
                 <div 
-                    class="fixed top-0 left-0 w-full h-full z-40 bg-black/70 transition-all duration-300 invisible opacity-0" 
+                    class="fixed top-0 left-0 w-full h-full z-40 bg-black/70 transition-all duration-300" 
                     :class="searchOverlay ? 'visible opacity-1' : '  invisible opacity-0 '"
                     x-on:click="searchOverlay = ! searchOverlay"
                 >

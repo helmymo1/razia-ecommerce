@@ -1,8 +1,6 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const db = require('../config/db');
-const emailService = require('../services/emailService');
-const { generateReferralCode } = require('../utils/codeGenerator');
 
 // @desc    Register a new user
 // @route   POST /api/auth/register
@@ -28,11 +26,8 @@ const register = async (req, res, next) => {
     // The previous code didn't specify role, so DB default likely 'customer'.
     // Step 769 showed 'role' column. If it has default 'customer', fine.
     // If not, I should add it. I'll rely on DB default for now as per previous code.
-      // Generate referral code
-      const referralCode = generateReferralCode(firstName);
-
-      const [result] = await db.query('INSERT INTO users (id, first_name, last_name, email, password_hash, personal_referral_code) VALUES (UUID(), ?, ?, ?, ?, ?)',
-          [firstName, lastName, email, hashedPassword, referralCode]
+    const [result] = await db.query('INSERT INTO users (id, first_name, last_name, email, password_hash) VALUES (UUID(), ?, ?, ?, ?)', 
+      [firstName, lastName, email, hashedPassword]
     );
         
     const id = result.insertId; // Note: UUID logic might behave differently regarding insertId? 
@@ -49,7 +44,7 @@ const register = async (req, res, next) => {
     // I should probably query the user back by email to get the ID.
     
     // Improvement: Fetch the user to get the true ID.
-      const [newUser] = await db.query('SELECT id, role, created_at, personal_referral_code FROM users WHERE email = ?', [email]);
+    const [newUser] = await db.query('SELECT id, role, created_at FROM users WHERE email = ?', [email]);
     const user = newUser[0];
     
     const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: '30d' });
@@ -66,20 +61,9 @@ const register = async (req, res, next) => {
       id: user.id,
       name,
       email,
-        email,
       role: user.role,
-        personal_referral_code: user.personal_referral_code
+      token
     });
-
-      // Send Welcome Email (Non-blocking)
-      (async () => {
-          try {
-              await emailService.sendWelcome(email, firstName);
-              console.log(`✅ Welcome Email sent to ${email}`);
-          } catch (err) {
-              console.error("❌ Welcome Email Failed:", err.message);
-          }
-      })();
   } catch (err) {
     next(err);
   }
@@ -118,18 +102,8 @@ const login = async (req, res, next) => {
         email: user.email,
         role: user.role,
         has_password: true,
-          personal_referral_code: user.personal_referral_code
+        token
       });
-
-        // Send Login Alert (Non-blocking)
-        (async () => {
-            try {
-                await emailService.sendLoginAlert(user.email);
-                console.log(`✅ Login Alert Email sent to ${user.email}`);
-            } catch (err) {
-                console.error("❌ Login Alert Email Failed:", err.message);
-            }
-        })();
     } else {
       res.status(400).json({ message: 'Invalid credentials' });
     }
@@ -238,11 +212,9 @@ const googleLogin = async (req, res) => {
             const firstName = nameParts[0];
             const lastName = nameParts.slice(1).join(' ') || '';
 
-            const referralCode = generateReferralCode(firstName);
-
             const [result] = await db.execute(
-                'INSERT INTO users (id, first_name, last_name, email, google_id, role, profile_pic, personal_referral_code) VALUES (UUID(), ?, ?, ?, ?, ?, ?, ?)',
-                [firstName, lastName, email, googleId, 'customer', picture, referralCode]
+                'INSERT INTO users (id, first_name, last_name, email, google_id, role, profile_pic) VALUES (UUID(), ?, ?, ?, ?, ?, ?)',
+                [firstName, lastName, email, googleId, 'customer', picture]
             );
             
             // Fetch the created user
@@ -262,14 +234,14 @@ const googleLogin = async (req, res) => {
         });
 
         res.json({
+            token: appToken,
             user: {
                 id: user.id,
                 name: `${user.first_name} ${user.last_name}`.trim(),
                 email: user.email,
                 role: user.role,
                 pic: user.profile_pic,
-                has_password: !!user.password_hash,
-                personal_referral_code: user.personal_referral_code
+                has_password: !!user.password_hash
             }
         });
 

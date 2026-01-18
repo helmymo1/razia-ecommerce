@@ -93,27 +93,18 @@ const Footer: React.FC = () => {
             <div className="flex gap-4 mb-8">
               <a
                 href="#"
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label={t('instagram') || "Instagram"}
                 className="w-10 h-10 rounded-full bg-primary-foreground/10 flex items-center justify-center hover:bg-gold hover:text-gold-foreground transition-all"
               >
                 <Instagram className="w-5 h-5" />
               </a>
               <a
                 href="#"
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label={t('twitter') || "Twitter"}
                 className="w-10 h-10 rounded-full bg-primary-foreground/10 flex items-center justify-center hover:bg-gold hover:text-gold-foreground transition-all"
               >
                 <Twitter className="w-5 h-5" />
               </a>
               <a
                 href="#"
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label={t('facebook') || "Facebook"}
                 className="w-10 h-10 rounded-full bg-primary-foreground/10 flex items-center justify-center hover:bg-gold hover:text-gold-foreground transition-all"
               >
                 <Facebook className="w-5 h-5" />

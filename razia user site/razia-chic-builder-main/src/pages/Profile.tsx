@@ -19,9 +19,8 @@ import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
 import { Link, useNavigate } from 'react-router-dom';
-import api, { orderService } from '@/services/api';
+import api from '@/services/api';
 import { useToast } from '@/hooks/use-toast';
-import RefundModal from '@/components/RefundModal';
 
 // Interfaces
 interface OrderItem {
@@ -36,7 +35,6 @@ interface Order {
   status: string;
   total: number;
   items: OrderItem[] | string;
-  payment_status?: string;
 }
 
 interface UserData {
@@ -106,10 +104,6 @@ const Profile: React.FC = () => {
   const [passwordForm, setPasswordForm] = useState({
     currentPassword: '', newPassword: '', confirmPassword: ''
   });
-
-  // Refund Modal State
-  const [isRefundModalOpen, setIsRefundModalOpen] = useState(false);
-  const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
 
   // Initial Data Fetch (User Profile)
   useEffect(() => {
@@ -255,75 +249,6 @@ const Profile: React.FC = () => {
       }
   }
 
-  const handleOpenRefundModal = (orderId: string) => {
-    setSelectedOrderId(orderId);
-    setIsRefundModalOpen(true);
-  };
-
-  const handleSubmitRefund = async (data: any) => {
-    try {
-      await orderService.createRefundRequest(data);
-      toast({ title: "Submitted", description: "Refund request submitted successfully" });
-
-      // Optimistic Update: Immediately update local state to show "Refund Requested"
-      // This ensures the button disappears and the badge appears instantly due to the logic in the render loop.
-      if (selectedOrderId) {
-        setOrders(prevOrders => {
-          return prevOrders.map(order =>
-            // Loose equality check for safety (string vs number)
-            order.id == selectedOrderId
-              ? { ...order, payment_status: 'refund_requested' }
-              : order
-          );
-        });
-      }
-
-      // Delay fetch to allow DB update to settle, preventing optimistic rollback
-      setTimeout(() => fetchOrders(), 1000);
-      setIsRefundModalOpen(false); // Close modal explicitly if not handled by component
-    } catch (error: any) {
-      toast({ title: "Error", description: error.response?.data?.message || "Failed to submit refund request", variant: "destructive" });
-    }
-  };
-
-  // Helper: Render Unified Status Badge
-  const renderUnifiedStatusBadge = (order: any) => {
-    const s = order.status?.toLowerCase();
-    const ps = order.payment_status?.toLowerCase();
-
-    // 1. Refund Priority
-    if (ps === 'refund_requested') {
-      return <span className="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs font-bold flex items-center gap-1">⏳ Refund Under Review</span>;
-    }
-    if (ps === 'refunded') {
-      return <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-xs font-bold flex items-center gap-1">💰 Refunded</span>;
-    }
-
-    // 2. Cancellation Priority
-    if (s === 'cancelled') {
-      return <span className="px-3 py-1 bg-red-100 text-red-800 rounded-full text-xs font-bold flex items-center gap-1">🚫 Cancelled</span>;
-    }
-
-    // 3. Active States
-    if (s === 'delivered') return <span className="px-3 py-1 bg-gray-900 text-white rounded-full text-xs font-bold flex items-center gap-1">✅ Delivered</span>;
-    if (s === 'shipped') return <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-bold flex items-center gap-1">🚚 Shipped</span>;
-    if (s === 'processing') return <span className="px-3 py-1 bg-indigo-100 text-indigo-800 rounded-full text-xs font-bold flex items-center gap-1">⚙️ Processing</span>;
-
-    // 4. Default
-    return <span className="px-3 py-1 bg-gray-100 text-gray-600 rounded-full text-xs font-bold flex items-center gap-1">🕒 Pending</span>;
-  };
-
-  const handleCancelOrder = async (orderId: string) => {
-    if (!confirm('Are you sure you want to CANCEL this order?')) return;
-    try {
-      await api.put(`/orders/${orderId}/cancel`);
-      toast({ title: "Cancelled", description: "Order cancelled successfully" });
-      fetchOrders(); // Refresh
-    } catch (error: any) {
-      toast({ title: "Error", description: error.response?.data?.message || "Failed to cancel order", variant: "destructive" });
-    }
-  };
-
   const handleChangePassword = async () => {
     if (passwordForm.newPassword !== passwordForm.confirmPassword) {
         toast({ title: "Error", description: "Passwords do not match", variant: "destructive" });
@@ -350,19 +275,8 @@ const Profile: React.FC = () => {
       case 'shipped': return 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400';
       case 'processing': return 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400';
       case 'cancelled': return 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400';
-      case 'refunded': return 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400';
       default: return 'bg-muted text-muted-foreground';
     }
-  };
-
-  const getPaymentStatusBadge = (status?: string) => {
-    if (!status) return null;
-    if (status === 'paid') return <Badge className="bg-green-100 text-green-800">Paid</Badge>;
-    if (status === 'pending') return <Badge className="bg-yellow-100 text-yellow-800">Pending</Badge>;
-    if (status === 'failed') return <Badge className="bg-red-100 text-red-800">Failed</Badge>;
-    if (status === 'refund_requested') return <Badge className="bg-orange-100 text-orange-800">Refund Requested</Badge>;
-    if (status === 'refunded') return <Badge className="bg-purple-100 text-purple-800">Refunded</Badge>;
-    return null;
   };
 
   const sidebarItems = [
@@ -521,43 +435,10 @@ const Profile: React.FC = () => {
                                             <p className="font-bold">Order #{order.id.slice(0,8)}</p>
                                             <p className="text-sm text-muted-foreground">{new Date(order.created_at).toLocaleDateString()}</p>
                                         </div>
-                                  <div className="flex flex-col items-end gap-2">
-                                    <div className="space-x-2">
-                                      {renderUnifiedStatusBadge(order)}
-                                    </div>
-                                    <p className="font-bold mt-1">${order.total.toFixed(2)}</p>
-                                    {/* ACTION BUTTONS SECTION */}
-                                    <div className="mt-6 flex flex-wrap gap-4">
-
-                                      {/* 1. CANCEL BUTTON */}
-                                      {/* Visible for Pending & Processing only. Logic: Not delivered, Not shipped, Not cancelled */}
-                                      {['pending', 'processing'].includes(order.status?.toLowerCase()) && (
-                                        <button
-                                          onClick={() => handleCancelOrder(order.id)}
-                                          className="px-6 py-2 bg-red-50 text-red-600 border border-red-200 rounded-md hover:bg-red-100 transition font-medium"
-                                        >
-                                          Cancel Order
-                                        </button>
-                                      )}
-
-                                      {/* 2. REFUND REQUEST BUTTON */}
-                                      {/* Visible if Delivered AND Not already requested/refunded */}
-                                      {order.status?.toLowerCase() === 'delivered' && !['refund_requested', 'refunded'].includes(order.payment_status?.toLowerCase()) && (
-                                        <button
-                                          onClick={() => handleOpenRefundModal(order.id)}
-                                          className="px-6 py-2 bg-gray-900 text-white rounded-md hover:bg-gray-800 transition font-medium flex items-center gap-2"
-                                        >
-                                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 15v-1a4 4 0 00-4-4H8m0 0l3 3m-3-3l3-3m9 14V5a2 2 0 00-2-2H6a2 2 0 00-2 2v16l4-2 4 2 4-2 4 2z" />
-                                          </svg>
-                                          Request Refund / Return
-                                        </button>
-                                      )}
-
-                                      {/* 3. STATUS BADGES - Unified into main badge at top */}
-                                    </div>
-
-                                  </div>
+                                        <div className="text-right">
+                                            <Badge className={getStatusColor(order.status)}>{order.status}</Badge>
+                                            <p className="font-bold mt-1">${order.total.toFixed(2)}</p>
+                                        </div>
                                     </div>
                                     <div className="space-y-2">
                                         {(Array.isArray(order.items) ? order.items : []).map((item, idx) => (
@@ -743,21 +624,9 @@ const Profile: React.FC = () => {
           </div>
         </div>
       </main>
-
-      {selectedOrderId && (
-        <RefundModal
-          isOpen={isRefundModalOpen}
-          onClose={() => setIsRefundModalOpen(false)}
-          onSubmit={handleSubmitRefund}
-          orderId={selectedOrderId}
-        />
-      )}
-
       <Footer />
     </div>
   );
 };
 
 export default Profile;
-
-
