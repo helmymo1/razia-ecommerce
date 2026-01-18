@@ -39,7 +39,16 @@ const transactionLimiter = rateLimit({
 const configureSecurity = (app) => {
   // 1. Secure HTTP Headers
   app.use(helmet({
-    contentSecurityPolicy: false, // Disabled to allow inline scripts/styles in this template
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: ["'self'", "https://*.paymob.com", "https://*.googleapis.com"],
+        framesrc: ["'self'", "https://*.paymob.com"],
+        connectSrc: ["'self'", "https://*.paymob.com"],
+        imgSrc: ["'self'", "data:", "https:"],
+        styleSrc: ["'self'", "'unsafe-inline'"], // unsafe-inline needed for some UI libs if not nonce-based
+      }
+    },
     crossOriginResourcePolicy: { policy: "cross-origin" }
   }));
 
@@ -48,10 +57,22 @@ const configureSecurity = (app) => {
 
   // 3. CORS
   // 3. CORS
-  app.use(cors({
-      origin: true,
-      credentials: true
-  }));
+  const corsOptions = {
+    credentials: true,
+    origin: (origin, callback) => {
+      // Allow requests with no origin (like mobile apps or curl requests)
+      if (!origin) return callback(null, true);
+
+      const allowedOrigins = process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.split(',') : [];
+      // Localhost fallback for development
+      if (process.env.NODE_ENV !== 'production' || allowedOrigins.indexOf(origin) !== -1) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    }
+  };
+  app.use(cors(corsOptions));
 };
 
 module.exports = { configureSecurity, publicLimiter, authLimiter, transactionLimiter };

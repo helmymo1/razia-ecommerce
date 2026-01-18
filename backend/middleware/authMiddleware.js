@@ -17,7 +17,7 @@ const protect = async (req, res, next) => {
     try {
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-      const [rows] = await db.query('SELECT id, first_name, last_name, email, role, phone, avatar_url, password_hash FROM users WHERE id = ?', [decoded.id]);
+      const [rows] = await db.query('SELECT id, first_name, last_name, email, role, phone, avatar_url, password_hash, personal_referral_code FROM users WHERE id = ?', [decoded.id]);
       
       if (rows.length === 0) {
           return res.status(401).json({ message: 'Not authorized, user not found' });

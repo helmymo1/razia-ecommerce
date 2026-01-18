@@ -8,6 +8,7 @@ interface User {
   role?: string;
   profile_pic?: string;
   has_password?: boolean;
+  personal_referral_code?: string;
   [key: string]: any;
 }
 

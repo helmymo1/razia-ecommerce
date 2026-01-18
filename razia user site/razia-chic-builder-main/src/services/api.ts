@@ -136,6 +136,10 @@ export const orderService = {
     const response = await api.post('/orders', orderData);
     return response.data;
   },
+  createRefundRequest: async (data: any) => {
+    const response = await api.post('/refunds', data);
+    return response.data;
+  }
 };
 
 export const categoryService = {

@@ -31,13 +31,44 @@ document.addEventListener('DOMContentLoaded', () => {
                 url += `?search=${encodeURIComponent(search)}`;
             }
             
-            const data = await api.get(url); // Expecting array of orders
+            const data = await api.get(url); // Expectings array of orders
             
             if (!Array.isArray(data)) {
                 throw new Error('Invalid data format');
             }
 
+            // Client-side filtering if needed, but for now we just render all and let the status filter handle it if implemented
+            // Check for status filter
+            const statusFilter = document.querySelector('.search-select select');
+
+            // Calculate Refund Requests
+            const refundRequests = data.filter(o => o.payment_status === 'refund_requested' || o.status === 'refund_requested').length;
+            const badge = document.getElementById('refundRequestBadge');
+            if (badge) {
+                badge.textContent = refundRequests;
+                badge.style.display = refundRequests > 0 ? 'inline-block' : 'none';
+            }
+
             renderOrders(data);
+
+            // Attach filter listener
+            if (statusFilter) {
+                // Remove old listeners to avoid duplicates if called multiple times (though fetchOrders is usually called once or on search)
+                const newFilter = statusFilter.cloneNode(true);
+                statusFilter.parentNode.replaceChild(newFilter, statusFilter);
+
+                newFilter.addEventListener('change', (e) => {
+                    const status = e.target.value;
+                    if (status === 'all' || !status) {
+                        renderOrders(data);
+                    } else {
+                        // Filter by status OR payment_status
+                        const filtered = data.filter(o => o.status === status || o.payment_status === status);
+                        renderOrders(filtered);
+                    }
+                });
+            }
+
         } catch (error) {
             console.error('Error fetching orders:', error);
             orderListBody.innerHTML = `<tr><td colspan="9" class="text-center py-4 text-red-500">Failed to load orders: ${error.message}</td></tr>`;
@@ -57,9 +88,9 @@ document.addEventListener('DOMContentLoaded', () => {
         orders.forEach((order, index) => {
             const date = new Date(order.created_at).toLocaleDateString();
             const status = order.status || 'pending';
-            
-            // Calculate total items from JSON array if available, or use count
-            // The JSON_ARRAYAGG gives us 'items' array.
+            const paymentStatus = order.payment_status || 'paid'; // Default to paid if missing/legacy
+
+            // Calculate total items
             let items = order.items;
             if (typeof items === 'string') {
                 try { items = JSON.parse(items); } catch(e) { items = []; }
@@ -68,7 +99,33 @@ document.addEventListener('DOMContentLoaded', () => {
             
             const tr = document.createElement('tr');
             tr.className = 'bg-white border-b border-gray6 last:border-0 text-start mx-9';
-            
+            if (paymentStatus === 'refund_requested') {
+                tr.classList.add('bg-red-50'); // Highlight refund requests
+            }
+
+            // Status Options
+            let statusOptions = `
+                <option value="pending" ${status === 'pending' ? 'selected' : ''}>Pending</option>
+                <option value="processing" ${status === 'processing' ? 'selected' : ''}>Processing</option>
+                <option value="shipped" ${status === 'shipped' ? 'selected' : ''}>Shipped</option>
+                <option value="delivered" ${status === 'delivered' ? 'selected' : ''}>Delivered</option>
+                <option value="cancelled" ${status === 'cancelled' ? 'selected' : ''}>Cancelled</option>
+                <option value="refunded" ${status === 'refunded' ? 'selected' : ''}>Refunded</option>
+            `;
+
+            // Action Buttons
+            let actions = `
+                 <a href="order-details.html?id=${order.id}" class="w-auto px-3 h-10 leading-10 text-tiny bg-success text-white rounded-md hover:bg-green-600 inline-block">View</a>
+            `;
+
+            // Add Approve Refund Button if requested
+            if (paymentStatus === 'refund_requested') {
+                actions = `
+                    <button onclick="approveRefund('${order.id}')" class="w-auto px-3 h-10 leading-10 text-tiny bg-red-500 text-white rounded-md hover:bg-red-600 inline-block mr-2">Approve Refund</button>
+                    ${actions}
+                `;
+            }
+
             tr.innerHTML = `
                 <td class="pr-3 whitespace-nowrap">
                     <div class="tp-checkbox">
@@ -78,10 +135,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 </td>
                 <td class="px-3 py-3 font-normal text-[#55585B]">
                     #${order.order_number || order.id.substring(0,8)}
+                    ${paymentStatus === 'refund_requested' ? '<span class="text-xs text-red-500 font-bold block">Refund Requested</span>' : ''}
                 </td>
                 <td class="pr-8 py-5 whitespace-nowrap">
                     <a href="order-details.html?id=${order.id}" class="flex items-center space-x-5 text-hover-primary text-heading">
-                         <!-- Placeholder image or gravatar could be better -->
                         <div class="w-[50px] h-[50px] rounded-full bg-slate-200 flex items-center justify-center text-xl font-bold text-slate-500 uppercase">
                             ${order.user_name ? order.user_name.substring(0,2) : 'GU'}
                         </div>
@@ -96,20 +153,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 </td>
                 <td class="px-3 py-3 text-end">
                     <select class="status-select text-[11px] px-2 py-1 rounded-md leading-none font-medium border border-gray300 focus:border-theme" data-id="${order.id}">
-                        <option value="pending" ${status === 'pending' ? 'selected' : ''}>Pending</option>
-                        <option value="processing" ${status === 'processing' ? 'selected' : ''}>Processing</option>
-                        <option value="shipped" ${status === 'shipped' ? 'selected' : ''}>Shipped</option>
-                        <option value="delivered" ${status === 'delivered' ? 'selected' : ''}>Delivered</option>
-                        <option value="cancelled" ${status === 'cancelled' ? 'selected' : ''}>Cancelled</option>
+                        ${statusOptions}
                     </select>
                 </td>
                 <td class="px-3 py-3 font-normal text-[#55585B] text-end">
                     ${date}
                 </td>
                 <td class="px-9 py-3 text-end">
-                   <!-- Action buttons existing code -->
                    <div class="flex items-center justify-end space-x-2">
-                        <a href="order-details.html?id=${order.id}" class="w-auto px-3 h-10 leading-10 text-tiny bg-success text-white rounded-md hover:bg-green-600 inline-block">View</a>
+                        ${actions}
                    </div>
                 </td>
             `;
@@ -121,18 +173,13 @@ document.addEventListener('DOMContentLoaded', () => {
         document.querySelectorAll('.status-select').forEach(select => {
             select.addEventListener('change', (e) => updateStatus(e.target.dataset.id, e.target.value));
         });
-
-        // Add delete event listeners
-        /* existing delete logic if needed, simplifed above */
     }
 
     async function updateStatus(id, newStatus) {
         try {
             await api.put(`/orders/${id}/status`, { status: newStatus });
-            // Optional: Show toast
-            // toast.success('Status updated'); 
-            // Since we don't have a toast lib ready-to-hand in plain JS without analyzing, console log for now
-            console.log(`Order ${id} updated to ${newStatus}`);
+            // console.log(`Order ${id} updated to ${newStatus}`);
+            fetchOrders(); // Refresh
         } catch (error) {
             console.error('Failed to update status:', error);
             alert('Failed to update status');
@@ -140,8 +187,29 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    /* existing delete logic helper if needed */
-    /* getStatusColor helper removed as we use select now */
+    // Expose approveRefund to window so inline onclick works
+    window.approveRefund = async function (id) {
+        if (!confirm('Are you sure you want to approve this refund? This will mark the order as Refunded.')) return;
+        try {
+            // In a real app, this might trigger a Paymob Refund API call
+            // For now, we manually update status to 'refunded' and payment_status to 'refunded'
+            // We'll potentially need a dedicated endpoint, but updating status to 'refunded' might stay consistent
+            // Actually, let's just update the status to 'refunded'
+
+            // NOTE: Ideally we should update 'payment_status' too.
+            // But current 'updateStatus' only updates 'status'.
+            // I'll stick to updating 'status' to 'refunded'. 
+            // A better backend implementation would update payment_status when status becomes refunded.
+            // Let's assume the backend handles that or we do two calls (or improve backend).
+
+            await api.put(`/orders/${id}/status`, { status: 'refunded' });
+            alert('Refund Approved');
+            fetchOrders();
+        } catch (error) {
+            console.error('Refund failed:', error);
+            alert('Failed to approve refund');
+        }
+    };
 
     function capitalize(str) {
         return str.charAt(0).toUpperCase() + str.slice(1);

@@ -6,6 +6,7 @@ const {
     editUser,
     deleteUser
 } = require('../controllers/adminController');
+const refundController = require('../controllers/refundController');
 const { protect, admin } = require('../middleware/authMiddleware');
 
 router.route('/users')
@@ -15,5 +16,8 @@ router.route('/users')
 router.route('/users/:id')
     .put(protect, admin, editUser)
     .delete(protect, admin, deleteUser);
+
+// Refund Routes
+router.get('/refunds', protect, admin, refundController.getAllRefunds);
 
 module.exports = router;

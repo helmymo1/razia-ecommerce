@@ -63,11 +63,25 @@ const orderSchemas = {
     total_amount: Joi.number().min(0).optional(), 
     address_id: Joi.any().optional(),
     coupon_code: Joi.string().optional(),
+    save_to_profile: Joi.boolean().optional(),
+    referralCode: Joi.string().optional(),
+    shipping_info: Joi.object({
+      firstName: Joi.string().required(),
+      lastName: Joi.string().required(),
+      email: Joi.string().email().required(),
+      phone: Joi.string().required(),
+      address: Joi.string().required(),
+      city: Joi.string().required(),
+      state: Joi.string().optional().allow(''),
+      zipCode: Joi.string().optional().allow(''),
+      country: Joi.string().optional().allow(''),
+    }).required(),
     order_items: Joi.array().items(
       Joi.object({
-        product_id: Joi.alternatives().try(Joi.string(), Joi.number()).required(), // Support both UUIDs (string) and legacy IDs (int)
+        product_id: Joi.alternatives().try(Joi.string(), Joi.number()).required(),
         quantity: Joi.number().integer().min(1).required(),
-        price: Joi.number().min(0).optional() // Intentionally optional, calculated on server
+        price: Joi.number().min(0).optional(),
+        unit_price: Joi.number().min(0).optional() // Allow alias
       })
     ).min(1).required()
   })

@@ -89,6 +89,7 @@ const Navbar: React.FC = () => {
               <button
                 onClick={toggleLanguage}
                 className="flex items-center gap-1 p-2 text-muted-foreground hover:text-foreground transition-colors"
+                aria-label={language === 'en' ? "Switch to Arabic" : "Switch to English"}
               >
                 <Globe className="w-5 h-5" />
                 <span className="text-xs font-medium uppercase">{language}</span>

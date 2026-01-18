@@ -27,6 +27,17 @@ async function loadDashboardStats() {
         if (monthEarnEl) monthEarnEl.innerText = `$${stats.monthlyEarning.toLocaleString()}`;
         if (pendingEl) pendingEl.innerText = stats.pendingOrders.toLocaleString();
 
+        // Refund Badge
+        const refundBadge = document.getElementById('refund-badge');
+        if (refundBadge) {
+            if (stats.refundRequests > 0) {
+                refundBadge.innerText = stats.refundRequests;
+                refundBadge.classList.remove('hidden');
+            } else {
+                refundBadge.classList.add('hidden');
+            }
+        }
+
     } catch (error) {
         console.error('Error loading dashboard stats:', error);
     }
@@ -35,7 +46,7 @@ async function loadDashboardStats() {
 async function loadRecentOrders() {
     try {
         const orders = await api.get('/dashboard/recent-orders');
-        const container = document.querySelector('.overflow-scroll tbody'); // Targeting the recent orders table body
+        const container = document.getElementById('recent-orders-body'); // Targeting the recent orders table body directly
         
         if (!container) return;
         container.innerHTML = '';

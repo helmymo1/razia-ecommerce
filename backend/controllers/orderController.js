@@ -2,6 +2,7 @@ const db = require('../config/db');
 const { v4: uuidv4 } = require('uuid');
 const redisWrapper = require('../config/redis');
 const logger = require('../utils/logger');
+const emailService = require('../services/emailService');
 const ORDER_STATUS = require('../constants/orderStatus');
 
 // @desc    Get all orders
@@ -100,6 +101,8 @@ const createOrder = async (req, res, next) => {
     const { order_items } = req.body;
     const user_id = req.user.id; // User ID from auth middleware
 
+    logger.info(`[CreateOrder] Body: ${JSON.stringify(req.body)}`);
+
     if (!order_items || order_items.length === 0) {
       res.status(400);
       throw new Error('No order items');
@@ -148,6 +151,51 @@ const createOrder = async (req, res, next) => {
       );
     }
 
+    // --- REFERRAL LOGIC START ---
+    const { referralCode } = req.body;
+    let referralDiscount = 0;
+    let referrerId = null;
+
+    if (referralCode) {
+      // 1. Find Referrer
+      const [referrers] = await connection.query(
+        'SELECT id FROM users WHERE personal_referral_code = ?',
+        [referralCode]
+      );
+
+      if (referrers.length > 0) {
+        referrerId = referrers[0].id; // Assuming ID is CHAR(36) or INT based on schema
+
+        // 2. Anti-Fraud: Self-Referral
+        // Note: Ensure types match (string vs int). req.user.id might be string if UUID.
+        if (String(referrerId) === String(user_id)) {
+          throw new Error('You cannot use your own referral code');
+        }
+
+        // 3. One-Time Rule: Has user used a referral before?
+        const [previousReferrals] = await connection.query(
+          'SELECT id FROM referrals WHERE referee_id = ?',
+          [user_id]
+        );
+
+        if (previousReferrals.length > 0) {
+          throw new Error('You have already used a referral code');
+        }
+
+        // 4. Apply Discount (10%)
+        referralDiscount = calculatedTotalAmount * 0.10;
+        calculatedTotalAmount -= referralDiscount;
+
+        logger.info(`Referral Applied: Code ${referralCode}, Discount ${referralDiscount}, New Total ${calculatedTotalAmount}`);
+      } else {
+        // Invalid code - standard behavior is to throw error or ignore. 
+        // Requirement says "Reject it" for fraud, implied for invalid code too to prevent guessing?
+        // Only throw if code was provided but invalid.
+        throw new Error('Invalid referral code');
+      }
+    }
+    // --- REFERRAL LOGIC END ---
+
     // Extract Shipping Info from Request Object (as per requirement) or Fallback
     // Requirement Update: Look for `shipping_info` object in `req.body`
     const { shipping_info, save_to_profile } = req.body;
@@ -189,8 +237,8 @@ const createOrder = async (req, res, next) => {
         shipping_name, shipping_phone, shipping_address, shipping_city, shipping_zip
        ) VALUES (?, ?, ?, ?, ?, ?, NOW(), ?, ?, ?, ?, ?)`,
       [
-        orderId, user_id, orderNumber, calculatedTotalAmount, calculatedTotalAmount, 'pending',
-        shipping_name, phone, address, city, shipping_zip
+        orderId, user_id, orderNumber, (calculatedTotalAmount + referralDiscount), calculatedTotalAmount, 'pending',
+        shipping_name, phone, JSON.stringify(address), city, shipping_zip
       ]
     );
 
@@ -203,13 +251,24 @@ const createOrder = async (req, res, next) => {
       );
     }
 
+    // --- REFERRAL RECORDING ---
+    if (referrerId) {
+      await connection.query(
+        `INSERT INTO referrals (referrer_id, referee_id, referee_order_id, status) 
+             VALUES (?, ?, ?, 'pending')`,
+        [referrerId, user_id, orderId]
+      );
+    }
+    // --------------------------
+
     // Commit Transaction
     await connection.commit();
 
     res.status(201).json({
       id: orderId,
       message: 'Order created successfully',
-      total: calculatedTotalAmount
+      total: calculatedTotalAmount,
+      referralDiscount: referralDiscount > 0 ? referralDiscount : undefined
     });
 
   } catch (error) {
@@ -234,11 +293,38 @@ const updateOrderStatus = async (req, res, next) => {
         throw new Error('Invalid order status');
     }
 
-    const [result] = await db.query('UPDATE orders SET status = ? WHERE id = ?', [status, req.params.id]);
+    // Logic: If status is 'refunded', also update payment_status to 'refunded'
+    if (status === 'refunded') {
+      const [result] = await db.query(
+        "UPDATE orders SET status = ?, payment_status = 'refunded' WHERE id = ?",
+        [status, req.params.id]
+      );
+      if (result.affectedRows === 0) {
+        res.status(404);
+        throw new Error('Order not found');
+      }
 
-    if (result.affectedRows === 0) {
-      res.status(404);
-      throw new Error('Order not found');
+      // Fetch order and user details to send email
+      const [rows] = await db.query(
+        `SELECT o.id, u.email, u.name 
+         FROM orders o 
+         JOIN users u ON o.user_id = u.id 
+         WHERE o.id = ?`,
+        [req.params.id]
+      );
+
+      if (rows.length > 0) {
+        const orderInfo = rows[0];
+        // Send Refund Processed Email
+        await emailService.sendRefundProcessed(orderInfo.email, orderInfo.id, orderInfo.name);
+      }
+
+    } else {
+      const [result] = await db.query('UPDATE orders SET status = ? WHERE id = ?', [status, req.params.id]);
+      if (result.affectedRows === 0) {
+        res.status(404);
+        throw new Error('Order not found');
+      }
     }
 
     res.json({ message: 'Order status updated' });
@@ -271,7 +357,7 @@ const deleteOrder = async (req, res, next) => {
 const getUserOrders = async (req, res, next) => {
   try {
     const query = `
-      SELECT o.id, o.total, o.status, o.created_at,
+      SELECT o.id, o.total, o.status, o.payment_status, o.created_at,
       JSON_ARRAYAGG(
         JSON_OBJECT('name', p.name_en, 'image', p.image_url, 'qty', oi.quantity, 'price', oi.unit_price)
       ) as items
@@ -289,6 +375,97 @@ const getUserOrders = async (req, res, next) => {
   }
 };
 
+// @desc    Request Refund
+// @route   POST /api/orders/:id/refund-request
+// @access  Private
+const requestRefund = async (req, res, next) => {
+  try {
+    const orderId = req.params.id;
+    const userId = req.user.id;
+
+    // Verify Order Ownership
+    const [orders] = await db.query('SELECT * FROM orders WHERE id = ? AND user_id = ?', [orderId, userId]);
+
+    if (orders.length === 0) {
+      return res.status(404).json({ message: 'Order not found' });
+    }
+
+    const order = orders[0];
+
+    // Validation: Must be paid (Removed 'delivered' check to allow refunds on all paid orders)
+    // if (order.status !== 'delivered') {
+    //   return res.status(400).json({ message: 'Refund requests are only available for delivered orders' });
+    // }
+
+    if (order.payment_status !== 'paid') {
+      return res.status(400).json({ message: 'Order must be paid to request a refund' });
+    }
+
+    // Check if already requested
+    if (order.payment_status === 'refund_requested') {
+      return res.status(400).json({ message: 'Refund already requested for this order' });
+    }
+
+    // Update DB Status
+    await db.query(
+      "UPDATE orders SET payment_status = 'refund_requested' WHERE id = ?",
+      [orderId]
+    );
+
+    // Send Email
+    const userEmail = req.user.email;
+    await emailService.sendRefundConfirmation(userEmail, order.order_number || order.id);
+    await emailService.sendRefundRequestAdminNotification(order.order_number || order.id);
+
+    logger.info(`Refund Requested: Order ${order.id} by User ${userId}`);
+
+    res.json({ message: 'Refund request submitted successfully' });
+
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Cancel Order
+// @route   PUT /api/orders/:id/cancel
+// @access  Private
+const cancelOrder = async (req, res, next) => {
+  try {
+    const orderId = req.params.id;
+    const userId = req.user.id;
+
+    // Verify Ownership
+    const [orders] = await db.query('SELECT * FROM orders WHERE id = ? AND user_id = ?', [orderId, userId]);
+    if (orders.length === 0) return res.status(404).json({ message: 'Order not found' });
+
+    const order = orders[0];
+
+    // Validation: Cannot cancel if already delivered or cancelled
+    if (['delivered', 'cancelled', 'refunded'].includes(order.status)) {
+      return res.status(400).json({ message: `Cannot cancel order with status: ${order.status}` });
+    }
+
+    // specific check: if shipped, typically can't cancel, but user said "any". 
+    // I will allow 'shipped' to be cancelled but maybe admin needs to know.
+    // For now, simple state update.
+
+    // Update Status
+    await db.query("UPDATE orders SET status = 'cancelled' WHERE id = ?", [orderId]);
+
+    // If paid, maybe flag for refund?
+    if (order.payment_status === 'paid') {
+      // Auto-request refund if cancelled after pay
+      await db.query("UPDATE orders SET payment_status = 'refund_requested' WHERE id = ?", [orderId]);
+    }
+
+    logger.info(`Order ${orderId} cancelled by User ${userId}`);
+    res.json({ message: 'Order cancelled successfully' });
+
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   getOrders,
   getAllOrders,
@@ -296,5 +473,7 @@ module.exports = {
   getOrderById,
   createOrder,
   updateOrderStatus,
-  deleteOrder
+  deleteOrder,
+  requestRefund,
+  cancelOrder
 };

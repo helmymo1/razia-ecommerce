@@ -23,6 +23,10 @@ const HeroSection: React.FC = () => {
           src={heroImage}
           alt="Luxury Fashion"
           className="w-full h-full object-cover"
+          fetchPriority="high"
+          loading="eager"
+          width="1920"
+          height="1080"
         />
         <div className="absolute inset-0 bg-gradient-to-r from-foreground/60 via-foreground/30 to-transparent" />
       </motion.div>

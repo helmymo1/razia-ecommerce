@@ -8,6 +8,7 @@ import { productService } from '@/services/api';
 import { useQuery } from '@tanstack/react-query';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useCart } from '@/contexts/CartContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -51,6 +52,7 @@ interface ReferralData {
 const OutfitBuilder: React.FC = () => {
   const { t, language, direction } = useLanguage();
   const { addItem } = useCart();
+  const { user } = useAuth();
   const [outfitBoxes, setOutfitBoxes] = useState<OutfitBox[]>([
     { id: 1, products: [] },
     { id: 2, products: [] },
@@ -105,6 +107,7 @@ const OutfitBuilder: React.FC = () => {
       // Apply referral discount automatically
       setAppliedPromoCode(refCode);
       setPromoDiscount(10);
+      localStorage.setItem('active_referral', refCode);
       toast.success(t('referralApplied'));
     }
   }, []);
@@ -189,8 +192,16 @@ const OutfitBuilder: React.FC = () => {
   };
 
   const generateShareLink = () => {
-    // Generate a unique referral code
-    const code = 'RAZIA' + Math.random().toString(36).substring(2, 8).toUpperCase();
+    // Determine the referral code
+    const code = user?.personal_referral_code;
+
+    if (!code) {
+      toast.error(language === 'ar' ? 'يرجى تسجيل الدخول للمشاركة وكسب المكافآت' : 'Please login to share and earn rewards');
+      // Optional: Redirect to login or open auth modal?
+      // navigate('/auth'); 
+      return;
+    }
+
     const shareLink = `${window.location.origin}/outfit-builder?ref=${code}`;
     
     setReferralData({

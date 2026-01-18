@@ -2,6 +2,7 @@ const axios = require('axios');
 
 // CRITICAL: KSA Base URL
 const BASE_URL = 'https://ksa.paymob.com/api'; 
+const logger = require('../utils/logger'); // Import Logger
 
 const initiatePayment = async (user, totalAmount, items, merchantOrderId) => {
     try {
@@ -53,7 +54,9 @@ const initiatePayment = async (user, totalAmount, items, merchantOrderId) => {
         };
 
     } catch (error) {
-        console.error("Paymob KSA Error:", error.response?.data || error.message);
+        // Enhanced Logging
+        const errorData = error.response ? error.response.data : error.message;
+        logger.error(`Paymob KSA Error: ${JSON.stringify(errorData)}`);
         throw new Error("Payment initiation failed");
     }
 };

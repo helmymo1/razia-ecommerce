@@ -92,7 +92,7 @@ exports.handleWebhook = async (req, res) => {
 
                 // Fetch Order Items
                 const [items] = await db.query(
-                    `SELECT p.name, oi.quantity, oi.price as unit_price 
+                    `SELECT p.name_en as name, oi.quantity, oi.unit_price
                      FROM order_items oi 
                      JOIN products p ON oi.product_id = p.id 
                      WHERE oi.order_id = ?`,
@@ -101,8 +101,51 @@ exports.handleWebhook = async (req, res) => {
 
                 // Send Confirmation Email
                 if (orderDetails.user_email) {
-                    await emailService.sendOrderConfirmation(orderDetails.user_email, orderDetails, items);
+                    await emailService.sendOrderConfirmation(orderDetails, items);
                 }
+
+                // --- REFERRAL REWARD LOGIC ---
+                // Check for pending referral linked to this order
+                const [referrals] = await db.query(
+                    "SELECT * FROM referrals WHERE referee_order_id = ? AND status = 'pending'",
+                    [orderId]
+                );
+
+                if (referrals.length > 0) {
+                    const referral = referrals[0];
+                    const referrerId = referral.referrer_id;
+
+                    // Generate Unique Coupon Code
+                    const randomSuffix = Math.floor(1000 + Math.random() * 9000); // 4 digit random
+                    // Fetch Referrer Name for personalization (optional, using generic for now)
+                    const rewardCode = `THANKS-${randomSuffix}`;
+
+                    // Create Coupon in DB
+                    // Expires in 30 days
+                    const expiryDate = new Date();
+                    expiryDate.setDate(expiryDate.getDate() + 30);
+
+                    await db.execute(
+                        `INSERT INTO coupons (code, discount_type, discount_value, start_date, end_date, usage_limit, status, created_at) 
+                         VALUES (?, 'percentage', 15.00, NOW(), ?, 1, 'active', NOW())`,
+                        [rewardCode, expiryDate]
+                    );
+
+                    // Update Referral Status
+                    await db.execute(
+                        "UPDATE referrals SET status = 'completed', reward_coupon_code = ? WHERE id = ?",
+                        [rewardCode, referral.id]
+                    );
+
+                    // Send Email to Referrer
+                    // We need referrer email
+                    const [referrerRows] = await db.query("SELECT email FROM users WHERE id = ?", [referrerId]);
+                    if (referrerRows.length > 0) {
+                        await emailService.sendReferralReward(referrerRows[0].email, rewardCode);
+                        console.log(`🎁 Reward sent to referrer ${referrerRows[0].email}`);
+                    }
+                }
+                // -----------------------------
             }
 
         } else {

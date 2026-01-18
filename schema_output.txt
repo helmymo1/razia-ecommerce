@@ -1,0 +1,15 @@
+Error: Error: Access denied for user 'root'@'172.18.0.1' (using password: NO)
+    at Object.createConnectionPromise [as createConnection] (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\mysql2\promise.js:19:31)
+    at checkSchema (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\check_orders_schema.js:16:40)
+    at Object.<anonymous> (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\check_orders_schema.js:40:1)
+    at Module._compile (node:internal/modules/cjs/loader:1706:14)
+    at Object..js (node:internal/modules/cjs/loader:1839:10)
+    at Module.load (node:internal/modules/cjs/loader:1441:32)
+    at Function._load (node:internal/modules/cjs/loader:1263:12)
+    at TracingChannel.traceSync (node:diagnostics_channel:328:14)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:237:24)
+    at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:171:5) {
+  code: 'ER_ACCESS_DENIED_ERROR',
+  errno: 1045,
+  sqlState: '28000'
+}

@@ -19,6 +19,7 @@ const getStats = async (req, res, next) => {
     );
 
     const [pendingOrders] = await db.query('SELECT COUNT(*) as count FROM orders WHERE status = "pending"');
+      const [refundRequests] = await db.query('SELECT COUNT(*) as count FROM orders WHERE payment_status = "refund_requested"');
 
     res.status(200).json({
       revenue: revenue[0].revenue || 0,
@@ -26,7 +27,8 @@ const getStats = async (req, res, next) => {
       totalProducts: products[0].count || 0,
       totalCustomers: customers[0].count || 0,
       monthlyEarning: monthlyRevenue[0].revenue || 0,
-      pendingOrders: pendingOrders[0].count || 0
+        pendingOrders: pendingOrders[0].count || 0,
+        refundRequests: refundRequests[0].count || 0,
     });
   } catch (error) {
     next(error);
@@ -66,7 +68,7 @@ const getSalesChart = async (req, res, next) => {
 const getRecentOrders = async (req, res, next) => {
     try {
         const sql = `
-          SELECT o.id, o.order_number, o.total_amount, o.status, o.created_at, u.name AS user_name
+          SELECT o.id, o.order_number, o.total AS total_amount, o.status, o.created_at, u.name AS user_name
           FROM orders o
           JOIN users u ON o.user_id = u.id
           ORDER BY o.created_at DESC
@@ -105,9 +107,9 @@ const getBestSellers = async (req, res, next) => {
 const getLowStock = async (req, res, next) => {
     try {
         const sql = `
-          SELECT id, name, quantity, image_url
+          SELECT id, name_en AS name, stock_quantity AS quantity, image_url
           FROM products
-          WHERE quantity < 5 AND is_deleted = 0
+          WHERE stock_quantity < 5 AND is_deleted = 0
           LIMIT 10
         `;
         const [products] = await db.query(sql);

@@ -11,6 +11,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
 import { Checkbox } from '@/components/ui/checkbox';
+import SEO from '@/components/SEO';
 
 const Shop: React.FC = () => {
   const { t, language } = useLanguage();
@@ -73,6 +74,12 @@ const Shop: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEO
+        title={t('shop')}
+        description="Browse our exclusive collection of luxury women's fashion."
+        path="/shop"
+        lang={language === 'ar' ? 'ar' : 'en'}
+      />
       <Navbar />
       <CartDrawer />
       

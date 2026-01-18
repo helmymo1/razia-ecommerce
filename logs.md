@@ -2415,3 +2415,243 @@ Stack: Error: Field 'id' doesn't have a default value
     at PromisePool.query (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\mysql2\lib\promise\pool.js:36:22)
     at addUser (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\controllers\adminController.js:52:31)
 
+[2026-01-16T12:08:30.179Z] POST /api/orders - Product d445f4a1-53cc-4c93-8632-84199451f305-1768565299022-0.5954645151716476 not found
+Stack: Error: Product d445f4a1-53cc-4c93-8632-84199451f305-1768565299022-0.5954645151716476 not found
+    at createOrder (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\controllers\orderController.js:125:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+
+[2026-01-16T12:10:14.942Z] POST /api/orders - Shipping address required (shipping_info object)
+Stack: Error: Shipping address required (shipping_info object)
+    at createOrder (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\controllers\orderController.js:157:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+
+[2026-01-16T12:12:00.917Z] POST /api/orders - Shipping address required (shipping_info object)
+Stack: Error: Shipping address required (shipping_info object)
+    at createOrder (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\controllers\orderController.js:157:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+
+[2026-01-16T12:12:04.872Z] POST /api/orders - Shipping address required (shipping_info object)
+Stack: Error: Shipping address required (shipping_info object)
+    at createOrder (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\controllers\orderController.js:157:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+
+[2026-01-16T12:15:52.827Z] POST /api/orders - Shipping address required (shipping_info object)
+Stack: Error: Shipping address required (shipping_info object)
+    at createOrder (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\controllers\orderController.js:157:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+
+[2026-01-16T12:16:27.066Z] POST /api/orders - Shipping address required (shipping_info object)
+Stack: Error: Shipping address required (shipping_info object)
+    at createOrder (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\controllers\orderController.js:157:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+
+[2026-01-16T12:21:30.740Z] POST /api/orders - Invalid JSON text: "The document root must not be followed by other values." at position 3 in value for column 'orders.shipping_address'.
+Stack: Error: Invalid JSON text: "The document root must not be followed by other values." at position 3 in value for column 'orders.shipping_address'.
+    at PromisePoolConnection.query (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\mysql2\lib\promise\connection.js:29:22)
+    at createOrder (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\controllers\orderController.js:189:22)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+
+[2026-01-16T13:40:17.374Z] PUT /api/orders/8a62a782-6e56-4817-9b23-a16742d3e0f6/status - Invalid order status
+Stack: Error: Invalid order status
+    at updateOrderStatus (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\controllers\orderController.js:237:15)
+    at Layer.handle [as handle_request] (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\route.js:149:13)
+    at authStatusCheck (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\middleware\authStatusCheck.js:23:9)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+
+[2026-01-16T13:41:06.054Z] PUT /api/orders/77fc3332-2557-4f4b-a4d5-7aaaeecba9b5/status - Invalid order status
+Stack: Error: Invalid order status
+    at updateOrderStatus (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\controllers\orderController.js:237:15)
+    at Layer.handle [as handle_request] (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\route.js:149:13)
+    at authStatusCheck (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\middleware\authStatusCheck.js:23:9)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+
+[2026-01-16T13:41:20.652Z] PUT /api/orders/77fc3332-2557-4f4b-a4d5-7aaaeecba9b5/status - Invalid order status
+Stack: Error: Invalid order status
+    at updateOrderStatus (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\controllers\orderController.js:237:15)
+    at Layer.handle [as handle_request] (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\route.js:149:13)
+    at authStatusCheck (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\middleware\authStatusCheck.js:23:9)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+
+[2026-01-16T13:43:37.973Z] PUT /api/orders/77fc3332-2557-4f4b-a4d5-7aaaeecba9b5/status - Invalid order status
+Stack: Error: Invalid order status
+    at updateOrderStatus (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\controllers\orderController.js:237:15)
+    at Layer.handle [as handle_request] (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\route.js:149:13)
+    at authStatusCheck (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\middleware\authStatusCheck.js:23:9)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+
+[2026-01-16T13:46:29.013Z] PUT /api/orders/8a62a782-6e56-4817-9b23-a16742d3e0f6/cancel - Not Found - /api/orders/8a62a782-6e56-4817-9b23-a16742d3e0f6/cancel
+Stack: Error: Not Found - /api/orders/8a62a782-6e56-4817-9b23-a16742d3e0f6/cancel
+    at notFound (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\middleware\errorMiddleware.js:25:17)
+    at Layer.handle [as handle_request] (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\layer.js:95:5)
+    at trim_prefix (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\index.js:328:13)
+    at D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\index.js:286:9
+    at Function.process_params (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\index.js:280:10)
+    at Layer.handle [as handle_request] (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\layer.js:91:12)
+    at trim_prefix (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\index.js:328:13)
+    at D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\index.js:286:9
+    at Function.process_params (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\index.js:346:12)
+
+[2026-01-16T13:50:08.381Z] PUT /api/orders/4a6e68ed-f996-4562-8520-fdd149d6249e/cancel - Not Found - /api/orders/4a6e68ed-f996-4562-8520-fdd149d6249e/cancel
+Stack: Error: Not Found - /api/orders/4a6e68ed-f996-4562-8520-fdd149d6249e/cancel
+    at notFound (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\middleware\errorMiddleware.js:25:17)
+    at Layer.handle [as handle_request] (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\layer.js:95:5)
+    at trim_prefix (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\index.js:328:13)
+    at D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\index.js:286:9
+    at Function.process_params (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\index.js:280:10)
+    at Layer.handle [as handle_request] (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\layer.js:91:12)
+    at trim_prefix (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\index.js:328:13)
+    at D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\index.js:286:9
+    at Function.process_params (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\index.js:346:12)
+
+[2026-01-16T13:50:31.638Z] PUT /api/orders/d582c24e-d6ed-4650-8029-a74891cb0de9/status - Invalid order status
+Stack: Error: Invalid order status
+    at updateOrderStatus (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\controllers\orderController.js:237:15)
+    at Layer.handle [as handle_request] (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\route.js:149:13)
+    at authStatusCheck (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\middleware\authStatusCheck.js:23:9)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+
+[2026-01-17T10:29:50.168Z] GET /api/auth - Not Found - /api/auth
+Stack: Error: Not Found - /api/auth
+    at notFound (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\middleware\errorMiddleware.js:25:17)
+    at Layer.handle [as handle_request] (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\layer.js:95:5)
+    at trim_prefix (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\index.js:328:13)
+    at D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\index.js:286:9
+    at Function.process_params (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\index.js:280:10)
+    at Layer.handle [as handle_request] (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\layer.js:91:12)
+    at trim_prefix (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\index.js:328:13)
+    at D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\index.js:286:9
+    at Function.process_params (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\index.js:346:12)
+
+[2026-01-17T11:12:29.472Z] GET /favicon.ico - Not Found - /favicon.ico
+Stack: Error: Not Found - /favicon.ico
+    at notFound (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\middleware\errorMiddleware.js:25:17)
+    at Layer.handle [as handle_request] (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\layer.js:95:5)
+    at trim_prefix (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\index.js:328:13)
+    at D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\index.js:286:9
+    at Function.process_params (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\index.js:280:10)
+    at Layer.handle [as handle_request] (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\layer.js:91:12)
+    at trim_prefix (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\index.js:328:13)
+    at D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\index.js:286:9
+    at Function.process_params (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\index.js:346:12)
+
+[2026-01-17T11:31:40.507Z] POST /api/refunds - Not Found - /api/refunds
+Stack: Error: Not Found - /api/refunds
+    at notFound (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\middleware\errorMiddleware.js:25:17)
+    at Layer.handle [as handle_request] (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\layer.js:95:5)
+    at trim_prefix (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\index.js:328:13)
+    at D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\index.js:286:9
+    at Function.process_params (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\index.js:280:10)
+    at Layer.handle [as handle_request] (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\layer.js:91:12)
+    at trim_prefix (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\index.js:328:13)
+    at D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\index.js:286:9
+    at Function.process_params (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\index.js:346:12)
+
+[2026-01-17T11:34:22.033Z] POST /api/refunds - Not Found - /api/refunds
+Stack: Error: Not Found - /api/refunds
+    at notFound (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\middleware\errorMiddleware.js:25:17)
+    at Layer.handle [as handle_request] (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\layer.js:95:5)
+    at trim_prefix (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\index.js:328:13)
+    at D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\index.js:286:9
+    at Function.process_params (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\index.js:280:10)
+    at Layer.handle [as handle_request] (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\layer.js:91:12)
+    at trim_prefix (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\index.js:328:13)
+    at D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\index.js:286:9
+    at Function.process_params (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\index.js:346:12)
+
+[2026-01-17T11:35:15.911Z] POST /api/refunds - Not Found - /api/refunds
+Stack: Error: Not Found - /api/refunds
+    at notFound (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\middleware\errorMiddleware.js:25:17)
+    at Layer.handle [as handle_request] (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\layer.js:95:5)
+    at trim_prefix (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\index.js:328:13)
+    at D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\index.js:286:9
+    at Function.process_params (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\index.js:280:10)
+    at Layer.handle [as handle_request] (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\layer.js:91:12)
+    at trim_prefix (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\index.js:328:13)
+    at D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\index.js:286:9
+    at Function.process_params (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\index.js:346:12)
+
+[2026-01-17T11:36:03.603Z] POST /api/refunds - Not Found - /api/refunds
+Stack: Error: Not Found - /api/refunds
+    at notFound (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\middleware\errorMiddleware.js:25:17)
+    at Layer.handle [as handle_request] (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\layer.js:95:5)
+    at trim_prefix (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\index.js:328:13)
+    at D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\index.js:286:9
+    at Function.process_params (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\index.js:280:10)
+    at Layer.handle [as handle_request] (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\layer.js:91:12)
+    at trim_prefix (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\index.js:328:13)
+    at D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\index.js:286:9
+    at Function.process_params (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\index.js:346:12)
+
+[2026-01-17T11:51:40.202Z] PUT /api/orders/8a62a782-6e56-4817-9b23-a16742d3e0f6/status - Invalid order status
+Stack: Error: Invalid order status
+    at updateOrderStatus (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\controllers\orderController.js:237:15)
+    at Layer.handle [as handle_request] (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\route.js:149:13)
+    at authStatusCheck (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\middleware\authStatusCheck.js:23:9)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+
+[2026-01-17T12:45:40.228Z] GET /favicon.ico - Not Found - /favicon.ico
+Stack: Error: Not Found - /favicon.ico
+    at notFound (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\middleware\errorMiddleware.js:25:17)
+    at Layer.handle [as handle_request] (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\layer.js:95:5)
+    at trim_prefix (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\index.js:328:13)
+    at D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\index.js:286:9
+    at Function.process_params (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\index.js:280:10)
+    at Layer.handle [as handle_request] (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\layer.js:91:12)
+    at trim_prefix (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\index.js:328:13)
+    at D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\index.js:286:9
+    at Function.process_params (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\index.js:346:12)
+
+[2026-01-17T13:45:27.823Z] GET /sitemap.xml - Not Found - /sitemap.xml
+Stack: Error: Not Found - /sitemap.xml
+    at notFound (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\middleware\errorMiddleware.js:25:17)
+    at Layer.handle [as handle_request] (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\layer.js:95:5)
+    at trim_prefix (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\index.js:328:13)
+    at D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\index.js:286:9
+    at Function.process_params (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\index.js:280:10)
+    at Layer.handle [as handle_request] (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\layer.js:91:12)
+    at trim_prefix (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\index.js:328:13)
+    at D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\index.js:286:9
+    at Function.process_params (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\index.js:346:12)
+
+[2026-01-17T13:46:22.211Z] GET /sitemap.xml - Not Found - /sitemap.xml
+Stack: Error: Not Found - /sitemap.xml
+    at notFound (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\middleware\errorMiddleware.js:25:17)
+    at Layer.handle [as handle_request] (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\layer.js:95:5)
+    at trim_prefix (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\index.js:328:13)
+    at D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\index.js:286:9
+    at Function.process_params (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\index.js:280:10)
+    at Layer.handle [as handle_request] (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\layer.js:91:12)
+    at trim_prefix (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\index.js:328:13)
+    at D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\index.js:286:9
+    at Function.process_params (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\index.js:346:12)
+
+[2026-01-17T13:52:29.363Z] HEAD /api/health - Not Found - /api/health
+Stack: Error: Not Found - /api/health
+    at notFound (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\middleware\errorMiddleware.js:25:17)
+    at Layer.handle [as handle_request] (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\layer.js:95:5)
+    at trim_prefix (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\index.js:328:13)
+    at D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\index.js:286:9
+    at Function.process_params (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\index.js:280:10)
+    at Layer.handle [as handle_request] (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\layer.js:91:12)
+    at trim_prefix (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\index.js:328:13)
+    at D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\index.js:286:9
+    at Function.process_params (D:\evanto\New folder (3)\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\backend\node_modules\express\lib\router\index.js:346:12)
+

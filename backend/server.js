@@ -17,6 +17,7 @@ db.query('SELECT 1')
   .catch(err => logger.error('Database connection failed: ' + err.message));
 
 const app = express();
+app.set('trust proxy', 1); // Trust first proxy (Nginx/Heroku/Railway)
 const requestLogger = require('./middleware/requestLogger');
 
 // Security Configuration
@@ -31,36 +32,57 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(require('cookie-parser')());
 
+// Routes
+app.use('/api/auth', require('./routes/authRoutes'));
+app.use('/api/users', require('./routes/userRoutes'));
+app.use('/api/products', require('./routes/productRoutes'));
+app.use('/api/categories', require('./routes/categoryRoutes'));
+app.use('/api/orders', require('./routes/orderRoutes'));
+app.use('/api/refunds', require('./routes/refundRoutes'));
+app.use('/api/upload', require('./routes/uploadRoutes'));
+app.use('/api/dashboard', require('./routes/dashboardRoutes'));
+app.use('/api/coupons', require('./routes/couponRoutes'));
+app.use('/api/reviews', require('./routes/reviewRoutes'));
+app.use('/api/wishlist', require('./routes/wishlistRoutes')); // Double check if this is /users/wishlist inside api.ts, but standard is /api/wishlist if route root is /
+app.use('/api/cart', require('./routes/cartRoutes'));
+app.use('/api/payments', require('./routes/paymentRoutes'));
+
+// SEO Routes
+const { generateSitemap } = require('./controllers/seoController');
+app.get('/sitemap.xml', generateSitemap);
+
+app.use('/api/transactions', require('./routes/transactionRoutes'));
+app.use('/api/admin', require('./routes/adminRoutes'));
+app.use('/api/addresses', require('./routes/addressRoutes')); // api.ts uses /users/addresses, so look into userRoutes for that, but mounting here just in case.
+
 // Static Folder for Uploads
 // Static Folder for Uploads
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Serve Frontend Static Files
-app.use(express.static(path.join(__dirname, '../eBazer')));
+// Production: Serve React Build from 'public' folder (copied by Dockerfile)
+if (process.env.NODE_ENV === 'production') {
+  app.use(express.static(path.join(__dirname, 'public')));
 
-// Routes
-// Routes
-app.use('/api/auth', require('./routes/authRoutes'));
-app.use('/api/upload', require('./routes/uploadRoutes'));
-app.use('/api/dashboard', require('./routes/dashboardRoutes'));
-app.use('/api/products', require('./routes/productRoutes'));
-app.use('/api/categories', require('./routes/categoryRoutes'));
-app.use('/api/orders', require('./routes/orderRoutes'));
-// app.use('/api/reviews', require('./routes/reviewRoutes'));
-app.use('/api/coupons', require('./routes/couponRoutes'));
-app.use('/api/addresses', require('./routes/addressRoutes'));
-app.use('/api/wishlist', require('./routes/wishlistRoutes'));
-app.use('/api/users', require('./routes/userRoutes'));
-app.use('/api/admin', require('./routes/adminRoutes'));
-const paymentRoutes = require('./routes/paymentRoutes');
-app.use('/api/payment', paymentRoutes);
-// app.use('/api/cart', require('./routes/cartRoutes'));
-// app.use('/api/transactions', require('./routes/transactionRoutes'));
+  // Serve Admin Panel (Legacy - check if folder exists)
+  app.use('/admin-panel', express.static(path.join(__dirname, '../eBazer')));
 
-// Root Route
-app.get('/', (req, res) => {
-  res.send('API is running...');
-});
+  // Handle SPA Routing (Any route not API/Uploads -> index.html)
+  app.get('*', (req, res) => {
+    // Exclude API routes from this fallback just in case (though API routes are defined above)
+    if (req.path.startsWith('/api')) {
+      return res.status(404).json({ message: 'API Route not found' });
+    }
+    res.sendFile(path.resolve(__dirname, 'public', 'index.html'));
+  });
+} else {
+  // Development: Serve Admin Panel at Root temporarily
+  app.use(express.static(path.join(__dirname, '../eBazer')));
+
+  app.get('/', (req, res) => {
+    res.send('API is running (Development Mode)...');
+  });
+}
 
 // Swagger
 const swaggerUi = require('swagger-ui-express');
