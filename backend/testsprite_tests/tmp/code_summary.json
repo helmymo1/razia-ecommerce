@@ -1,0 +1,140 @@
+{
+  "tech_stack": [
+    "Node.js",
+    "Express.js",
+    "MySQL",
+    "Redis",
+    "Jest",
+    "JWT",
+    "Joi"
+  ],
+  "project_config": {
+    "baseUrl": "http://localhost:5000",
+    "apiPrefix": "/api"
+  },
+  "features": [
+    {
+      "name": "Auth",
+      "description": "User authentication. Base URL: http://localhost:5000/api/auth",
+      "files": ["routes/authRoutes.js"],
+      "api_doc": {
+        "openapi": "3.0.0",
+        "servers": [
+          {
+            "url": "http://localhost:5000",
+            "description": "Local Backend Server"
+          }
+        ],
+        "paths": {
+          "/api/auth/login": {
+            "post": {
+              "summary": "User Login",
+              "requestBody": {
+                "content": {
+                  "application/json": {
+                    "schema": {
+                      "type": "object",
+                      "properties": {
+                        "email": { "type": "string", "example": "admin@example.com" },
+                        "password": { "type": "string", "example": "123456" }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "/api/auth/register": {
+            "post": {
+              "summary": "User Registration",
+              "requestBody": {
+                "content": {
+                  "application/json": {
+                    "schema": {
+                      "type": "object",
+                      "properties": {
+                        "name": { "type": "string" },
+                        "email": { "type": "string" },
+                        "password": { "type": "string" }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Products",
+      "description": "Product management. Base URL: http://localhost:5000/api/products",
+      "files": ["routes/productRoutes.js"],
+      "api_doc": {
+        "paths": {
+          "/api/products": {
+            "get": {
+              "summary": "List Products",
+              "parameters": [
+                { "name": "search", "in": "query", "schema": { "type": "string" } },
+                { "name": "limit", "in": "query", "schema": { "type": "integer" } }
+              ]
+            }
+          },
+          "/api/products/{id}": {
+            "get": {
+              "summary": "Get Product Details",
+              "parameters": [
+                { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Orders",
+      "description": "Order management. Base URL: http://localhost:5000/api/orders",
+      "files": ["routes/orderRoutes.js"],
+      "api_doc": {
+        "paths": {
+          "/api/orders": {
+            "post": {
+              "summary": "Create Order",
+              "requestBody": {
+                "content": {
+                  "application/json": {
+                    "schema": {
+                      "type": "object",
+                      "properties": {
+                        "user_id": { "type": "string" },
+                        "total_amount": { "type": "number" },
+                        "coupon_code": { "type": "string" },
+                        "order_items": { "type": "array" }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "get": {
+              "summary": "List Orders"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Dashboard",
+      "description": "Admin dashboard stats. Base URL: http://localhost:5000/api/dashboard",
+      "files": ["routes/dashboardRoutes.js"],
+      "api_doc": {
+         "paths": {
+          "/api/dashboard/stats": {
+            "get": { "summary": "Get Stats" }
+          }
+        }
+      }
+    }
+  ]
+}

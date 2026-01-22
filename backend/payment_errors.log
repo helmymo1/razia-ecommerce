@@ -1,0 +1,12 @@
+
+[2026-01-18T19:08:13.736Z] PAYMENT ERROR:
+{
+  "amount": [
+    "You are passing Transaction Amount in an invalid format. The amount parameter should be provided as an integer representing the decimal units of the currency. Example: Pass 100 for EGP 1 / AED 1 / PKR 1 / SAR 1, Pass 1000 for OMR 1."
+  ],
+  "items": {
+    "amount": [
+      "A valid integer is required."
+    ]
+  }
+}

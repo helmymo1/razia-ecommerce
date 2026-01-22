@@ -36,7 +36,7 @@ import { z } from 'zod';
 import madaLogo from '@/assets/payments/mada.png';
 import tamaraLogo from '@/assets/payments/tamara.png';
 import tabbyLogo from '@/assets/payments/tabby.png';
-import { orderService } from '@/services/api';
+import api, { orderService } from '@/services/api';
 
 // Validation schemas
 const shippingSchema = z.object({
@@ -114,6 +114,18 @@ const Checkout: React.FC = () => {
   const [promoCode, setPromoCode] = useState('');
   const [appliedPromo, setAppliedPromo] = useState<{ code: string; discount: number } | null>(null);
   
+  // Referral State
+  const [referralCode, setReferralCode] = useState<string | null>(null);
+  const [referralDiscount, setReferralDiscount] = useState(0); // decimal (0.10)
+
+  React.useEffect(() => {
+    const storedRef = localStorage.getItem('active_referral');
+    if (storedRef) {
+      setReferralCode(storedRef);
+      setReferralDiscount(0.10); // Fixed 10%
+    }
+  }, []);
+
   const [errors, setErrors] = useState<Record<string, string>>({});
   
   const [shippingData, setShippingData] = useState<ShippingData>({
@@ -224,8 +236,11 @@ const Checkout: React.FC = () => {
   // Fixed shipping cost
   const shippingCost = 25;
   const promoDiscount = appliedPromo ? (subtotal * appliedPromo.discount) / 100 : 0;
-  const tax = (subtotal - promoDiscount) * 0.15; // 15% VAT
-  const total = subtotal - promoDiscount + shippingCost + tax;
+  // Referral Discount
+  const referralDiscountAmount = referralDiscount ? (subtotal * referralDiscount) : 0;
+
+  const tax = (subtotal - promoDiscount - referralDiscountAmount) * 0.15; // 15% VAT
+  const total = subtotal - promoDiscount - referralDiscountAmount + shippingCost + tax;
 
   const applyPromoCode = () => {
     if (!promoCode.trim()) {
@@ -362,27 +377,35 @@ const Checkout: React.FC = () => {
     try {
       toast.loading('Processing payment...');
       
-      // Extract product ID from cart item ID (format: "id-timestamp-random")
+      // Extract product ID directly
       const orderItems = items.map(item => ({
-        product_id: parseInt(item.id.toString().split('-')[0]),
+        product_id: item.id,
         quantity: item.quantity
       }));
 
-      const response = await orderService.createOrder({
-        order_items: orderItems,
-        shipping_info: {
+      // Prepare Shipping Info Object explicitly
+      const selectedAddress = selectedAddressId ? savedAddresses.find(a => a.id === selectedAddressId) : null;
+
+      const shippingPayload = {
           firstName: shippingData.firstName,
           lastName: shippingData.lastName,
           email: shippingData.email,
           phone: shippingData.phone,
-          // Use selected address details if available
-          address: selectedAddressId ? savedAddresses.find(a => a.id === selectedAddressId)?.address_line1 || shippingData.address : shippingData.address,
-          city: selectedAddressId ? savedAddresses.find(a => a.id === selectedAddressId)?.city || shippingData.city : shippingData.city,
-          zipCode: selectedAddressId ? savedAddresses.find(a => a.id === selectedAddressId)?.zip || shippingData.zipCode : shippingData.zipCode,
-          country: selectedAddressId ? savedAddresses.find(a => a.id === selectedAddressId)?.country || shippingData.country : shippingData.country,
-          state: selectedAddressId ? savedAddresses.find(a => a.id === selectedAddressId)?.state || shippingData.state : shippingData.state
-        },
-        save_to_profile: false // Handled by Address Book logic now
+        address: selectedAddress ? selectedAddress.address_line1 : shippingData.address,
+        city: selectedAddress ? selectedAddress.city : shippingData.city,
+        zipCode: selectedAddress ? (selectedAddress.zip || '') : shippingData.zipCode,
+        country: selectedAddress ? (selectedAddress.country || 'Saudi Arabia') : shippingData.country,
+        state: selectedAddress ? (selectedAddress.state || '') : shippingData.state
+      };
+
+      console.log('Sending Order Payload:', { order_items: orderItems, shipping_info: shippingPayload });
+
+      const response = await orderService.createOrder({
+        order_items: orderItems,
+        shipping_info: shippingPayload,
+        shippingAddress: shippingPayload, // Redundancy as requested
+        save_to_profile: false,
+        referralCode: referralCode || undefined
       });
 
       // 1. Get Token (from localStorage as AuthContext might lag or be complex object)
@@ -398,17 +421,16 @@ const Checkout: React.FC = () => {
       // 2. Initiate Payment (Paymob)
       // Note: orderItems passed here are for Paymob display/metadata. 
       // The actual order is already created in DB.
-      const paymentResponse = await axios.post(
-          'http://localhost:5000/api/payment/initiate',
+      // 2. Initiate Payment (Paymob)
+      // Note: orderItems passed here are for Paymob display/metadata. 
+      // The actual order is already created in DB.
+      // Use imported 'api' instance to ensure Auth Interceptor works
+      const paymentResponse = await api.post(
+        '/payment/initiate', // Use relative path
           { 
               items: items.map(item => ({...item, price: item.price})), // Ensure correct structure
               shipping_info: shippingData,
-              order_id: response.id // Pass the backend Order ID to link them
-          },
-          {
-              headers: {
-                  Authorization: `Bearer ${token}` // <--- THE FIX
-              }
+            order_id: response.id // Pass the backend Order ID to link them
           }
       );
 
@@ -1077,6 +1099,12 @@ const Checkout: React.FC = () => {
           <div className="flex justify-between text-sm text-green-600">
             <span>Discount ({appliedPromo.discount}%)</span>
             <span>-SAR {promoDiscount.toLocaleString()}</span>
+          </div>
+        )}
+        {referralCode && (
+          <div className="flex justify-between text-sm text-blue-600">
+            <span>Referral Discount (10%)</span>
+            <span>-SAR {referralDiscountAmount.toLocaleString()}</span>
           </div>
         )}
         <div className="flex justify-between text-sm">

@@ -16,7 +16,16 @@ db.query('SELECT 1')
   .then(() => logger.info('Connected to MySQL Database'))
   .catch(err => logger.error('Database connection failed: ' + err.message));
 
+const morgan = require('morgan');
+
+// Stream morgan logs into winston
+const stream = {
+  write: (message) => logger.info(message.trim()),
+};
+
 const app = express();
+
+app.use(morgan('combined', { stream }));
 const requestLogger = require('./middleware/requestLogger');
 
 // Security Configuration
@@ -27,8 +36,8 @@ configureSecurity(app);
 app.use(requestLogger);
 
 // Body Parsers
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 app.use(require('cookie-parser')());
 
 // Static Folder for Uploads
@@ -36,24 +45,25 @@ app.use(require('cookie-parser')());
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Serve Frontend Static Files
-app.use(express.static(path.join(__dirname, '../eBazer')));
+// app.use(express.static(path.join(__dirname, '../eBazer'))); // Legacy HTML Template Config Removed
 
 // Routes
 // Routes
 app.use('/api/auth', require('./routes/authRoutes'));
-app.use('/api/upload', require('./routes/uploadRoutes'));
+app.use('/api/upload', require('./modules/upload/uploadRoutes'));
 app.use('/api/dashboard', require('./routes/dashboardRoutes'));
-app.use('/api/products', require('./routes/productRoutes'));
+app.use('/api/products', require('./modules/products/productRoutes'));
 app.use('/api/categories', require('./routes/categoryRoutes'));
-app.use('/api/orders', require('./routes/orderRoutes'));
+app.use('/api/orders', require('./modules/orders/orderRoutes'));
 // app.use('/api/reviews', require('./routes/reviewRoutes'));
 app.use('/api/coupons', require('./routes/couponRoutes'));
 app.use('/api/addresses', require('./routes/addressRoutes'));
 app.use('/api/wishlist', require('./routes/wishlistRoutes'));
-app.use('/api/users', require('./routes/userRoutes'));
+app.use('/api/users', require('./modules/users/userRoutes'));
 app.use('/api/admin', require('./routes/adminRoutes'));
-const paymentRoutes = require('./routes/paymentRoutes');
-app.use('/api/payment', paymentRoutes);
+// const paymentRoutes = require('./routes/paymentRoutes');
+// app.use('/api/payment', paymentRoutes);
+app.use('/api/payments', require('./modules/payments/paymentRoutes')); // New Webhook Endpoint
 // app.use('/api/cart', require('./routes/cartRoutes'));
 // app.use('/api/transactions', require('./routes/transactionRoutes'));
 
@@ -91,11 +101,45 @@ app.use(errorHandler);
 
 // Only start server if run directly (node server.js), not when imported by tests
 if (require.main === module) {
+  const http = require('http');
+  const { Server } = require("socket.io");
+
+  const httpServer = http.createServer(app);
+  const io = new Server(httpServer, {
+    cors: {
+      origin: [
+        "http://localhost:5173",
+        "http://localhost:3000",
+        "http://localhost:3001",
+        "http://localhost:5174"
+      ],
+    }
+  });
+
   const PORT = config.PORT || 5000;
-  app.listen(PORT, () => {
+
+  // Initialize Socket Service
+  const { initSocketService } = require('./services/socketService');
+  initSocketService(io);
+
+  httpServer.listen(PORT, () => {
     // console.log replaced by logger
     const logger = require('./utils/logger');
-    logger.info(`Server running on port ${PORT}`);
+
+    // Initialize Notification Service (Event Listener)
+    const { initNotificationService } = require('./modules/notifications/notificationService');
+    const { initInventoryService } = require('./modules/inventory/inventoryService');
+    const { initOrderService } = require('./modules/orders/orderService');
+    const { initShippingService } = require('./modules/shipping/shippingService');
+
+    initNotificationService();
+    initInventoryService();
+    initOrderService();
+    initShippingService();
+
+    logger.info(`Server running on http://localhost:${PORT}`);
+    console.log("⚠️ RATE LIMITING DISABLED FOR TESTING ⚠️");
+    console.log("🔌 Socket.io Server active");
   });
 }
 

@@ -7,16 +7,16 @@ const { authSchemas } = require('../middleware/schemas');
 const { authLimiter } = require('../middleware/securityConfig');
 
 // Register User
-router.post('/register', authLimiter, validate(authSchemas.register), register);
+router.post('/register', validate(authSchemas.register), register);
 
 // Login User
-router.post('/login', authLimiter, validate(authSchemas.login), login);
+router.post('/login', validate(authSchemas.login), login);
 
 // OAuth Login - Google
-router.post('/google', authLimiter, googleLogin);
+router.post('/google', googleLogin);
 
 // OAuth Login - Apple
-router.post('/apple', authLimiter, appleLogin);
+router.post('/apple', appleLogin);
 
 // Verify Session (Get Current User)
 router.get('/me', protect, getMe);

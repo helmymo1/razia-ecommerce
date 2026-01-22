@@ -6,6 +6,7 @@
   "scripts": {
     "start": "cd backend && npm start",
     "dev": "cd backend && npm run dev",
+    "start:prod": "pm2 start ecosystem.config.js --env production",
     "test": "cd backend && npm test",
     "postinstall": "cd backend && npm install",
     "db:check": "node backend/scripts/db_health_check.js"

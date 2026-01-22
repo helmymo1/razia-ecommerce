@@ -1,6 +1,7 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:5000/api';
+const BASE_URL = 'http://localhost:5000'; // Hardcoded for connectivity repair
+const API_URL = `${BASE_URL}/api`;
 
 const api = axios.create({
   baseURL: API_URL,
@@ -71,7 +72,7 @@ const getColorHex = (name: string) => {
     return colors[name.toLowerCase()] || '#cccccc'; 
 };
 
-export const IMAGE_BASE_URL = 'http://localhost:5000';
+export const IMAGE_BASE_URL = 'http://localhost:5000'; // Hardcoded for connectivity repair
 
 const transformProduct = (product: any) => {
   // Parse colors/sizes if they are strings (from getProductById)
@@ -98,13 +99,44 @@ const transformProduct = (product: any) => {
       return c;
   });
 
+  let images = product.images;
+  if (typeof images === 'string') {
+    try {
+      images = JSON.parse(images);
+    } catch (e) {
+      images = [];
+    }
+  } else if (!Array.isArray(images)) {
+    images = [];
+  }
+
+  // Fallback to image_url if images is empty
+  if (images.length === 0 && product.image_url) {
+    images = [product.image_url];
+  }
+
+  images = images.map((img: string) => img.startsWith('http') ? img : `${IMAGE_BASE_URL}/${img.replace(/^\/+/, '')}`);
+  let tags = product.tags;
+  if (typeof tags === 'string') {
+    try {
+      if (tags.startsWith('[')) {
+        tags = JSON.parse(tags);
+      } else {
+        tags = tags.split(',').map(t => t.trim());
+      }
+    } catch (e) {
+      tags = [];
+    }
+  } else if (!Array.isArray(tags)) {
+    tags = [];
+  }
+
   return {
     ...product,
     sizes,
     colors,
-    images: product.images 
-      ? product.images.map((img: string) => img.startsWith('http') ? img : `${IMAGE_BASE_URL}/${img.replace(/^\/+/, '')}`)
-      : (product.image_url ? [(product.image_url.startsWith('http') ? product.image_url : `${IMAGE_BASE_URL}/${product.image_url.replace(/^\/+/, '')}`)] : []),
+    tags,
+    images,
     
     // Ensure numeric prices
     price: parseFloat(product.price) || 0,

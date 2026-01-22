@@ -1,0 +1,17 @@
+{
+  "status": "commited",
+  "type": "backend",
+  "scope": "codebase",
+  "localEndpoint": "http://localhost:5000",
+  "backendAuthType": "basic token",
+  "executionArgs": {
+    "projectName": "ebazer-backend",
+    "projectPath": "d:\\evanto\\New folder (3)\\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\\backend",
+    "testIds": [],
+    "additionalInstruction": "Generate robust tests. Ensure login payload uses 'email' and 'password'. Handle potential 400 errors by validating request body structure.",
+    "envs": {
+      "API_KEY": "sk-user-GYn3ACuZmX6U2d0kuAUKk1jixiBCR-EItSezecEnEOTGNOS6N5-yKISj2Q0KhgcLr17tOVTIdzrzO8M5z7k0ornzTjhIq44rX7lxicR5k47WoM5g_lu--mDJ2IZFzK4Oklg"
+    }
+  },
+  "proxy": "http://a90baaf8-6626-4cd4-9e08-bc458bd6ce85:ug8NMIxiCqd2ywrmoXEIKoakzeux03Kv@tun.testsprite.com:8080"
+}

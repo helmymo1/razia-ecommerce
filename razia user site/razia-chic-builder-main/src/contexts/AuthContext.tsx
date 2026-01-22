@@ -43,8 +43,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     } catch (error) {
       console.error('Failed to fetch user', error);
-      localStorage.removeItem('token');
-      setUser(null);
+      // localStorage.removeItem('token');
+      // setUser(null);
     } finally {
       setLoading(false);
     }

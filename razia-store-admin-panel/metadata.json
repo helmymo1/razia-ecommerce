@@ -1,0 +1,7 @@
+{
+  "name": "Razia Store Admin Panel",
+  "description": "A comprehensive e-commerce administration dashboard for fashion retailers, featuring analytics, order management, refund workflows, and marketing insights.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}

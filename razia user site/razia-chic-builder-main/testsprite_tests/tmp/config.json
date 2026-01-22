@@ -1,0 +1,16 @@
+{
+  "status": "commited",
+  "type": "frontend",
+  "scope": "codebase",
+  "localEndpoint": "http://localhost:5173",
+  "executionArgs": {
+    "projectName": "ebazer-frontend",
+    "projectPath": "d:\\evanto\\New folder (3)\\ebazer-tailwind-css-ecommerce-admin-template-2025-05-05-05-21-50-utc\\razia user site\\razia-chic-builder-main",
+    "testIds": [],
+    "additionalInstruction": "",
+    "envs": {
+      "API_KEY": "sk-user-GYn3ACuZmX6U2d0kuAUKk1jixiBCR-EItSezecEnEOTGNOS6N5-yKISj2Q0KhgcLr17tOVTIdzrzO8M5z7k0ornzTjhIq44rX7lxicR5k47WoM5g_lu--mDJ2IZFzK4Oklg"
+    }
+  },
+  "proxy": "http://22784937-3c46-47ef-8ddb-44e6742a86b2:MVOEFsnINox3d5S8BPL5VYypymuUPxLh@tun.testsprite.com:8080"
+}

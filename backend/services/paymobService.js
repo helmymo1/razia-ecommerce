@@ -23,26 +23,34 @@ const initiatePayment = async (user, totalAmount, items, merchantOrderId) => {
         const orderId = orderRes.data.id;
 
         // 3. PAYMENT KEY REQUEST
+        const billingData = {
+            "apartment": "NA",
+            "email": user.email,
+            "floor": "NA",
+            "first_name": user.name.split(' ')[0] || "Guest",
+            "street": user.address || "Riyadh St",
+            "building": "NA",
+            "phone_number": formatKSAPhone(user.phone), // Helper to ensure +966
+            "shipping_method": "NA",
+            "postal_code": user.zip || "12345",
+            "city": user.city || "Riyadh",
+            "country": "SA", // KSA Country Code
+            "last_name": user.name.split(' ')[1] || "User",
+            "state": "Riyadh"
+        };
+
+        console.log("PAYMENT PAYLOAD DEBUG:", JSON.stringify({
+            amount_cents: Math.round(totalAmount * 100),
+            currency: "SAR",
+            billing_data: billingData
+        }, null, 2));
+
         const keyRes = await axios.post(`${BASE_URL}/acceptance/payment_keys`, {
             auth_token: token,
             amount_cents: Math.round(totalAmount * 100),
             expiration: 3600,
             order_id: orderId,
-            billing_data: {
-                "apartment": "NA",
-                "email": user.email,
-                "floor": "NA",
-                "first_name": user.name.split(' ')[0] || "Guest",
-                "street": user.address || "Riyadh St",
-                "building": "NA",
-                "phone_number": formatKSAPhone(user.phone), // Helper to ensure +966
-                "shipping_method": "NA",
-                "postal_code": user.zip || "12345",
-                "city": user.city || "Riyadh",
-                "country": "SA", // KSA Country Code
-                "last_name": user.name.split(' ')[1] || "User",
-                "state": "Riyadh"
-            },
+            billing_data: billingData,
             currency: "SAR",
             integration_id: process.env.PAYMOB_INTEGRATION_ID
         });
@@ -54,7 +62,7 @@ const initiatePayment = async (user, totalAmount, items, merchantOrderId) => {
 
     } catch (error) {
         console.error("Paymob KSA Error:", error.response?.data || error.message);
-        throw new Error("Payment initiation failed");
+        throw new Error("Payment Gateway Rejected: " + JSON.stringify(error.response?.data || error.message));
     }
 };
 

@@ -1,0 +1,518 @@
+[
+  {
+    "id": "TC001",
+    "title": "Product Listing with Filters and Sorting",
+    "description": "Verify that the product listing page displays products correctly and that filtering and sorting options properly update the displayed products.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to the Shop page."
+      },
+      {
+        "type": "assertion",
+        "description": "Check that a list of products is displayed with their name, price, and image."
+      },
+      {
+        "type": "action",
+        "description": "Apply a filter by category or attribute (e.g., color or size)."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify that only products matching the selected filter are displayed."
+      },
+      {
+        "type": "action",
+        "description": "Apply sorting (e.g., price ascending)."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify that products are sorted accordingly."
+      },
+      {
+        "type": "action",
+        "description": "Apply combined filters and sorting."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the product listing updates correctly reflecting all applied filters and sorting."
+      }
+    ]
+  },
+  {
+    "id": "TC002",
+    "title": "Product Detail Page Display",
+    "description": "Verify the product detail page shows complete product information including multiple images, attributes, and availability.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to a product detail page by selecting a product from the Shop page."
+      },
+      {
+        "type": "assertion",
+        "description": "Check that product name, description, price, available colors, sizes, and multiple images are displayed."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify that product attributes are selectable and updating visuals accordingly."
+      },
+      {
+        "type": "assertion",
+        "description": "Check product availability status (e.g., in stock or out of stock)."
+      }
+    ]
+  },
+  {
+    "id": "TC003",
+    "title": "User Registration Workflow",
+    "description": "Verify that a new user can register successfully with valid data, and input validations handle invalid data correctly.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to the Authentication page."
+      },
+      {
+        "type": "action",
+        "description": "Fill registration form with valid username, email, and password."
+      },
+      {
+        "type": "action",
+        "description": "Submit the registration form."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify successful registration confirmation and automatic or manual login."
+      },
+      {
+        "type": "action",
+        "description": "Attempt registration with invalid inputs (e.g., invalid email, weak password)."
+      },
+      {
+        "type": "assertion",
+        "description": "Check appropriate validation error messages are displayed and submission is blocked."
+      }
+    ]
+  },
+  {
+    "id": "TC004",
+    "title": "User Login Workflow",
+    "description": "Validate user login functionality with correct and incorrect credentials.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to the Authentication page."
+      },
+      {
+        "type": "action",
+        "description": "Enter valid username/email and password."
+      },
+      {
+        "type": "action",
+        "description": "Click login button."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify user is logged in and redirected to the appropriate page."
+      },
+      {
+        "type": "action",
+        "description": "Log out and then attempt login with invalid credentials."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify that login fails with an appropriate error message."
+      }
+    ]
+  },
+  {
+    "id": "TC005",
+    "title": "Add Products to Cart and View Cart",
+    "description": "Ensure products can be added to the cart and the cart page reflects the changes correctly.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to product detail page."
+      },
+      {
+        "type": "action",
+        "description": "Select product attributes (e.g., size, color) if applicable."
+      },
+      {
+        "type": "action",
+        "description": "Add product to the cart."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify that the cart count reflects the added product."
+      },
+      {
+        "type": "action",
+        "description": "Navigate to the cart page."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify that the added product appears with correct details and quantity."
+      }
+    ]
+  },
+  {
+    "id": "TC006",
+    "title": "Checkout Process with Address and Payment",
+    "description": "Validate that users can complete checkout with address selection and payment integration, ensuring transaction safety.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Add products to cart."
+      },
+      {
+        "type": "action",
+        "description": "Navigate to the Checkout page."
+      },
+      {
+        "type": "action",
+        "description": "Select or enter a valid shipping address."
+      },
+      {
+        "type": "action",
+        "description": "Choose or enter payment method details."
+      },
+      {
+        "type": "action",
+        "description": "Submit the order."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify that the order is placed successfully, with backend confirming transaction safety and inventory updated."
+      },
+      {
+        "type": "action",
+        "description": "Attempt to checkout with incomplete or invalid shipping or payment information."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify that appropriate validation errors are shown and order submission is blocked."
+      }
+    ]
+  },
+  {
+    "id": "TC007",
+    "title": "Transaction Safety Under Concurrent Orders",
+    "description": "Ensure that concurrent order placements for the same product do not cause overselling.",
+    "category": "security",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Simulate multiple users attempting to place orders simultaneously for a limited-stock product."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify that total ordered quantity does not exceed stock and backend locking or transaction mechanisms handle concurrency."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify no duplicate or partial orders are processed that could cause inconsistency."
+      }
+    ]
+  },
+  {
+    "id": "TC008",
+    "title": "User Profile Update and Order History Display",
+    "description": "Validate that users can update their profile settings and view their past orders correctly.",
+    "category": "functional",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Login as a valid user."
+      },
+      {
+        "type": "action",
+        "description": "Navigate to the Profile page."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify that user information and order history are displayed."
+      },
+      {
+        "type": "action",
+        "description": "Change some user settings (e.g., email, language preference)."
+      },
+      {
+        "type": "action",
+        "description": "Save the changes."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify that changes are persisted and reflected in the UI and backend."
+      }
+    ]
+  },
+  {
+    "id": "TC009",
+    "title": "Admin Dashboard Product Management",
+    "description": "Verify that an admin user can create, update, and delete products and that UI updates accordingly.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Login as an admin."
+      },
+      {
+        "type": "action",
+        "description": "Navigate to product management section in the admin dashboard."
+      },
+      {
+        "type": "action",
+        "description": "Create a new product with multiple attributes and images."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify that the new product appears in the product list and backend database."
+      },
+      {
+        "type": "action",
+        "description": "Edit the product details (e.g., price, stock quantity)."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify that updates are saved and reflected in the UI."
+      },
+      {
+        "type": "action",
+        "description": "Delete the product."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the product is removed from the product list and backend."
+      }
+    ]
+  },
+  {
+    "id": "TC010",
+    "title": "Admin User Role and Permissions Management",
+    "description": "Ensure admin can manage user roles and permissions with appropriate UI feedback and backend consistency.",
+    "category": "functional",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Login as an admin."
+      },
+      {
+        "type": "action",
+        "description": "Navigate to user management section."
+      },
+      {
+        "type": "action",
+        "description": "Change the role or permissions of an existing user."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify changes are persisted and the user's access rights are updated accordingly."
+      }
+    ]
+  },
+  {
+    "id": "TC011",
+    "title": "Outfit Builder Interaction and Data Accuracy",
+    "description": "Verify that the Outfit Builder allows users to create outfits interactively and visualizes selections correctly.",
+    "category": "functional",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to the Outfit Builder page."
+      },
+      {
+        "type": "action",
+        "description": "Select multiple products to add to an outfit."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify that selected items are displayed together in the builder with accurate visuals."
+      },
+      {
+        "type": "action",
+        "description": "Remove or replace items in the outfit."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the outfit updates in real time reflecting changes."
+      },
+      {
+        "type": "action",
+        "description": "Save the outfit if the feature is available."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify saved outfits persist and can be retrieved."
+      }
+    ]
+  },
+  {
+    "id": "TC012",
+    "title": "Multi-Image Upload for Products",
+    "description": "Verify multi-image upload functionality during product creation and editing works reliably.",
+    "category": "functional",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Login as admin."
+      },
+      {
+        "type": "action",
+        "description": "Navigate to product creation or editing page."
+      },
+      {
+        "type": "action",
+        "description": "Upload multiple images for the product."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify that all images are uploaded, displayed correctly, and can be previewed or removed before save."
+      },
+      {
+        "type": "action",
+        "description": "Save the product."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify all images are stored and displayed correctly on the product detail page."
+      }
+    ]
+  },
+  {
+    "id": "TC013",
+    "title": "Bilingual Content Display - English and Arabic",
+    "description": "Ensure the application displays content correctly in both English and Arabic languages including UI alignment and text direction.",
+    "category": "functional",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Switch language setting to English."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify all UI text is displayed in English with left-to-right alignment."
+      },
+      {
+        "type": "action",
+        "description": "Switch language setting to Arabic."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify all UI text is displayed in Arabic with right-to-left alignment."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify product names, descriptions, and UI labels update accordingly and are fully readable."
+      }
+    ]
+  },
+  {
+    "id": "TC014",
+    "title": "API Authentication and Secure JSON Response",
+    "description": "Validate that all API endpoints enforce authentication and return correct, secure JSON responses.",
+    "category": "security",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Send requests to protected API endpoints without authentication."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify endpoints reject requests with appropriate authentication error responses."
+      },
+      {
+        "type": "action",
+        "description": "Send authenticated requests with valid tokens."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify endpoints return correct JSON responses with expected data and no sensitive information leaked."
+      },
+      {
+        "type": "action",
+        "description": "Send malformed or invalid API requests."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify proper error messages and status codes are returned without causing server errors."
+      }
+    ]
+  },
+  {
+    "id": "TC015",
+    "title": "System Logging and Audit Trail Capture",
+    "description": "Ensure that all critical operations such as logins, product changes, and orders have corresponding log entries and audit trails.",
+    "category": "security",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Perform critical operations: user login, product creation, order placement."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify that logs capture relevant details including timestamps, user info, and action type."
+      },
+      {
+        "type": "action",
+        "description": "Attempt unauthorized operations and trigger error conditions."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify that error and security-related events are logged appropriately."
+      }
+    ]
+  },
+  {
+    "id": "TC016",
+    "title": "UI Responsiveness Across Screen Sizes",
+    "description": "Test that the user storefront and admin dashboard UI is responsive and displays correctly on multiple device screen sizes.",
+    "category": "ui",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Open the storefront and admin dashboard on desktop screen."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify UI layout is correct, usable, and visually consistent."
+      },
+      {
+        "type": "action",
+        "description": "Resize window to tablet dimensions and reload the page."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify UI components rearrange and remain usable."
+      },
+      {
+        "type": "action",
+        "description": "Resize to mobile screen size and reload."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify layout adjusts for mobile, including navigation and interactive elements."
+      }
+    ]
+  }
+]

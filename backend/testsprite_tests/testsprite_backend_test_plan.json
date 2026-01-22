@@ -1,0 +1,72 @@
+[
+  {
+    "id": "TC001",
+    "title": "Register a NEW user",
+    "description": "Register a NEW user with unique email (use random string if needed) via POST /api/auth/register. Expect 201 Created and response body containing 'token'."
+  },
+  {
+    "id": "TC002",
+    "title": "Login Success",
+    "description": "Login with seeded credentials 'user@example.com' / '123456' via POST /api/auth/login. Expect 200 OK and JWT Token."
+  },
+  {
+    "id": "TC003",
+    "title": "Login Failure",
+    "description": "Attempt login with 'user@example.com' and wrong password 'WRONGPASS'. Expect 401 Unauthorized."
+  },
+  {
+    "id": "TC004",
+    "title": "Verify Login Response Structure",
+    "description": "Login with valid credentials and verify response body contains keys: '_id', 'name', 'email', 'token'."
+  },
+  {
+    "id": "TC005",
+    "title": "List Products (Public)",
+    "description": "GET /api/products without token. Expect 200 OK and response body to be an array of products."
+  },
+  {
+    "id": "TC006",
+    "title": "Get Product Details",
+    "description": "First list products to get an ID, then GET /api/products/:id. Expect 200 OK and valid product details."
+  },
+  {
+    "id": "TC007",
+    "title": "Product Not Found",
+    "description": "GET /api/products/00000000-0000-0000-0000-000000000000 (UUID format) or invalid ID. Expect 404 Not Found."
+  },
+  {
+    "id": "TC008",
+    "title": "Create Order (Protected)",
+    "description": "Authenticate as user. POST /api/orders with payload { orderItems: [{ product: 'PRODUCT_ID', qty: 1 }] }. valid product ID required. Expect 201 Created."
+  },
+  {
+    "id": "TC009",
+    "title": "Create Order (No Auth)",
+    "description": "POST /api/orders without Authorization header. Expect 401 Unauthorized."
+  },
+  {
+    "id": "TC010",
+    "title": "Get My Orders",
+    "description": "Authenticate as user. GET /api/orders/myorders. Expect 200 OK and array of orders."
+  },
+  {
+    "id": "TC011",
+    "title": "Admin Stats (Admin Access)",
+    "description": "Authenticate as 'admin@example.com' / '123456'. GET /api/dashboard/stats. Expect 200 OK."
+  },
+  {
+    "id": "TC012",
+    "title": "Admin Stats (Access Denied)",
+    "description": "Authenticate as 'user@example.com' / '123456'. GET /api/dashboard/stats. Expect 403 Forbidden or 401 Unauthorized."
+  },
+  {
+    "id": "TC013",
+    "title": "Validate Coupon (Valid)",
+    "description": "POST /api/coupons/validate with a valid coupon code (requires seeding or assumption 'SUMMER20' or simply checking database first). If no coupons seeded, skip or expect 404."
+  },
+  {
+    "id": "TC014",
+    "title": "Validate Coupon (Invalid)",
+    "description": "POST /api/coupons/validate with code 'FAKE123'. Expect 404 Not Found or 400 Bad Request."
+  }
+]

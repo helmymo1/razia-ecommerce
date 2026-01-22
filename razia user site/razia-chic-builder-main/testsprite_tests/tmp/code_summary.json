@@ -1,0 +1,43 @@
+{
+  "tech_stack": [
+    "React",
+    "TypeScript",
+    "Vite",
+    "Tailwind CSS",
+    "Shadcn UI",
+    "React Query",
+    "React Router DOM"
+  ],
+  "features": [
+    {
+      "name": "Shop",
+      "description": "Main shopping page with product listing, filtering, and sorting.",
+      "files": ["src/pages/Shop.tsx", "src/pages/ProductPage.tsx"]
+    },
+    {
+      "name": "Authentication",
+      "description": "User login and registration page.",
+      "files": ["src/pages/Auth.tsx"]
+    },
+    {
+      "name": "Checkout",
+      "description": "Checkout process including address selection and payment.",
+      "files": ["src/pages/Checkout.tsx"]
+    },
+    {
+      "name": "Profile",
+      "description": "User profile management, order history, and settings.",
+      "files": ["src/pages/Profile.tsx"]
+    },
+    {
+      "name": "Outfit Builder",
+      "description": "Interactive tool for building and visualizing outfits.",
+      "files": ["src/pages/OutfitBuilder.tsx"]
+    },
+     {
+      "name": "UI Components",
+      "description": "Reusable UI components based on Radix UI and Tailwind CSS.",
+      "files": ["src/components/ui/button.tsx", "src/components/ui/card.tsx", "src/components/ui/dialog.tsx"]
+    }
+  ]
+}

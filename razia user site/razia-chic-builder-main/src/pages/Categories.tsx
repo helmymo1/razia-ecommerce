@@ -41,8 +41,9 @@ const Categories: React.FC = () => {
               <p className="text-muted-foreground">Loading categories...</p>
             </div>
           ) : categories.length === 0 ? (
-            <div className="text-center py-12">
-              <p className="text-muted-foreground">No categories found.</p>
+              <div className="text-center py-12 space-y-2">
+                <p className="text-red-500 font-bold">Unable to load categories.</p>
+                <p className="text-sm text-gray-500">Please check if the backend server is running on port 5000.</p>
             </div>
           ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

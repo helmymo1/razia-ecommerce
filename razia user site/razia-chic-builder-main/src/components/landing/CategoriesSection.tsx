@@ -28,6 +28,18 @@ const CategoriesSection: React.FC = () => {
     );
   }
 
+  if (categories.length === 0) {
+    return (
+      <section className="py-20 md:py-32 bg-background">
+        <div className="container mx-auto px-4 text-center">
+          <p className="text-red-500">
+            ⚠️ Unable to load categories. Please ensure the backend is running.
+          </p>
+        </div>
+      </section>
+    );
+  }
+
   return (
     <section className="relative py-20 md:py-32 bg-background overflow-hidden">
       {/* Decorative arcs */}

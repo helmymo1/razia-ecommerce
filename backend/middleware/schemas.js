@@ -69,7 +69,11 @@ const orderSchemas = {
         quantity: Joi.number().integer().min(1).required(),
         price: Joi.number().min(0).optional() // Intentionally optional, calculated on server
       })
-    ).min(1).required()
+    ).min(1).required(),
+    shipping_info: Joi.object().unknown().optional(),
+    shippingAddress: Joi.object().unknown().optional(), // Redundancy support
+    referralCode: Joi.string().optional(),
+    save_to_profile: Joi.boolean().optional()
   })
 };
 

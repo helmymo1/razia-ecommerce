@@ -1,0 +1,232 @@
+{
+  "meta": {
+    "project": "eBazer E-Commerce Platform",
+    "date": "2026-01-15",
+    "prepared_by": "Software Development Manager"
+  },
+  "product_overview": "eBazer is a full-featured e-commerce platform designed to deliver a seamless shopping experience via a React-based user storefront, a Node.js backend API, and an administrative dashboard. It supports user authentication, product management, order processing, and provides real-time admin statistics.",
+  "core_goals": [
+    "Enable secure and efficient user authentication and registration.",
+    "Provide comprehensive product catalog browsing, searching, and detailed viewing.",
+    "Facilitate order placement, tracking, and history for users.",
+    "Offer an administrative dashboard delivering key business metrics and management capabilities.",
+    "Support a scalable architecture with modern tech stack including Node.js, React, and MySQL.",
+    "Ensure ease of deployment and setup with documented scripts and manual processes."
+  ],
+  "key_features": [
+    "User Authentication and Authorization with JWT, password hashing, and roles (admin, customer).",
+    "Product Management APIs supporting listing, searching, pagination, and detailed product data including multi-language and multi-attribute support.",
+    "Order Management with creation and listing endpoints supporting coupons and multi-item orders.",
+    "Administrative Dashboard API providing real-time statistics for business insights.",
+    "Modern frontend implementation leveraging React 18, TailwindCSS, and Shadcn UI for the user site; static admin panel built with HTML, Alpine.js, and TailwindCSS.",
+    "Comprehensive database schema with seeded test data for users, categories, products, and orders.",
+    "Support for caching layer with Redis to improve performance where applicable."
+  ],
+  "user_flow_summary": [
+    "User Registration: New users can create an account via the registration API, providing name, email, and password.",
+    "User Login: Registered users log in to obtain JWT tokens for authorized API access.",
+    "Browsing Products: Users can search, filter, and browse product listings with pagination support.",
+    "Viewing Product Details: Users select a product to view detailed information including multi-language names and images.",
+    "Order Placement: Authenticated users add products to cart and submit an order with optional coupon codes.",
+    "Order History: Users access their past orders and status through order listing API.",
+    "Admin Dashboard Access: Admin users authenticate and retrieve dashboard statistics for business overview."
+  ],
+  "validation_criteria": [
+    "User authentication endpoints correctly register and authenticate users, enforcing password hashing and JWT issuance.",
+    "Product listing endpoints return accurate paginated, filtered results including multi-language and JSON attribute fields.",
+    "Order creation endpoint validates input, stores order and order items correctly, and applies coupon codes if valid.",
+    "Dashboard statistics endpoint returns accurate and up-to-date metrics for admin users.",
+    "Frontend components correctly integrate with backend APIs following documented base URLs and API prefixes.",
+    "Seeded data imports successfully populating database with test users, categories, products, and orders.",
+    "System runs correctly with the provided startup scripts, environment dependencies and technologies as described."
+  ],
+  "code_summary": {
+    "tech_stack": [
+      "Node.js",
+      "Express.js",
+      "MySQL",
+      "Redis",
+      "Jest",
+      "JWT",
+      "Joi"
+    ],
+    "project_config": {
+      "baseUrl": "http://localhost:5000",
+      "apiPrefix": "/api"
+    },
+    "features": [
+      {
+        "name": "Auth",
+        "description": "User authentication. Base URL: http://localhost:5000/api/auth",
+        "files": [
+          "routes/authRoutes.js"
+        ],
+        "api_doc": {
+          "openapi": "3.0.0",
+          "servers": [
+            {
+              "url": "http://localhost:5000",
+              "description": "Local Backend Server"
+            }
+          ],
+          "paths": {
+            "/api/auth/login": {
+              "post": {
+                "summary": "User Login",
+                "requestBody": {
+                  "content": {
+                    "application/json": {
+                      "schema": {
+                        "type": "object",
+                        "properties": {
+                          "email": {
+                            "type": "string",
+                            "example": "admin@ebazer.com"
+                          },
+                          "password": {
+                            "type": "string",
+                            "example": "123456"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "/api/auth/register": {
+              "post": {
+                "summary": "User Registration",
+                "requestBody": {
+                  "content": {
+                    "application/json": {
+                      "schema": {
+                        "type": "object",
+                        "properties": {
+                          "name": {
+                            "type": "string"
+                          },
+                          "email": {
+                            "type": "string"
+                          },
+                          "password": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      {
+        "name": "Products",
+        "description": "Product management. Base URL: http://localhost:5000/api/products",
+        "files": [
+          "routes/productRoutes.js"
+        ],
+        "api_doc": {
+          "paths": {
+            "/api/products": {
+              "get": {
+                "summary": "List Products",
+                "parameters": [
+                  {
+                    "name": "search",
+                    "in": "query",
+                    "schema": {
+                      "type": "string"
+                    }
+                  },
+                  {
+                    "name": "limit",
+                    "in": "query",
+                    "schema": {
+                      "type": "integer"
+                    }
+                  }
+                ]
+              }
+            },
+            "/api/products/{id}": {
+              "get": {
+                "summary": "Get Product Details",
+                "parameters": [
+                  {
+                    "name": "id",
+                    "in": "path",
+                    "required": true,
+                    "schema": {
+                      "type": "string"
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        }
+      },
+      {
+        "name": "Orders",
+        "description": "Order management. Base URL: http://localhost:5000/api/orders",
+        "files": [
+          "routes/orderRoutes.js"
+        ],
+        "api_doc": {
+          "paths": {
+            "/api/orders": {
+              "post": {
+                "summary": "Create Order",
+                "requestBody": {
+                  "content": {
+                    "application/json": {
+                      "schema": {
+                        "type": "object",
+                        "properties": {
+                          "user_id": {
+                            "type": "string"
+                          },
+                          "total_amount": {
+                            "type": "number"
+                          },
+                          "coupon_code": {
+                            "type": "string"
+                          },
+                          "order_items": {
+                            "type": "array"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              "get": {
+                "summary": "List Orders"
+              }
+            }
+          }
+        }
+      },
+      {
+        "name": "Dashboard",
+        "description": "Admin dashboard stats. Base URL: http://localhost:5000/api/dashboard",
+        "files": [
+          "routes/dashboardRoutes.js"
+        ],
+        "api_doc": {
+          "paths": {
+            "/api/dashboard/stats": {
+              "get": {
+                "summary": "Get Stats"
+              }
+            }
+          }
+        }
+      }
+    ]
+  }
+}

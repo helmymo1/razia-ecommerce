@@ -1,0 +1,190 @@
+# Project Technical Report
+
+**Date:** 2026-01-14
+**Project Name:** eBazer / Razia eCommerce Platform
+
+## 1. Executive Summary
+This project is a comprehensive full-stack e-commerce system comprising a robust RESTful API backend, a static administration dashboard (eBazer), and a modern, dynamic user-facing storefront (Razia Chic Builder). The system is designed for scalability and internationalization, featuring English/Arabic support, transaction-safe order processing, and a detailed product management system.
+
+## 2. Technical Stack
+
+### A. Backend Layer
+*   **Runtime:** Node.js (v18+)
+*   **Framework:** Express.js (v4.18.2)
+*   **Database:** MySQL (v8.0) using `mysql2` driver.
+*   **Schema Design:** UUID Primary Keys, Localization (En/Ar), JSON for flexible attributes.
+*   **Caching:** Redis (via `ioredis`) for high-performance data retrieval.
+*   **Security:**
+    *   `helmet`: HTTP Header security.
+    *   `express-rate-limit`: Rate limiting policies.
+    *   `cors`: Cross-Origin handling.
+    *   `jsonwebtoken` (JWT): Stateless authentication.
+*   **Logging:** Winston (Centralized File & Console logging).
+*   **Documentation:** Swagger/OpenAPI (Available at `/api-docs`).
+
+### B. Admin Panel ("eBazer")
+*   **Type:** Static Multi-Page Application (MPA).
+*   **Tech:** Vanilla JavaScript (ES6+), HTML5, CSS3.
+*   **Styling:** Tailwind CSS (via local assets/CDN).
+*   **State Management:** LocalStorage for auth tokens.
+*   **Networking:** Axios (Singleton instance with interceptors).
+*   **Key Libraries:** Alpine.js (interactions), ApexCharts (Analytics), Quill (Rich Text Editor).
+
+### C. User Site ("Razia Chic Builder")
+*   **Type:** Single Page Application (SPA).
+*   **Framework:** React 18, Vite 5.
+*   **Language:** TypeScript.
+*   **Styling:** Tailwind CSS, shadcn-ui, Lucide Icons.
+*   **Networking:** Axios (Integrated with Backend API).
+*   **Data Fetching:** TanStack Query (React Query) v5.
+*   **Routing:** React Router DOM v6.
+
+## 3. System Architecture
+
+### Directory Structure
+```
+/
+├── backend/                  # REST API Server
+│   ├── config/               # DB, Redis connection logic
+│   ├── controllers/          # Business logic (Products, Orders, Auth)
+│   ├── middleware/           # Auth, Logging, Validation
+│   ├── routes/               # API Endpoint definitions
+│   ├── unified_schema.sql    # Current database definition
+│   └── server.js             # Application Entry Point
+│
+├── eBazer/                   # Admin Panel (Static HTML/JS)
+│   ├── assets/               # JS logic, CSS styles
+│   └── *.html                # Dashboard views
+│
+└── razia user site/          # User Storefront (React)
+    └── razia-chic-builder-main/
+        ├── src/
+        │   ├── components/   # UI Components (shadcn-ui)
+        │   ├── lib/          # Utilities
+        │   ├── pages/        # Route views
+        │   └── services/     # API integration (api.ts)
+        └── vite.config.ts    # Build configuration
+```
+
+### Data Flow
+1.  **Frontend Request:** Both the Admin Panel and User Site make JSON requests to `http://localhost:5000/api/...`.
+2.  **API Gateway:** Express.js receives the request, applying global middleware (Logging, CORS).
+3.  **Authentication:** `authMiddleware` verifies the `Bearer` token via JWT.
+4.  **Controller Logic:**
+    *   **Reads** often hit Redis first for performance.
+    *   **Writes** go directly to MySQL.
+5.  **Database:** MySQL executes queries using UUIDs for record identification.
+6.  **Response:** The API returns standard JSON responses to the client.
+
+## 4. Database Schema
+The database `ebazer_shop` uses UUIDs (`CHAR(36)`) for primary keys and supports dual-language content.
+
+### Core Tables
+
+#### `users`
+*   **id:** UUID (PK)
+*   **email:** VARCHAR, Unique
+*   **password_hash:** VARCHAR (Bcrypt)
+*   **role:** ENUM('admin', 'customer')
+*   **first_name / last_name:** VARCHAR
+*   **is_deleted:** BOOLEAN (Soft Delete)
+
+#### `products`
+*   **id:** UUID (PK)
+*   **name_en / name_ar:** VARCHAR (Bilingual Names)
+*   **description_en / description_ar:** TEXT
+*   **price:** DECIMAL(10,2)
+*   **stock_quantity:** INT
+*   **category_id:** UUID (FK)
+*   **image_url:** TEXT
+*   **tags:** JSON (Array of strings)
+*   **colors:** JSON (Array of hex/names)
+*   **sizes:** JSON (Array of sizes)
+*   **slug:** VARCHAR, Unique
+*   **is_active:** BOOLEAN
+
+#### `categories`
+*   **id:** UUID (PK)
+*   **name_en / name_ar:** VARCHAR
+*   **parent_id:** UUID (FK, Self-referencing)
+
+#### `orders`
+*   **id:** UUID (PK)
+*   **order_number:** VARCHAR, Unique
+*   **user_id:** UUID (FK)
+*   **total:** DECIMAL(10,2)
+*   **status:** ENUM('pending', 'shipped', 'delivered', ...)
+*   **payment_status:** ENUM
+*   **created_at:** TIMESTAMP
+
+#### `order_items`
+*   **id:** UUID (PK)
+*   **order_id:** UUID (FK)
+*   **product_id:** UUID (FK)
+*   **quantity:** INT
+*   **unit_price:** DECIMAL(10,2)
+
+## 5. Key Features
+
+### Backend
+*   **Atomic Transactions:** Prevents overselling using `FOR UPDATE` locking on product rows during order creation.
+*   **Centralized Logging:** Records all request details and errors to files (`logs/error.log`, `logs/combined.log`) using Winston.
+*   **Audit Logging:** Tracks critical admin actions (Create/Update/Delete Product) for accountability.
+*   **Hybrid Schema:** uses Relational SQL for structure but simpler JSON columns for variable attributes like Colors/Sizes.
+
+### Frontend
+*   **Admin Dashboard:**
+    *   Responsive chart visualization.
+    *   Product lifecycle management (Add, Edit, Soft Delete).
+    *   User role management.
+*   **User Site:**
+    *   Modern, responsive UI with shadcn-ui components.
+    *   Real-time product fetching from the backend.
+    *   Cart and Wishlist functionality (Client-side logic integrated with API).
+    *   Dynamic routing for product details pages.
+
+## 6. Installation & Setup
+
+### Prerequisites
+*   Node.js v18+
+*   MySQL 8.0 server
+*   Redis server (optional, but recommended)
+
+### Step 1: Database Setup
+1.  Open MySQL and create database: `CREATE DATABASE ebazer_shop;`
+2.  Import schema: `backend/unified_schema.sql`.
+
+### Step 2: Backend Setup
+1.  Navigate to `/backend`.
+2.  Install dependencies: `npm install`.
+3.  Configure `.env` with DB credentials and JWT Secret.
+4.  Start server: `npm run dev` (Runs on Port 5000).
+
+### Step 3: Admin Panel Setup
+1.  Navigate to `/eBazer`.
+2.  Serve the folder using a static server (e.g., Live Server).
+3.  Open `login.html`.
+
+### Step 4: User Site Setup
+1.  Navigate to `/razia user site/razia-chic-builder-main`.
+2.  Install dependencies: `npm install`.
+3.  Start dev server: `npm run dev`.
+4.  Access at `http://localhost:8080` (or displayed port).
+
+### 7. Current Status & Roadmap
+**Completed:**
+*   Project Setup & Architecture (Monorepo, Unified API).
+*   Database Design (Unified Schema, English/Arabic support).
+*   Admin Panel Basics (Products, Orders, Users Dashboard).
+*   User Site Basics (Home, Shop, Cart, Checkout).
+*   **New:** Product Multi-Image Uploads (Backend & Frontend).
+*   **New:** Enhanced Product Attribute Selectors (Colors/Sizes using Choices.js).
+
+**In Progress:**
+*   Refining Frontend-Backend integration for complex flows.
+*   Advanced Search & Filtering.
+
+**To Do:**
+*   Payment Gateway Integration (Stripe/PayPal).
+*   Order History & User Profile logic on User Site.
+*   Real-time Notifications.

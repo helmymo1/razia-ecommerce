@@ -1,0 +1,103 @@
+{
+  "meta": {
+    "project": "eBazer / Razia eCommerce Platform",
+    "date": "2026-01-15",
+    "prepared_by": "Software Development Manager"
+  },
+  "product_overview": "eBazer / Razia is a full-stack e-commerce platform that provides both an admin dashboard for managing products, orders, and users, and a dynamic user-facing storefront for shopping with features like product browsing, filtering, and an outfit builder. It supports bilingual content (English/Arabic), transaction-safe order processing, and modern UI/UX practices.",
+  "core_goals": [
+    "Provide a scalable and secure e-commerce system supporting English and Arabic languages.",
+    "Enable seamless management of products, categories, orders, and users via a comprehensive admin dashboard.",
+    "Deliver a responsive, intuitive user storefront with features such as product listing, detailed product pages, filtering, sorting, and checkout.",
+    "Ensure transaction safety and integrity in order processing to prevent issues like overselling.",
+    "Incorporate advanced product attribute management (colors, sizes), multi-image uploads, and real-time product data fetching.",
+    "Facilitate an engaging shopping experience through interactive tools such as the Outfit Builder."
+  ],
+  "key_features": [
+    "RESTful API backend with transaction-safe order processing and caching via Redis.",
+    "Static admin panel for product lifecycle management, user role management, and analytics visualization.",
+    "React-based user storefront utilizing shadcn-ui and Tailwind CSS for responsive, modern interface.",
+    "Comprehensive product listing page with filtering and sorting capabilities.",
+    "Authentication system for user login and registration.",
+    "Complete checkout workflow including address selection and payment integration setup.",
+    "User profile management with order history and settings.",
+    "Interactive Outfit Builder tool for creating and visualizing outfits.",
+    "Centralized logging and audit trails for critical operations to ensure security and traceability."
+  ],
+  "user_flow_summary": [
+    "User visits Shop page to browse products, use filters and sorting, then views product details.",
+    "User registers or logs in via Authentication page to access additional features.",
+    "User adds products to cart, proceeds to Checkout for address and payment processing, then places order.",
+    "User accesses Profile page to view order history and manage personal settings.",
+    "Admin logs into eBazer Dashboard to manage products, orders, and users, and review analytics.",
+    "User uses Outfit Builder to create custom outfit combinations and visualize them interactively."
+  ],
+  "validation_criteria": [
+    "All API endpoints return correct, secure JSON responses and enforce authentication.",
+    "Product listings display accurate data with applied filters and sorting correctly reflected.",
+    "Checkout process completes successfully with transaction safety confirmed via backend locking mechanisms.",
+    "User authentication and registration workflows are functional and secure.",
+    "Admin dashboard actions (create, update, delete) correctly modify the backend and update UI accordingly.",
+    "Outfit Builder functions with real-time interaction and correct data visualization.",
+    "Multi-image upload and enhanced product attribute selectors are fully operational.",
+    "System performance meets responsiveness criteria and logging captures essential analytics and errors."
+  ],
+  "code_summary": {
+    "tech_stack": [
+      "React",
+      "TypeScript",
+      "Vite",
+      "Tailwind CSS",
+      "Shadcn UI",
+      "React Query",
+      "React Router DOM"
+    ],
+    "features": [
+      {
+        "name": "Shop",
+        "description": "Main shopping page with product listing, filtering, and sorting.",
+        "files": [
+          "src/pages/Shop.tsx",
+          "src/pages/ProductPage.tsx"
+        ]
+      },
+      {
+        "name": "Authentication",
+        "description": "User login and registration page.",
+        "files": [
+          "src/pages/Auth.tsx"
+        ]
+      },
+      {
+        "name": "Checkout",
+        "description": "Checkout process including address selection and payment.",
+        "files": [
+          "src/pages/Checkout.tsx"
+        ]
+      },
+      {
+        "name": "Profile",
+        "description": "User profile management, order history, and settings.",
+        "files": [
+          "src/pages/Profile.tsx"
+        ]
+      },
+      {
+        "name": "Outfit Builder",
+        "description": "Interactive tool for building and visualizing outfits.",
+        "files": [
+          "src/pages/OutfitBuilder.tsx"
+        ]
+      },
+      {
+        "name": "UI Components",
+        "description": "Reusable UI components based on Radix UI and Tailwind CSS.",
+        "files": [
+          "src/components/ui/button.tsx",
+          "src/components/ui/card.tsx",
+          "src/components/ui/dialog.tsx"
+        ]
+      }
+    ]
+  }
+}

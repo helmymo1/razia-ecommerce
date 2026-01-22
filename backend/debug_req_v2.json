@@ -1,0 +1,18 @@
+{
+  "order_items": [
+    {
+      "product_id": "test-product-id",
+      "quantity": 1
+    }
+  ],
+  "shipping_info": {
+    "firstName": "Test",
+    "lastName": "User",
+    "address": "123 Event Bus Lane",
+    "city": "Notification City",
+    "zip": "12345",
+    "phone": "555-0123",
+    "country": "Saudi Arabia"
+  },
+  "save_to_profile": false
+}

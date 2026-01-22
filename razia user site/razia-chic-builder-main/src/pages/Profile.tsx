@@ -11,6 +11,7 @@ import CartDrawer from '@/components/CartDrawer';
 import ProfileDecor from '@/components/graphics/ProfileDecor';
 import CardArcDecor from '@/components/graphics/CardArcDecor';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -24,10 +25,12 @@ import { useToast } from '@/hooks/use-toast';
 
 // Interfaces
 interface OrderItem {
+  id: string;
   name: string;
   image: string;
   qty: number;
   price: number;
+  status: string;
 }
 interface Order {
   id: string;
@@ -105,10 +108,18 @@ const Profile: React.FC = () => {
     currentPassword: '', newPassword: '', confirmPassword: ''
   });
 
+  const { user, loading: authLoading } = useAuth();
+
   // Initial Data Fetch (User Profile)
   useEffect(() => {
-    fetchUserProfile();
-  }, []);
+    if (!authLoading) {
+      if (!user) {
+        navigate('/auth');
+        return;
+      }
+      fetchUserProfile();
+    }
+  }, [user, authLoading, navigate]);
 
   // Tab Data Fetch
   useEffect(() => {
@@ -129,7 +140,9 @@ const Profile: React.FC = () => {
       });
     } catch (error) {
       console.error('Failed to fetch profile', error);
-      // If 401, redirect?
+      toast({ title: "Session Expired", description: "Please login again", variant: "destructive" });
+      localStorage.removeItem('token');
+      navigate('/auth');
     }
   };
 
@@ -143,8 +156,15 @@ const Profile: React.FC = () => {
           total: parseFloat(o.total)
       }));
       setOrders(parsedOrders);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to fetch orders', error);
+      console.log("❌ [Frontend] FETCH ORDERS ERROR:", error.message || error);
+      toast({
+        title: "Error fetching orders",
+        description: error.response?.data?.message || "Failed to load orders. Please check console.",
+        variant: "destructive"
+      });
+      // Do NOT logout here. Let the user see the error.
     } finally {
       setLoading(false);
     }
@@ -266,6 +286,46 @@ const Profile: React.FC = () => {
         toast({ title: "Error", description: error.response?.data?.message || "Failed to update password", variant: "destructive" });
     } finally {
         setSavingPassword(false);
+    }
+  };
+
+  const handleCancelOrder = async (orderId: string) => {
+    if (!confirm(language === 'ar' ? 'هل أنت متأكد من إلغاء هذا الطلب؟' : 'Are you sure you want to cancel this order?')) return;
+    try {
+      await api.post(`/orders/${orderId}/cancel`);
+      toast({ title: "Cancelled", description: "Order cancelled successfully" });
+      fetchOrders();
+    } catch (error: any) {
+      toast({ title: "Error", description: error.response?.data?.message || "Failed to cancel order", variant: "destructive" });
+    }
+  };
+
+  const handleCancelItem = async (orderId: string, itemId: string) => {
+    if (!confirm(language === 'ar' ? 'هل أنت متأكد من إلغاء هذا المنتج؟' : 'Are you sure you want to cancel this item?')) return;
+    try {
+      await api.put(`/orders/${orderId}/item/${itemId}/status`, {
+        status: 'cancelled',
+        reason: 'User requested via profile'
+      });
+      toast({ title: "Cancelled", description: "Item cancelled successfully" });
+      fetchOrders(); // Refresh to show new status
+    } catch (error: any) {
+      toast({ title: "Error", description: error.response?.data?.message || "Failed to cancel item", variant: "destructive" });
+    }
+  };
+
+  const handleRequestRefund = async (orderId: string) => {
+    // Typically opens a modal or navigates to a refund form. For now, we'll just trigger the endpoint or show a prompt.
+    // Assuming a simple request for now as per previous context.
+    const reason = prompt(language === 'ar' ? 'يرجى إدخال سبب الاسترجاع:' : 'Please enter reason for refund:');
+    if (!reason) return;
+
+    try {
+      await api.post(`/orders/${orderId}/refund`, { reason });
+      toast({ title: "Requested", description: "Refund request submitted" });
+      fetchOrders();
+    } catch (error: any) {
+      toast({ title: "Error", description: error.response?.data?.message || "Failed to request refund", variant: "destructive" });
     }
   };
 
@@ -444,11 +504,54 @@ const Profile: React.FC = () => {
                                         {(Array.isArray(order.items) ? order.items : []).map((item, idx) => (
                                             <div key={idx} className="flex items-center gap-4 text-sm">
                                                 <img src={item.image} className="w-10 h-10 rounded object-cover bg-muted" alt={item.name} />
-                                                <div className="flex-1">{item.name} <span className="text-muted-foreground">x{item.qty}</span></div>
-                                                <div>${Number(item.price).toFixed(2)}</div>
+                                            <div className="flex-1">
+                                              <div>{item.name} <span className="text-muted-foreground">x{item.qty}</span></div>
+                                              {(item.status || 'active') === 'cancelled' && <Badge variant="destructive" className="mt-1 text-xs">Cancelled</Badge>}
+                                              {(item.status || 'active') === 'returned' && <Badge variant="secondary" className="mt-1 text-xs">Returned</Badge>}
+                                            </div>
+                                            <div className="text-right">
+                                              <div>${Number(item.price).toFixed(2)}</div>
+                                              {['pending', 'processing'].includes(order.status) && (item.status || 'active') !== 'cancelled' && (item.status || 'active') !== 'returned' && (
+                                                <Button
+                                                  variant="ghost"
+                                                  size="sm"
+                                                  className="h-6 text-red-500 hover:text-red-600 hover:bg-red-50 px-2 mt-1 text-xs"
+                                                  onClick={() => handleCancelItem(order.id, item.id)}
+                                                >
+                                                  {language === 'ar' ? 'إلغاء' : 'Cancel'}
+                                                </Button>
+                                              )}
+                                            </div>
                                             </div>
                                         ))}
                                     </div>
+
+                                {/* Order Actions */}
+                                <div className="flex gap-3 justify-end mt-4 pt-4 border-t">
+                                  {['pending', 'processing'].includes(order.status) && (
+                                    <Button
+                                      variant="destructive"
+                                      size="sm"
+                                      onClick={() => handleCancelOrder(order.id)}
+                                    >
+                                      {language === 'ar' ? 'إلغاء الطلب' : 'Cancel Order'}
+                                    </Button>
+                                  )}
+                                  {order.status === 'delivered' && (
+                                    <Button
+                                      variant="outline"
+                                      size="sm"
+                                      onClick={() => handleRequestRefund(order.id)}
+                                    >
+                                      {language === 'ar' ? 'طلب استرجاع' : 'Request Refund'}
+                                    </Button>
+                                  )}
+                                  <Button variant="outline" size="sm" asChild>
+                                    <Link to={`/orders/${order.id}`}>
+                                      {language === 'ar' ? 'عرض التفاصيل' : 'View Details'}
+                                    </Link>
+                                  </Button>
+                                </div>
                                 </div>
                             ))}
                         </div>

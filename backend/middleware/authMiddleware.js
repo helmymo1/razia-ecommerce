@@ -9,23 +9,31 @@ const protect = async (req, res, next) => {
      token = req.cookies.token;
   }
   // Check Header (Fallback)
-  else if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
-     token = req.headers.authorization.split(' ')[1];
+  else if (req.headers.authorization) {
+    if (req.headers.authorization.startsWith('Bearer ')) {
+      token = req.headers.authorization.split(' ')[1];
+    } else {
+      token = req.headers.authorization;
+    }
   }
 
   if (token) {
     try {
-      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      console.log("🔍 [Auth] Token Received:", token.substring(0, 10) + "...");
 
-      const [rows] = await db.query('SELECT id, first_name, last_name, email, role, phone, avatar_url, password_hash FROM users WHERE id = ?', [decoded.id]);
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      console.log("✅ [Auth] Token Verified. User ID:", decoded.id);
+
+      const [rows] = await db.query('SELECT id, first_name, last_name, email, role, password_hash FROM users WHERE id = ?', [decoded.id]);
       
       if (rows.length === 0) {
+        console.error("❌ [Auth] User not found in DB for ID:", decoded.id);
           return res.status(401).json({ message: 'Not authorized, user not found' });
       }
       req.user = rows[0];
       next();
     } catch (error) {
-      console.error('Auth Error:', error.message);
+      console.error("❌ [Auth] Failed:", error.message);
       if (error.name === 'TokenExpiredError') {
         return res.status(401).json({ message: 'Session expired, please login again' });
       }
@@ -35,6 +43,7 @@ const protect = async (req, res, next) => {
       res.status(401).json({ message: 'Not authorized, token failed' });
     }
   } else {
+    console.error("🚫 [Auth] No Token found in Cookie or Header");
     res.status(401).json({ message: 'Not authorized, no token' });
   }
 };

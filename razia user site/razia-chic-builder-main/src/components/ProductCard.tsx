@@ -39,16 +39,16 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, index = 0 }) => {
         <div className="relative overflow-hidden rounded-lg bg-sand-light aspect-[3/4]">
           {/* Image with hover effect */}
           <img
-            src={product.images[0]}
+            src={product.images?.[0]}
             alt={language === 'ar' ? product.nameAr : product.name}
             className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
           />
           
           {/* Hover overlay with second image */}
-          {product.images[1] && (
+          {product.images?.[1] && (
             <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
               <img
-                src={product.images[1]}
+                src={product.images?.[1]}
                 alt=""
                 className="w-full h-full object-cover"
               />
@@ -108,7 +108,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, index = 0 }) => {
           </div>
           {/* Color swatches */}
           <div className="flex gap-1 pt-1">
-            {product.colors.slice(0, 4).map((color) => (
+            {(product.colors || []).slice(0, 4).map((color) => (
               <span
                 key={color.hex}
                 className="w-4 h-4 rounded-full border border-border"

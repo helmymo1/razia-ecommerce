@@ -53,8 +53,8 @@ const register = async (req, res, next) => {
     res.cookie('token', token, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict',
-        maxAge: 24 * 60 * 60 * 1000 // 1 day
+        sameSite: 'lax',
+        maxAge: 30 * 24 * 60 * 60 * 1000 // 30 days
     });
 
     res.status(201).json({
@@ -92,8 +92,8 @@ const login = async (req, res, next) => {
       res.cookie('token', token, {
           httpOnly: true,
           secure: process.env.NODE_ENV === 'production',
-          sameSite: 'strict',
-          maxAge: 24 * 60 * 60 * 1000 // 1 day
+          sameSite: 'lax',
+          maxAge: 30 * 24 * 60 * 60 * 1000 // 30 days
       });
 
       res.json({
@@ -136,7 +136,7 @@ const logout = (req, res) => {
     res.clearCookie('token', {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict'
+        sameSite: 'lax'
     });
     res.json({ message: 'Logged out successfully' });
 };
@@ -229,7 +229,7 @@ const googleLogin = async (req, res) => {
         res.cookie('token', appToken, {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
-            sameSite: 'strict',
+            sameSite: 'lax',
             maxAge: 30 * 24 * 60 * 60 * 1000
         });
 
