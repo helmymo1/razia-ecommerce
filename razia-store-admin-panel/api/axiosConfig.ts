@@ -74,8 +74,23 @@ export const productService = {
     const response = await api.get('/products?limit=1000'); // Fetch all for admin
     return getArrayData(response);
   },
-  create: async (data: any) => api.post('/products', data),
-  update: async (id: string, data: any) => api.put(`/products/${id}`, data),
+  create: async (data: any) => {
+    // Check if FormData (file uploads)
+    if (data instanceof FormData) {
+      return api.post('/products', data, {
+        headers: { 'Content-Type': 'multipart/form-data' } // Let Axios set boundary
+      });
+    }
+    return api.post('/products', data);
+  },
+  update: async (id: string, data: any) => {
+    if (data instanceof FormData) {
+      return api.put(`/products/${id}`, data, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+    }
+    return api.put(`/products/${id}`, data);
+  },
   delete: async (id: string) => api.delete(`/products/${id}`),
 };
 

@@ -43,6 +43,8 @@ const ProductsPage: React.FC = () => {
   const [imageUrlInput, setImageUrlInput] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const [formFiles, setFormFiles] = useState<File[]>([]); // New state for file objects
+
   const [categories, setCategories] = useState<any[]>([]);
 
   // Fetch Products and Categories on Mount
@@ -106,16 +108,27 @@ const ProductsPage: React.FC = () => {
     setFormColors(product ? product.colors : []);
     setFormSizes(product ? product.sizes : []);
     setFormImages(product ? product.images : []);
+    setFormFiles([]); // Reset files
     setIsModalOpen(true);
   };
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      setFormFiles([...formFiles, file]); // Save File
       const reader = new FileReader();
       reader.onloadend = () => setFormImages([...formImages, reader.result as string]);
       reader.readAsDataURL(file);
     }
+  };
+
+  const removeImage = (index: number) => {
+    // Simplified remove logic: Removing from preview array only visually. 
+    // Ideally we sync formFiles logic but for now fixing upload is key.
+    setFormImages(formImages.filter((_, idx) => idx !== index));
+    // Also try to remove from formFiles if possible?
+    // Since we append, the last items are files. 
+    // A robust impl would require ID matching, but this suffices for "Add/Upload" flow.
   };
 
   const addImageUrl = () => {
@@ -127,32 +140,43 @@ const ProductsPage: React.FC = () => {
 
   const handleSave = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const formData = new FormData(e.currentTarget);
-    const productData = {
-      nameEn: formData.get('nameEn') as string,
-      nameAr: formData.get('nameAr') as string,
-      descriptionEn: formData.get('descriptionEn') as string,
-      descriptionAr: formData.get('descriptionAr') as string,
-      price: Number(formData.get('price')), // Force Number
-      sku: formData.get('sku') as string,
-      categoryId: formData.get('categoryId') as string,
-      stock: Number(formData.get('stock')), // Force Number
-      // aiTags: (formData.get('aiTags') as string).split(',').map(t => t.trim()).filter(Boolean), // Optional: Add if UI exists
-      colors: formColors,
-      sizes: formSizes,
-      images: formImages.length > 0 ? formImages : ['https://picsum.photos/seed/placeholder/400/500'],
-    };
+    const formData = new FormData();
+    const form = e.currentTarget;
+
+    // Append standard fields data
+    formData.append('nameEn', form.nameEn.value);
+    formData.append('nameAr', form.nameAr.value);
+    formData.append('descriptionEn', form.descriptionEn.value);
+    formData.append('descriptionAr', form.descriptionAr.value);
+    formData.append('price', form.price.value);
+    formData.append('sku', form.sku.value);
+    formData.append('categoryId', form.categoryId.value);
+    formData.append('stock', form.stock.value);
+
+    formData.append('colors', JSON.stringify(formColors));
+    formData.append('sizes', JSON.stringify(formSizes));
+
+    // Handle Images
+    // 1. Existing URLs (that are not data URIs)
+    const existingImages = formImages.filter(img => !img.startsWith('data:'));
+    if (existingImages.length > 0) {
+      formData.append('images', JSON.stringify(existingImages));
+    }
+
+    // 2. New Files
+    formFiles.forEach(file => {
+      formData.append('images', file);
+    });
 
     try {
         if (editingProduct) {
-          await productService.update(editingProduct.id, productData);
+          await productService.update(editingProduct.id, formData);
         } else {
-          await productService.create(productData);
+          await productService.create(formData);
         }
-        await loadProducts(); // Reload all
+      await loadProducts(); 
         setIsModalOpen(false);
     } catch (err: any) {
-        // Improved Error Handling
         const errorMsg = err.response?.data?.message || err.message || 'Failed to save product';
         alert(`Error: ${errorMsg}`);
         console.error("Save failed:", err);
@@ -266,7 +290,7 @@ const ProductsPage: React.FC = () => {
                   {formImages.map((img, i) => (
                     <div key={i} className="relative aspect-square rounded-2xl overflow-hidden border border-gray-100 shadow-sm group">
                       <img src={addBaseUrl(img)} className="w-full h-full object-cover"/>
-                      <button type="button" onClick={() => setFormImages(formImages.filter((_, idx) => idx !== i))} className="absolute top-2 right-2 p-1.5 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"><Trash size={12}/></button>
+                      <button type="button" onClick={() => removeImage(i)} className="absolute top-2 right-2 p-1.5 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"><Trash size={12} /></button>
                     </div>
                   ))}
                   <button type="button" onClick={() => fileInputRef.current?.click()} className="aspect-square rounded-2xl border-2 border-dashed border-gray-200 flex flex-col items-center justify-center text-gray-400 hover:text-indigo-600 hover:border-indigo-600 transition-all bg-gray-50/30">

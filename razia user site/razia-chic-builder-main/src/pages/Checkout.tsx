@@ -31,6 +31,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from 'sonner';
 import { z } from 'zod';
+import { addBaseUrl } from '@/utils/imageUtils';
 
 // Payment method logos
 import madaLogo from '@/assets/payments/mada.png';
@@ -510,7 +511,7 @@ const Checkout: React.FC = () => {
             <div key={item.id} className="flex gap-4 p-4 bg-card rounded-xl border border-border">
               <div className="w-20 h-24 bg-muted rounded-lg overflow-hidden flex-shrink-0">
                 <img
-                  src={item.image}
+                  src={addBaseUrl(item.image)}
                   alt={language === 'ar' ? item.nameAr : item.name}
                   className="w-full h-full object-cover"
                 />

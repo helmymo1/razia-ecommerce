@@ -255,11 +255,17 @@ const createProduct = async (req, res, next) => {
           id, 
           finalNameEn, finalNameAr, 
           finalDescEn, finalDescAr, 
-          price, sku, finalStock, finalStock, // Save to both stock_quantity and quantity
+        price, sku, finalStock, finalStock,
           finalCategory, imageUrl,
-          tagsJson, aiTagsJson, discount_type || 'no_discount', discount_value || 0,
-          shipping_width, shipping_height, shipping_weight, shipping_cost,
-          colorsJson, sizesJson, slug, is_featured ? 1 : 0
+        tagsJson || '[]',
+        aiTagsJson || '[]',
+        discount_type || 'no_discount',
+        discount_value !== undefined ? discount_value : 0,
+        shipping_width !== undefined ? shipping_width : null,
+        shipping_height !== undefined ? shipping_height : null,
+        shipping_weight !== undefined ? shipping_weight : null,
+        shipping_cost !== undefined ? shipping_cost : null,
+        colorsJson || '[]', sizesJson || '[]', slug, is_featured ? 1 : 0
       ]
     );
 
@@ -379,9 +385,17 @@ const updateProduct = async (req, res, next) => {
           sku || existing[0].sku, 
           finalStock, finalStock, // Update both
           finalCategory,
-          tagsJson, aiTagsJson, discount_type || existing[0].discount_type, discount_value || existing[0].discount_value,
-          shipping_width, shipping_height, shipping_weight, shipping_cost,
-          colorsJson, sizesJson, (is_featured !== undefined ? (is_featured ? 1 : 0) : existing[0].is_featured),
+        tagsJson || '[]',
+        aiTagsJson || '[]',
+        discount_type || existing[0].discount_type || 'no_discount',
+        discount_value !== undefined ? discount_value : (existing[0].discount_value || 0),
+        shipping_width !== undefined ? shipping_width : (existing[0].shipping_width || null),
+        shipping_height !== undefined ? shipping_height : (existing[0].shipping_height || null),
+        shipping_weight !== undefined ? shipping_weight : (existing[0].shipping_weight || null),
+        shipping_cost !== undefined ? shipping_cost : (existing[0].shipping_cost || null),
+        colorsJson || '[]',
+        sizesJson || '[]',
+        (is_featured !== undefined ? (is_featured ? 1 : 0) : existing[0].is_featured),
           productId
       ]
     );

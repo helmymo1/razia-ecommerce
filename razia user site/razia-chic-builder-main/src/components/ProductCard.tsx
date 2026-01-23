@@ -5,6 +5,7 @@ import { ShoppingBag, Heart } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useCart } from '@/contexts/CartContext';
 import { Product } from '@/data/products';
+import { addBaseUrl } from '@/utils/imageUtils';
 
 interface ProductCardProps {
   product: Product;
@@ -39,7 +40,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, index = 0 }) => {
         <div className="relative overflow-hidden rounded-lg bg-sand-light aspect-[3/4]">
           {/* Image with hover effect */}
           <img
-            src={product.images?.[0]}
+            src={addBaseUrl(product.images?.[0])}
             alt={language === 'ar' ? product.nameAr : product.name}
             className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
           />
@@ -48,7 +49,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, index = 0 }) => {
           {product.images?.[1] && (
             <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
               <img
-                src={product.images?.[1]}
+                src={addBaseUrl(product.images?.[1])}
                 alt=""
                 className="w-full h-full object-cover"
               />
