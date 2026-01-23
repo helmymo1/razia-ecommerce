@@ -1,44 +1,111 @@
 
-import React, { useState } from 'react';
-import { ShoppingBag, Truck, CheckCircle, XCircle, Eye, Search, Filter, X, MapPin, CreditCard, Clock, Trash2, Phone, Package, Info, ChevronRight } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { ShoppingBag, Truck, CheckCircle, XCircle, Eye, Search, Filter, X, MapPin, CreditCard, Clock, Trash2, Phone, Package, Info, ChevronRight, RefreshCw, AlertCircle } from 'lucide-react';
 import { Order, OrderStatus } from '../types';
-
-const MOCK_ORDERS: Order[] = [
-  // Fix: Added missing 'nameEn' property to satisfy Order interface requirements
-  { id: 'ORD-1234', userId: 'USR-001', userPhone: '+1 123-456-7890', items: [{ productId: '1', quantity: 2, price: 59.99, color: 'Blue', size: 'M', nameEn: 'Cotton Summer Dress' }], total: 119.98, status: OrderStatus.PENDING, shippingAddress: '123 Main St, New York, NY 10001', paymentMethod: 'Credit Card', createdAt: '2023-10-24 10:30' },
-  // Fix: Added missing 'nameEn' property to satisfy Order interface requirements
-  { id: 'ORD-1235', userId: 'USR-002', userPhone: '+1 987-654-3210', items: [{ productId: '2', quantity: 1, price: 89.00, color: 'Black', size: '32', nameEn: 'Classic Denim Jacket' }], total: 89.00, status: OrderStatus.SHIPPED, shippingAddress: '456 Elm St, Los Angeles, CA 90210', paymentMethod: 'PayPal', createdAt: '2023-10-24 11:15', trackingNumber: 'TRK-99221133' },
-];
+import { orderService } from '../api/axiosConfig';
+import toast from 'react-hot-toast';
 
 const OrdersPage: React.FC = () => {
-  const [orders, setOrders] = useState<Order[]>(MOCK_ORDERS);
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+
+  const fetchOrders = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const data = await orderService.getAll();
+
+      // Transform backend data to frontend model if necessary
+      // Assuming backend returns roughly matching structure, but verifying mappings is good
+      const mappedOrders: Order[] = data.map((o: any) => ({
+        id: o.id.toString(), // Ensure ID is string
+        items: o.items || o.order_items || [],
+        total: parseFloat(o.total || o.total_amount || 0),
+        status: o.status,
+        userId: o.user_id ? o.user_id.toString() : 'Guest',
+        userPhone: o.shipping_phone || o.user_phone || 'N/A',
+        shippingAddress: typeof o.shipping_address === 'string' ? o.shipping_address : JSON.stringify(o.shipping_address),
+        paymentMethod: o.payment_method || 'Unknown',
+        createdAt: new Date(o.created_at).toLocaleString(),
+        trackingNumber: o.tracking_number
+      }));
+
+      setOrders(mappedOrders);
+    } catch (err: any) {
+      console.error("Failed to fetch orders:", err);
+      setError("Failed to load orders. Please try again.");
+      toast.error("Could not fetch orders");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchOrders();
+  }, []);
 
   const filteredOrders = orders.filter(o => 
     o.id.toLowerCase().includes(searchTerm.toLowerCase()) || 
     o.userId.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    o.userPhone?.includes(searchTerm)
+    (o.userPhone && o.userPhone.includes(searchTerm))
   );
 
-  const updateStatus = (orderId: string, newStatus: OrderStatus) => {
-    setOrders(orders.map(o => o.id === orderId ? { 
-      ...o, 
-      status: newStatus, 
-      trackingNumber: newStatus === OrderStatus.SHIPPED ? (o.trackingNumber || `TRK-${Math.random().toString(10).slice(2, 10)}`) : o.trackingNumber 
-    } : o));
-    
-    if (newStatus === OrderStatus.SHIPPED) {
-      alert(`Automated dispatch successful! Tracking number generated and user notified.`);
+  const updateStatus = async (orderId: string, newStatus: OrderStatus) => {
+    try {
+      await orderService.updateStatus(orderId, newStatus);
+
+      setOrders(orders.map(o => o.id === orderId ? {
+        ...o,
+        status: newStatus,
+          // Simulate tracking generation if needed, or wait for backend response
+          trackingNumber: newStatus === OrderStatus.SHIPPED && !o.trackingNumber ? 'PENDING-GEN' : o.trackingNumber
+        } : o));
+
+      toast.success(`Order ${orderId} updated to ${newStatus}`);
+
+      // Refresh to get any backend-generated fields (like official tracking number)
+      if (newStatus === OrderStatus.SHIPPED) {
+        fetchOrders();
+      }
+
+    } catch (err) {
+      toast.error("Failed to update status");
+      console.error(err);
     }
   };
 
-  const handleDelete = (id: string) => {
+  const handleDelete = async (id: string) => {
     if (window.confirm('Are you sure you want to delete this order record? This action is permanent.')) {
-      setOrders(prev => prev.filter(o => o.id !== id));
-      if (selectedOrder?.id === id) setSelectedOrder(null);
+      try {
+        await orderService.delete(id);
+        setOrders(prev => prev.filter(o => o.id !== id));
+        if (selectedOrder?.id === id) setSelectedOrder(null);
+        toast.success("Order deleted successfully");
+      } catch (err) {
+        toast.error("Failed to delete order");
+      }
     }
   };
+
+  if (loading) return (
+    <div className="flex h-screen items-center justify-center">
+      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+    </div>
+  );
+
+  if (error) return (
+    <div className="flex flex-col h-[50vh] items-center justify-center text-center space-y-4">
+      <AlertCircle size={48} className="text-rose-500" />
+      <h3 className="text-xl font-bold text-gray-800">Connection Error</h3>
+      <p className="text-gray-500">{error}</p>
+      <button onClick={fetchOrders} className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">
+        Retry
+      </button>
+    </div>
+  );
 
   return (
     <div className="space-y-6">
@@ -47,6 +114,9 @@ const OrdersPage: React.FC = () => {
           <h1 className="text-2xl font-bold text-gray-800 tracking-tight">Order Management</h1>
           <p className="text-gray-500">Track shipments, process fulfillment, and manage cancellations.</p>
         </div>
+        <button onClick={fetchOrders} className="p-2 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors">
+          <RefreshCw size={20} className="text-gray-600" />
+        </button>
       </div>
 
       <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
@@ -69,41 +139,53 @@ const OrdersPage: React.FC = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
-              {filteredOrders.map((order) => (
-                <tr key={order.id} className="hover:bg-gray-50 transition-colors group">
-                  <td className="px-6 py-5">
-                    <p className="text-sm font-black text-gray-900">{order.id}</p>
-                    <p className="text-[10px] text-gray-400 font-bold uppercase mt-0.5">{order.createdAt}</p>
-                  </td>
-                  <td className="px-6 py-5">
-                    <p className="text-sm font-bold text-gray-800">{order.userId}</p>
-                    <p className="text-xs text-gray-500 font-medium">{order.userPhone || 'No Phone'}</p>
-                  </td>
-                  <td className="px-6 py-5">
-                    <p className="text-sm font-black text-gray-900">${order.total.toFixed(2)}</p>
-                    <p className="text-[10px] text-emerald-600 font-black uppercase tracking-widest">{order.paymentMethod}</p>
-                  </td>
-                  <td className="px-6 py-5">
-                    <select 
-                      value={order.status}
-                      onChange={(e) => updateStatus(order.id, e.target.value as OrderStatus)}
-                      className={`text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-xl outline-none border-none cursor-pointer shadow-sm transition-all hover:scale-105 ${
-                        order.status === OrderStatus.PENDING ? 'bg-amber-100 text-amber-700' :
-                        order.status === OrderStatus.SHIPPED ? 'bg-indigo-100 text-indigo-700' :
-                        order.status === OrderStatus.DELIVERED ? 'bg-emerald-100 text-emerald-700' :
-                        order.status === OrderStatus.CANCELLED ? 'bg-rose-100 text-rose-700' :
-                        'bg-gray-100 text-gray-600'
-                      }`}
-                    >
-                      {Object.values(OrderStatus).map(s => <option key={s} value={s}>{s}</option>)}
-                    </select>
-                  </td>
-                  <td className="px-6 py-5 text-right space-x-1">
-                    <button onClick={() => setSelectedOrder(order)} className="p-2.5 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl transition-all"><Eye size={18} /></button>
-                    <button onClick={() => handleDelete(order.id)} className="p-2.5 text-gray-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-all"><Trash2 size={18} /></button>
+              {filteredOrders.length === 0 ? (
+                <tr>
+                  <td colSpan={5} className="px-6 py-12 text-center text-gray-400">
+                    No orders found matching your search.
                   </td>
                 </tr>
-              ))}
+              ) : (
+                filteredOrders.map((order) => (
+                  <tr key={order.id} className="hover:bg-gray-50 transition-colors group">
+                    <td className="px-6 py-5">
+                      <p className="text-sm font-black text-gray-900">#{order.id}</p>
+                      <p className="text-[10px] text-gray-400 font-bold uppercase mt-0.5">{order.createdAt}</p>
+                    </td>
+                    <td className="px-6 py-5">
+                      <p className="text-sm font-bold text-gray-800">User: {order.userId}</p>
+                      <p className="text-xs text-gray-500 font-medium">{order.userPhone || 'No Phone'}</p>
+                    </td>
+                    <td className="px-6 py-5">
+                      <p className="text-sm font-black text-gray-900">${order.total?.toFixed(2)}</p>
+                      <p className="text-[10px] text-emerald-600 font-black uppercase tracking-widest">{order.paymentMethod}</p>
+                    </td>
+                    <td className="px-6 py-5">
+                      <select
+                        value={order.status}
+                        onChange={(e) => updateStatus(order.id, e.target.value as OrderStatus)}
+                        className={`text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-xl outline-none border-none cursor-pointer shadow-sm transition-all hover:scale-105 ${
+                          order.status === 'pending' ? 'bg-amber-100 text-amber-700' :
+                            order.status === 'shipped' ? 'bg-indigo-100 text-indigo-700' :
+                              order.status === 'delivered' ? 'bg-emerald-100 text-emerald-700' :
+                                order.status === 'cancelled' ? 'bg-rose-100 text-rose-700' :
+                                  'bg-gray-100 text-gray-600'
+                          }`}
+                      >
+                        <option value="pending">PENDING</option>
+                        <option value="processing">PROCESSING</option>
+                        <option value="shipped">SHIPPED</option>
+                        <option value="delivered">DELIVERED</option>
+                        <option value="cancelled">CANCELLED</option>
+                      </select>
+                    </td>
+                    <td className="px-6 py-5 text-right space-x-1">
+                      <button onClick={() => setSelectedOrder(order)} className="p-2.5 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl transition-all"><Eye size={18} /></button>
+                      <button onClick={() => handleDelete(order.id)} className="p-2.5 text-gray-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-all"><Trash2 size={18} /></button>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
@@ -114,7 +196,7 @@ const OrdersPage: React.FC = () => {
           <div className="bg-white rounded-[2rem] w-full max-w-3xl max-h-[90vh] overflow-hidden shadow-2xl animate-in fade-in zoom-in slide-in-from-bottom-8 duration-500 flex flex-col">
             <div className="p-8 border-b border-gray-100 flex items-center justify-between sticky top-0 bg-white z-10">
               <div>
-                <h2 className="text-2xl font-black text-gray-900 tracking-tight">Order #{selectedOrder.id.split('-')[1]}</h2>
+                <h2 className="text-2xl font-black text-gray-900 tracking-tight">Order #{selectedOrder.id}</h2>
                 <p className="text-xs font-black text-indigo-600 uppercase tracking-widest mt-1">Full Logistics Data</p>
               </div>
               <button onClick={() => setSelectedOrder(null)} className="p-3 bg-gray-50 hover:bg-gray-100 rounded-2xl transition-all shadow-sm">
@@ -125,7 +207,7 @@ const OrdersPage: React.FC = () => {
             <div className="flex-1 overflow-y-auto p-8 space-y-8">
               <div className="bg-gray-50 rounded-3xl p-6 flex flex-col md:flex-row items-center justify-between gap-6 border border-gray-100">
                 <div className="flex items-center space-x-4">
-                  <div className={`p-4 rounded-2xl ${selectedOrder.status === OrderStatus.SHIPPED ? 'bg-indigo-600 text-white' : 'bg-white text-gray-300'} shadow-lg`}>
+                  <div className={`p-4 rounded-2xl ${selectedOrder.status === 'shipped' ? 'bg-indigo-600 text-white' : 'bg-white text-gray-300'} shadow-lg`}>
                     <Truck size={28} />
                   </div>
                   <div>
@@ -149,7 +231,7 @@ const OrdersPage: React.FC = () => {
                       <div className="mt-1 text-indigo-500"><MapPin size={18} /></div>
                       <div>
                         <p className="text-xs font-black text-gray-400 uppercase tracking-widest mb-1">Destination Address</p>
-                        <p className="text-sm font-bold text-gray-800 leading-relaxed">{selectedOrder.shippingAddress}</p>
+                        <p className="text-sm font-bold text-gray-800 leading-relaxed max-w-[200px] break-words">{selectedOrder.shippingAddress}</p>
                       </div>
                     </div>
                     <div className="flex items-start space-x-3">
@@ -196,35 +278,36 @@ const OrdersPage: React.FC = () => {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-50">
-                      {selectedOrder.items.map((item, idx) => (
+                      {selectedOrder.items.map((item: any, idx) => (
                         <tr key={idx} className="text-sm">
                           <td className="px-6 py-5">
                             <div className="flex items-center space-x-3">
                               <div className="w-10 h-10 bg-gray-50 rounded-xl flex items-center justify-center text-gray-400">
                                 <Package size={20} />
                               </div>
-                              {/* Fix: Display nameEn along with SKU */}
                               <div className="flex flex-col">
-                                <span className="font-bold text-gray-900">{item.nameEn}</span>
-                                <span className="text-[10px] text-gray-400">SKU #{item.productId.slice(0, 4)}</span>
+                                <span className="font-bold text-gray-900">{item.product_name || item.nameEn || 'Product Name'}</span>
+                                <span className="text-[10px] text-gray-400">ID #{item.productId || 'N/A'}</span>
                               </div>
                             </div>
                           </td>
                           <td className="px-6 py-5">
                             <div className="flex flex-col space-y-1">
-                              <span className="text-[10px] font-black uppercase text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full w-fit">Color: {item.color}</span>
-                              <span className="text-[10px] font-black uppercase text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full w-fit">Size: {item.size || 'N/A'}</span>
+                              {item.color && <span className="text-[10px] font-black uppercase text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full w-fit">Color: {item.color}</span>}
+                              {item.size && <span className="text-[10px] font-black uppercase text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full w-fit">Size: {item.size}</span>}
                             </div>
                           </td>
                           <td className="px-6 py-5 text-center font-black">{item.quantity}</td>
-                          <td className="px-6 py-5 text-right font-black text-gray-900">${(item.price * item.quantity).toFixed(2)}</td>
+                          <td className="px-6 py-5 text-right font-black text-gray-900">
+                            ${(parseFloat(item.price || item.unit_price || 0) * parseInt(item.quantity)).toFixed(2)}
+                          </td>
                         </tr>
                       ))}
                     </tbody>
                     <tfoot className="bg-gray-900 text-white">
                       <tr>
                         <td colSpan={3} className="px-6 py-6 text-sm font-black uppercase tracking-[0.2em] text-gray-400">Total Purchase Value</td>
-                        <td className="px-6 py-6 text-right text-2xl font-black">${selectedOrder.total.toFixed(2)}</td>
+                        <td className="px-6 py-6 text-right text-2xl font-black">${selectedOrder.total?.toFixed(2)}</td>
                       </tr>
                     </tfoot>
                   </table>

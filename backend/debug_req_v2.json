@@ -1,18 +1,31 @@
 {
   "order_items": [
     {
-      "product_id": "test-product-id",
+      "product_id": "57f943e9-f45f-11f0-9ec6-bafe02a6c085",
       "quantity": 1
     }
   ],
   "shipping_info": {
-    "firstName": "Test",
-    "lastName": "User",
-    "address": "123 Event Bus Lane",
-    "city": "Notification City",
-    "zip": "12345",
-    "phone": "555-0123",
-    "country": "Saudi Arabia"
+    "firstName": "Meta",
+    "lastName": "Tech",
+    "email": "fatmamokhtar859@gmail.com",
+    "phone": "555555555555",
+    "address": "32 Al Falki",
+    "city": "Abdeen",
+    "zipCode": "4280102",
+    "country": "Saudi Arabia",
+    "state": "القاهرة"
+  },
+  "shippingAddress": {
+    "firstName": "Meta",
+    "lastName": "Tech",
+    "email": "fatmamokhtar859@gmail.com",
+    "phone": "555555555555",
+    "address": "32 Al Falki",
+    "city": "Abdeen",
+    "zipCode": "4280102",
+    "country": "Saudi Arabia",
+    "state": "القاهرة"
   },
   "save_to_profile": false
 }

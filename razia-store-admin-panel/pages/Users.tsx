@@ -24,7 +24,17 @@ const UsersPage: React.FC = () => {
   const loadUsers = async () => {
     try {
       const data = await userService.getAll();
-      setUsers(data);
+      // Map backend data to frontend format
+      const mappedUsers = data.map((u: any) => ({
+        id: u.id,
+        name: u.name || u.first_name || u.email?.split('@')[0] || 'Unknown',
+        email: u.email,
+        phone: u.phone || '',
+        address: u.address || '',
+        role: u.role === 'admin' ? 'admin' : 'user',
+        createdAt: u.created_at ? new Date(u.created_at).toLocaleDateString() : ''
+      }));
+      setUsers(mappedUsers);
     } catch (error) {
       console.error("Failed to load users", error);
     }

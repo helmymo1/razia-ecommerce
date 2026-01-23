@@ -63,7 +63,7 @@ app.use('/api/users', require('./modules/users/userRoutes'));
 app.use('/api/admin', require('./routes/adminRoutes'));
 // const paymentRoutes = require('./routes/paymentRoutes');
 // app.use('/api/payment', paymentRoutes);
-app.use('/api/payments', require('./modules/payments/paymentRoutes')); // New Webhook Endpoint
+app.use('/api/payment', require('./modules/payments/paymentRoutes')); // Unified Payment Routes
 // app.use('/api/cart', require('./routes/cartRoutes'));
 // app.use('/api/transactions', require('./routes/transactionRoutes'));
 

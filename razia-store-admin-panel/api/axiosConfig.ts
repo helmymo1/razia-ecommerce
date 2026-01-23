@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // Create an instance of axios
 const api = axios.create({
-  baseURL: 'http://localhost:5000/api', // Hardcoded for connectivity repair
+  baseURL: `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api`, // Dynamic Config
   withCredentials: true, // Enable sending cookies
   headers: {
     'Content-Type': 'application/json',
@@ -129,6 +129,20 @@ export const authService = {
     localStorage.removeItem('userInfo');
     localStorage.removeItem('adminInfo');
     window.location.href = '/#/login';
+  }
+};
+
+export const orderService = {
+  getAll: async () => {
+    // Uses /api/orders/admin to fetch all orders for admin view
+    const response = await api.get('/orders/admin');
+    return getArrayData(response);
+  },
+  updateStatus: async (id: string, status: string) => {
+    return api.put(`/orders/${id}/status`, { status });
+  },
+  delete: async (id: string) => {
+    return api.delete(`/orders/${id}`);
   }
 };
 
