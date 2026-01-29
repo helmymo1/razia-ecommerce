@@ -1,9 +1,9 @@
 import axios from 'axios';
 
-// In production, VITE_API_URL is empty (same-origin via nginx proxy)
+// In production mode (NODE_ENV=production), use relative /api path (nginx proxies to backend)
 // In development, fallback to localhost:5000
-const BASE_URL = import.meta.env.VITE_API_URL ?? 'http://127.0.0.1:5000';
-const API_URL = BASE_URL ? `${BASE_URL}/api` : '/api';
+const isDev = import.meta.env.DEV;
+const API_URL = isDev ? 'http://127.0.0.1:5000/api' : '/api';
 
 const api = axios.create({
   baseURL: API_URL,
