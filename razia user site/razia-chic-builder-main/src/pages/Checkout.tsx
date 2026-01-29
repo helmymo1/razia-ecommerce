@@ -840,9 +840,9 @@ const Checkout: React.FC = () => {
   const paymentMethods = [
     { id: 'mada', name: 'Mada', nameAr: 'مدى', logo: madaLogo, requiresCard: true },
     { id: 'visa', name: 'Visa / Mastercard', nameAr: 'فيزا / ماستركارد', logo: null, requiresCard: true },
-    { id: 'apple_pay', name: 'Apple Pay', nameAr: 'أبل باي', logo: null, requiresCard: false },
-    { id: 'tabby', name: 'Tabby', nameAr: 'تابي', logo: tabbyLogo, requiresCard: false, description: 'Pay in 4 interest-free payments' },
-    { id: 'tamara', name: 'Tamara', nameAr: 'تمارا', logo: tamaraLogo, requiresCard: false, description: 'Split in 3 payments, no interest' },
+    { id: 'apple_pay', name: 'Apple Pay', nameAr: 'أبل باي', logo: null, requiresCard: false, comingSoon: true },
+    { id: 'tabby', name: 'Tabby', nameAr: 'تابي', logo: tabbyLogo, requiresCard: false, description: 'Pay in 4 interest-free payments', comingSoon: true },
+    { id: 'tamara', name: 'Tamara', nameAr: 'تمارا', logo: tamaraLogo, requiresCard: false, description: 'Split in 3 payments, no interest', comingSoon: true },
   ];
 
   const selectedPaymentMethod = paymentMethods.find(m => m.id === paymentMethod);
@@ -874,24 +874,28 @@ const Checkout: React.FC = () => {
           {language === 'ar' ? 'اختر طريقة الدفع' : 'Choose Payment Method'}
         </h3>
         
-        <RadioGroup value={paymentMethod} onValueChange={setPaymentMethod} className="space-y-3">
+        <RadioGroup value={paymentMethod} onValueChange={(value) => {
+          const method = paymentMethods.find(m => m.id === value);
+          if (!method?.comingSoon) setPaymentMethod(value);
+        }} className="space-y-3">
           {paymentMethods.map((method) => (
             <div
               key={method.id}
-              className={`flex items-center justify-between p-4 rounded-lg border-2 cursor-pointer transition-all ${
-                paymentMethod === method.id 
-                  ? 'border-primary bg-primary/5' 
-                  : 'border-border hover:border-primary/50'
+              className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${method.comingSoon
+                  ? 'border-border bg-muted/50 cursor-not-allowed opacity-60'
+                  : paymentMethod === method.id
+                    ? 'border-primary bg-primary/5 cursor-pointer'
+                    : 'border-border hover:border-primary/50 cursor-pointer'
               }`}
-              onClick={() => setPaymentMethod(method.id)}
+              onClick={() => !method.comingSoon && setPaymentMethod(method.id)}
             >
               <div className="flex items-center gap-4">
-                <RadioGroupItem value={method.id} id={method.id} />
+                <RadioGroupItem value={method.id} id={method.id} disabled={method.comingSoon} />
                 {method.logo ? (
                   <img 
                     src={method.logo} 
                     alt={method.name} 
-                    className="h-8 w-auto object-contain"
+                    className={`h-8 w-auto object-contain ${method.comingSoon ? 'grayscale' : ''}`}
                   />
                 ) : (
                   <div className="flex items-center gap-2">
@@ -902,7 +906,7 @@ const Checkout: React.FC = () => {
                       </div>
                     )}
                     {method.id === 'apple_pay' && (
-                      <div className="px-3 py-1 bg-black text-white rounded text-xs font-medium flex items-center gap-1">
+                        <div className={`px-3 py-1 bg-black text-white rounded text-xs font-medium flex items-center gap-1 ${method.comingSoon ? 'opacity-50' : ''}`}>
                         <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
                           <path d="M17.0425 12.6963C17.0292 10.9321 17.8108 9.61083 19.3975 8.62333C18.5133 7.38083 17.1558 6.69583 15.3517 6.55667C13.6458 6.42167 11.78 7.54083 11.0808 7.54083C10.3392 7.54083 8.69583 6.60583 7.36833 6.60583C4.63 6.65083 1.71667 8.66833 1.71667 12.9338C1.71667 14.1805 1.9375 15.468 2.37917 16.7963C2.9625 18.5421 5.12917 22.8763 7.3875 22.8013C8.62583 22.7688 9.50417 21.9555 11.1 21.9555C12.6517 21.9555 13.4658 22.8013 14.85 22.8013C17.1367 22.768 19.0933 18.8455 19.6475 17.0955C16.9225 15.8113 17.0425 12.7788 17.0425 12.6963ZM14.6083 5.03917C15.8833 3.52417 15.765 2.14083 15.7283 1.66667C14.6025 1.7325 13.2958 2.42583 12.5483 3.29667C11.7242 4.23083 11.2333 5.3825 11.3358 6.54C12.5617 6.63167 13.6817 6.01583 14.6083 5.03917Z"/>
                         </svg>
@@ -912,8 +916,13 @@ const Checkout: React.FC = () => {
                   </div>
                 )}
                 <div>
-                  <Label htmlFor={method.id} className="cursor-pointer font-medium">
+                  <Label htmlFor={method.id} className={`font-medium ${method.comingSoon ? 'cursor-not-allowed' : 'cursor-pointer'}`}>
                     {language === 'ar' ? method.nameAr : method.name}
+                    {method.comingSoon && (
+                      <span className="ml-2 px-2 py-0.5 bg-amber-100 text-amber-700 text-xs font-bold rounded-full">
+                        {language === 'ar' ? 'قريباً' : 'Soon'}
+                      </span>
+                    )}
                   </Label>
                   {method.description && (
                     <p className="text-xs text-muted-foreground">{method.description}</p>

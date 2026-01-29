@@ -41,3 +41,6 @@
 {
   "detail": "Looks like the secret key is invalid"
 }
+
+[2026-01-29T11:39:51.563Z] PAYMENT ERROR:
+"timeout of 15000ms exceeded"

@@ -81,10 +81,9 @@ const Sidebar = ({ isOpen, toggle }: { isOpen: boolean, toggle: () => void }) =>
       
       <aside className={`fixed inset-y-0 left-0 bg-gray-900 w-64 transform ${isOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0 transition-transform duration-300 ease-in-out z-50 overflow-y-auto`}>
         <div className="p-6">
-          <h1 className="text-2xl font-bold text-white tracking-tight flex items-center space-x-2">
-            <div className="w-8 h-8 bg-indigo-600 rounded flex items-center justify-center">R</div>
-            <span>Razia Store</span>
-          </h1>
+          <Link to="/" className="flex items-center space-x-2">
+            <img src="/logo.png" alt="Razia Store" className="h-10 w-auto object-contain" />
+          </Link>
         </div>
         
         <nav className="mt-4 px-4 space-y-2">

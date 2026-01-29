@@ -69,7 +69,7 @@ const HeroSection: React.FC = () => {
             <Button
               asChild
               size="lg"
-              className="bg-gold text-gold-foreground hover:bg-gold/90 font-heading font-semibold px-8 py-6 text-base"
+              className="bg-teal text-teal-foreground hover:bg-teal/90 font-heading font-semibold px-8 py-6 text-base"
             >
               <Link to="/shop">
                 {t('shopNow')}
@@ -80,7 +80,7 @@ const HeroSection: React.FC = () => {
               asChild
               variant="outline"
               size="lg"
-              className="border-background text-background hover:bg-background/10 font-heading font-semibold px-8 py-6 text-base"
+              className="border-teal text-teal hover:bg-sand hover:text-teal hover:border-sand font-heading font-semibold px-8 py-6 text-base"
             >
               <Link to="/categories">
                 {t('exploreCollection')}
