@@ -8,7 +8,7 @@ Before the CI/CD pipeline can deploy your application, add these **3 secrets** t
 
 | Secret Name | Value | Description |
 |-------------|-------|-------------|
-| `SSH_PRIVATE_KEY` | Your private key content | SSH key for VPS access (begins with `-----BEGIN OPENSSH PRIVATE KEY-----`) |
+| `SSH_PASSWORD` | `Raziastore123@@` | SSH password for VPS access |
 | `HOST` | `72.62.237.1` | Hostinger VPS IP address |
 | `USERNAME` | `root` (or your VPS user) | SSH username for VPS |
 
