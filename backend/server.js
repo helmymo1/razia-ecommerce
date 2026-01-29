@@ -75,6 +75,15 @@ app.get('/', (req, res) => {
   res.send('API is running...');
 });
 
+// Health Check Endpoint (for Docker HEALTHCHECK)
+app.get('/api/health', (req, res) => {
+  res.status(200).json({
+    status: 'healthy',
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime()
+  });
+});
+
 // Swagger
 const swaggerUi = require('swagger-ui-express');
 const swaggerSpecs = require('./config/swagger');
