@@ -86,6 +86,7 @@ CREATE TABLE products (
     sku VARCHAR(100) UNIQUE,
     stock_quantity INT DEFAULT 0,
     is_active BOOLEAN DEFAULT 1,
+    is_deleted BOOLEAN DEFAULT 0, -- Soft delete support
     is_featured BOOLEAN DEFAULT 0,
     is_new BOOLEAN DEFAULT 0,
     tags JSON, -- Storing tags as JSON array
