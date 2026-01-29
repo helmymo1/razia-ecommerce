@@ -107,7 +107,7 @@ jobs:
           password: ${{ secrets.SSH_PASSWORD }}
           script: |
             set -e
-            PROJECT_DIR="/root/razia-store"
+            PROJECT_DIR="/root/razia-ecommerce"
             REPO_URL="https://github.com/${{ github.repository }}.git"
             
             # First-time setup: Clone repo if directory doesn't exist
