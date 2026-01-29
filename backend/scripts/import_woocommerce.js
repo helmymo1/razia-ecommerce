@@ -86,7 +86,8 @@ async function importData() {
             const categoryId = cats.length > 0 ? categoryMap.get(cats[0]) : null;
             
             // Insert Product
-            const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+            const baseSlug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+            const slug = `${baseSlug}-${id.substring(0, 8)}`;
             await connection.query(
                 `INSERT INTO products (id, name_en, name_ar, description_en, description_ar, price, sku, category_id, slug, created_at) 
                  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())`,
