@@ -1,0 +1,7 @@
+node_modules
+.git
+.vscode
+backend/node_modules
+razia user site/razia-chic-builder-main/node_modules
+logs.md
+documentation
