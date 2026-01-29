@@ -2,6 +2,7 @@
 import React, { useState, useRef } from 'react';
 import { Tag, Plus, Edit2, Trash2, X, Upload, Languages, Globe } from 'lucide-react';
 import { Category } from '../types';
+import toast from 'react-hot-toast';
 
 const MOCK_CATS: Category[] = [
   { 
@@ -15,6 +16,9 @@ const MOCK_CATS: Category[] = [
 ];
 
 import { categoryService } from '../api/axiosConfig';
+import { addBaseUrl } from '../utils/imageUtils';
+
+// Upload logic moved to service
 
 const CategoriesPage: React.FC = () => {
   const [categories, setCategories] = useState<Category[]>([]);
@@ -30,9 +34,16 @@ const CategoriesPage: React.FC = () => {
   const loadCategories = async () => {
     try {
       const data = await categoryService.getAll();
-      setCategories(data);
+      // Map backend fields to frontend interface
+      const mapped = data.map((c: any) => ({
+        ...c,
+        nameEn: c.name || c.nameEn || '',
+        descriptionEn: c.description || c.descriptionEn || ''
+      }));
+      setCategories(mapped);
     } catch (error) {
       console.error("Failed to load categories", error);
+      toast.error("Failed to load categories");
     }
   };
 
@@ -64,27 +75,45 @@ const CategoriesPage: React.FC = () => {
 
   const handleSave = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const formData = new FormData(e.currentTarget);
-    const catData = {
-      nameEn: formData.get('nameEn') as string,
-      nameAr: formData.get('nameAr') as string,
-      descriptionEn: formData.get('descriptionEn') as string,
-      descriptionAr: formData.get('descriptionAr') as string,
-      image: previewImage || formData.get('imageUrl') as string || `https://picsum.photos/seed/${Math.random()}/400/300`,
-    };
+    const formData = new FormData(e.currentTarget); // This captures nameEn, nameAr, descriptionEn, imageUrl
+
+    // Manually reconstruct to match backend/controller expectation
+    // Controller expects: name, name_ar, description, image (file or text)
+    // We will create a NEW FormData to be precise
+    const submissionData = new FormData();
+    submissionData.append('name', formData.get('nameEn') as string);
+    submissionData.append('name_ar', formData.get('nameAr') as string);
+    submissionData.append('description', formData.get('descriptionEn') as string);
+
+    const nameEn = formData.get('nameEn') as string;
+    const slug = nameEn.toLowerCase().replace(/ /g, '-').replace(/[^\w-]+/g, '') + '-' + Date.now().toString().slice(-4);
+    submissionData.append('slug', slug);
+
+    // Image
+    const file = fileInputRef.current?.files?.[0];
+    if (file) {
+      submissionData.append('image', file);
+    } else if (formData.get('imageUrl')) {
+      submissionData.append('image', formData.get('imageUrl') as string);
+    } else if (editingCategory?.image) {
+      submissionData.append('image', editingCategory.image);
+    }
 
     try {
         if (editingCategory) {
-          await categoryService.update(editingCategory.id, catData);
+          await categoryService.update(editingCategory.id, submissionData);
+          toast.success("Category updated");
         } else {
-          await categoryService.create(catData);
+          await categoryService.create(submissionData);
+          toast.success("Category created");
         }
         await loadCategories();
         setIsModalOpen(false);
         setEditingCategory(null);
-    } catch (err) {
-        alert('Failed to save category');
+      setPreviewImage(null);
+    } catch (err: any) {
         console.error(err);
+      toast.error(err.response?.data?.message || 'Failed to save category');
     }
   };
 
@@ -104,7 +133,7 @@ const CategoriesPage: React.FC = () => {
         {categories.map((cat) => (
           <div key={cat.id} className="bg-white rounded-3xl overflow-hidden shadow-sm border border-gray-100 group transition-all hover:shadow-xl">
             <div className="h-48 relative overflow-hidden bg-gray-50">
-              <img src={cat.image} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+              <img src={addBaseUrl(cat.image)} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
               <div className="absolute top-4 right-4 flex space-x-2 opacity-0 group-hover:opacity-100 transition-all">
                 <button onClick={() => openModal(cat)} className="p-2 bg-white rounded-full text-indigo-600 shadow-lg"><Edit2 size={16}/></button>
                 <button onClick={() => handleDelete(cat.id)} className="p-2 bg-white rounded-full text-red-600 shadow-lg"><Trash2 size={16}/></button>
@@ -141,7 +170,7 @@ const CategoriesPage: React.FC = () => {
                  <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Hero Image</label>
                  {previewImage && (
                    <div className="h-32 rounded-2xl overflow-hidden border border-gray-100 mb-3 relative">
-                     <img src={previewImage} className="w-full h-full object-cover"/>
+                    <img src={addBaseUrl(previewImage)} className="w-full h-full object-cover" />
                      <button type="button" onClick={() => setPreviewImage(null)} className="absolute top-2 right-2 p-1 bg-black/50 text-white rounded-full"><X size={12}/></button>
                    </div>
                  )}

@@ -6,6 +6,9 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { useCart } from '@/contexts/CartContext';
 import { Product } from '@/data/products';
 import { addBaseUrl } from '@/utils/imageUtils';
+import api from '@/services/api';
+import { toast } from '@/hooks/use-toast';
+import { useState } from 'react';
 
 interface ProductCardProps {
   product: Product;
@@ -15,6 +18,20 @@ interface ProductCardProps {
 const ProductCard: React.FC<ProductCardProps> = ({ product, index = 0 }) => {
   const { t, language } = useLanguage();
   const { addItem } = useCart();
+  const [isWishlisted, setIsWishlisted] = useState(false);
+
+  const handleWishlist = async (e: React.MouseEvent) => {
+    e.preventDefault(); // Prevent link navigation
+    e.stopPropagation();
+    try {
+      setIsWishlisted(!isWishlisted);
+      await api.put('/users/wishlist', { productId: product.id });
+      toast({ title: isWishlisted ? 'Removed from Wishlist' : 'Added to Wishlist' });
+    } catch (error) {
+      setIsWishlisted(!isWishlisted);
+      toast({ title: "Failed to update wishlist", variant: "destructive" });
+    }
+  };
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -43,6 +60,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, index = 0 }) => {
             src={addBaseUrl(product.images?.[0])}
             alt={language === 'ar' ? product.nameAr : product.name}
             className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+            loading="lazy"
           />
           
           {/* Hover overlay with second image */}
@@ -72,8 +90,11 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, index = 0 }) => {
 
           {/* Quick actions */}
           <div className="absolute top-3 right-3 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-x-4 group-hover:translate-x-0">
-            <button className="w-9 h-9 bg-background rounded-full flex items-center justify-center shadow-lg hover:bg-coral hover:text-coral-foreground transition-colors">
-              <Heart className="w-4 h-4" />
+            <button
+              onClick={handleWishlist}
+              className={`w-9 h-9 bg-background rounded-full flex items-center justify-center shadow-lg hover:bg-coral hover:text-coral-foreground transition-colors ${isWishlisted ? 'text-coral' : ''}`}
+            >
+              <Heart className={`w-4 h-4 ${isWishlisted ? 'fill-current' : ''}`} />
             </button>
           </div>
 

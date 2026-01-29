@@ -1,7 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { getUsers, createUser, updateUser, deleteUser, updateUserProfile, updatePassword } = require('./userController');
-const { getWishlist, toggleWishlist } = require('../../controllers/wishlistController');
+const { getUsers, createUser, updateUser, deleteUser, updateUserProfile, updatePassword, getWishlist, toggleWishlist } = require('./userController');
 const { getAddresses, addAddress, updateAddress, deleteAddress } = require('../../controllers/addressController');
 const { protect, admin } = require('../../middleware/authMiddleware');
 
@@ -11,7 +10,7 @@ router.put('/password', protect, require('../../middleware/authStatusCheck'), up
 
 // Wishlist
 router.get('/wishlist', protect, require('../../middleware/authStatusCheck'), getWishlist);
-router.post('/wishlist', protect, require('../../middleware/authStatusCheck'), toggleWishlist);
+router.put('/wishlist', protect, require('../../middleware/authStatusCheck'), toggleWishlist);
 
 // Addresses
 router.get('/addresses', protect, require('../../middleware/authStatusCheck'), getAddresses);

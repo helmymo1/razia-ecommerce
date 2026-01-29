@@ -1,26 +1,45 @@
-# Base Image
-FROM node:18-alpine
+# Phase 1: Containerizing the Backend
+# File: backend/Dockerfile
 
-# Working Directory
+# Stage 1: Builder
+FROM node:18-alpine AS builder
+
 WORKDIR /app
 
-# Install Dependencies
+# Copy package files for dependency installation
 COPY package*.json ./
-RUN npm ci --only=production
 
-# Copy Source Code
+# Install ALL dependencies (including devDependencies for build/test tools if needed in future)
+# or stick to production for leaner build
+RUN npm ci
+
+# Copy source code
 COPY . .
 
-# Expose Port
-EXPOSE 5000
+# Stage 2: Production Runner
+FROM node:18-alpine AS runner
 
-# Environment Variable defaults (Override in your deployment)
-ENV PORT=5000
+WORKDIR /app
+
+# Set NODE_ENV to production
 ENV NODE_ENV=production
 
-# Healthcheck
-HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-  CMD node scripts/db_health_check.js || exit 1
+# Create a non-root user for security
+RUN addgroup -S nodejs && adduser -S nodejs -G nodejs
 
-# Start Server
+# Copy only necessary files from builder
+COPY --from=builder /app/package*.json ./
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app .
+
+# Assign ownership to the non-root user
+RUN chown -R nodejs:nodejs /app
+
+# Switch to non-root user
+USER nodejs
+
+# Expose the application port
+EXPOSE 5000
+
+# Start command
 CMD ["npm", "start"]

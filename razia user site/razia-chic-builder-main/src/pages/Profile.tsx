@@ -12,6 +12,7 @@ import ProfileDecor from '@/components/graphics/ProfileDecor';
 import CardArcDecor from '@/components/graphics/CardArcDecor';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
+import { useCart } from '@/contexts/CartContext';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -22,6 +23,7 @@ import { cn } from '@/lib/utils';
 import { Link, useNavigate } from 'react-router-dom';
 import api from '@/services/api';
 import { useToast } from '@/hooks/use-toast';
+import RefundModal from '@/components/RefundModal';
 
 // Interfaces
 interface OrderItem {
@@ -56,9 +58,12 @@ interface UserData {
 interface WishlistItem {
   id: string; // Wishlist ID
   product_id: string;
-  name_en: string; // Product Name
+  name_en: string;
+  name_ar?: string; // Add Arabic name support
   price: string;
   image_url: string;
+  slug?: string; // Ensure slug is available
+  has_options?: boolean; // Optimization to know if we can quick-add
 }
 
 interface Address {
@@ -77,6 +82,7 @@ const Profile: React.FC = () => {
   const { t, language } = useLanguage();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { addItem } = useCart();
   
   const [activeTab, setActiveTab] = useState('overview');
   const [userData, setUserData] = useState<UserData | null>(null);
@@ -108,6 +114,10 @@ const Profile: React.FC = () => {
     currentPassword: '', newPassword: '', confirmPassword: ''
   });
 
+  // Refund Modal State
+  const [refundModalOpen, setRefundModalOpen] = useState(false);
+  const [refundOrder, setRefundOrder] = useState<Order | null>(null);
+
   const { user, loading: authLoading } = useAuth();
 
   // Initial Data Fetch (User Profile)
@@ -119,6 +129,7 @@ const Profile: React.FC = () => {
       }
       fetchUserProfile();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, authLoading, navigate]);
 
   // Tab Data Fetch
@@ -126,6 +137,7 @@ const Profile: React.FC = () => {
     if (activeTab === 'orders') fetchOrders();
     if (activeTab === 'wishlist') fetchWishlist();
     if (activeTab === 'addresses') fetchAddresses();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeTab]);
 
   const fetchUserProfile = async () => {
@@ -161,7 +173,7 @@ const Profile: React.FC = () => {
       console.log("❌ [Frontend] FETCH ORDERS ERROR:", error.message || error);
       toast({
         title: "Error fetching orders",
-        description: error.response?.data?.message || "Failed to load orders. Please check console.",
+        description: error.response?.data?.message || error.message || "Failed to load orders. Please check console.",
         variant: "destructive"
       });
       // Do NOT logout here. Let the user see the error.
@@ -314,20 +326,27 @@ const Profile: React.FC = () => {
     }
   };
 
-  const handleRequestRefund = async (orderId: string) => {
-    // Typically opens a modal or navigates to a refund form. For now, we'll just trigger the endpoint or show a prompt.
-    // Assuming a simple request for now as per previous context.
-    const reason = prompt(language === 'ar' ? 'يرجى إدخال سبب الاسترجاع:' : 'Please enter reason for refund:');
-    if (!reason) return;
-
-    try {
-      await api.post(`/orders/${orderId}/refund`, { reason });
-      toast({ title: "Requested", description: "Refund request submitted" });
-      fetchOrders();
-    } catch (error: any) {
-      toast({ title: "Error", description: error.response?.data?.message || "Failed to request refund", variant: "destructive" });
+  const handleRequestRefund = (orderId: string) => {
+    const order = orders.find(o => o.id === orderId);
+    if (order) {
+      setRefundOrder(order);
+      setRefundModalOpen(true);
     }
   };
+
+  const submitRefund = async (data: any) => {
+    if (!refundOrder) return;
+    try {
+      await api.post(`/orders/${refundOrder.id}/refund`, data);
+      toast({ title: "Requested", description: "Refund request submitted successfully" });
+      setRefundModalOpen(false);
+      setRefundOrder(null);
+      fetchOrders(); // Refresh status
+    } catch (error: any) {
+      toast({ title: "Error", description: error.response?.data?.message || "Failed to submit refund request", variant: "destructive" });
+    }
+  };
+
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -347,7 +366,7 @@ const Profile: React.FC = () => {
     { id: 'settings', label: language === 'ar' ? 'الإعدادات' : 'Settings', icon: Settings },
   ];
 
-  if (!userData) return <div className="min-h-screen pt-24 flex justify-center">Loading...</div>;
+  if (!userData) return <div className="min-h-screen pt-24 flex justify-center">{language === 'ar' ? 'جاري التحميل...' : 'Loading...'}</div>;
 
   return (
     <div className="min-h-screen bg-background relative">
@@ -472,7 +491,7 @@ const Profile: React.FC = () => {
                           {isEditingProfile && (
                               <div className="flex justify-end pt-4">
                                   <Button onClick={handleUpdateProfile} disabled={savingProfile}>
-                                      {savingProfile ? 'Saving...' : (language === 'ar' ? 'حفظ' : 'Save Changes')}
+                            {savingProfile ? (language === 'ar' ? 'جاري الحفظ...' : 'Saving...') : (language === 'ar' ? 'حفظ التغييرات' : 'Save Changes')}
                                   </Button>
                               </div>
                           )}
@@ -486,13 +505,13 @@ const Profile: React.FC = () => {
                 <Card>
                   <CardHeader><CardTitle>{language === 'ar' ? 'تاريخ الطلبات' : 'Order History'}</CardTitle></CardHeader>
                   <CardContent>
-                    {loading ? <div>Loading...</div> : orders.length === 0 ? <div className="text-center py-8">No orders found</div> : (
+                    {loading ? <div>{language === 'ar' ? 'جاري التحميل...' : 'Loading...'}</div> : orders.length === 0 ? <div className="text-center py-8">{language === 'ar' ? 'لا توجد طلبات' : 'No orders found'}</div> : (
                         <div className="space-y-4">
                             {orders.map(order => (
                                 <div key={order.id} className="border rounded-lg p-4">
                                     <div className="flex justify-between items-center mb-4">
                                         <div>
-                                            <p className="font-bold">Order #{order.id.slice(0,8)}</p>
+                                    <p className="font-bold">{language === 'ar' ? 'طلب' : 'Order'} #{order.id.slice(0, 8)}</p>
                                             <p className="text-sm text-muted-foreground">{new Date(order.created_at).toLocaleDateString()}</p>
                                         </div>
                                         <div className="text-right">
@@ -506,8 +525,19 @@ const Profile: React.FC = () => {
                                                 <img src={item.image} className="w-10 h-10 rounded object-cover bg-muted" alt={item.name} />
                                             <div className="flex-1">
                                               <div>{item.name} <span className="text-muted-foreground">x{item.qty}</span></div>
-                                              {(item.status || 'active') === 'cancelled' && <Badge variant="destructive" className="mt-1 text-xs">Cancelled</Badge>}
-                                              {(item.status || 'active') === 'returned' && <Badge variant="secondary" className="mt-1 text-xs">Returned</Badge>}
+
+                                              {/* Status Badges */}
+                                              {(item.status === 'cancelled' || item.cancelStatus === 'approved') && <Badge variant="destructive" className="mt-1 text-xs mr-1">{language === 'ar' ? 'ملغى' : 'Cancelled'}</Badge>}
+                                              {(item.status === 'returned') && <Badge variant="secondary" className="mt-1 text-xs mr-1">{language === 'ar' ? 'مُرتجع' : 'Returned'}</Badge>}
+
+                                              {/* Refund Status */}
+                                              {item.refundStatus === 'requested' && <Badge className="mt-1 text-xs mr-1 bg-amber-100 text-amber-800 hover:bg-amber-200">{language === 'ar' ? 'طلب استرداد قيد الانتظار' : 'Refund Pending'}</Badge>}
+                                              {item.refundStatus === 'approved' && <Badge className="mt-1 text-xs mr-1 bg-green-100 text-green-800 hover:bg-green-200">{language === 'ar' ? 'تمت الموافقة على الاسترداد' : 'Refund Approved'}</Badge>}
+                                              {item.refundStatus === 'rejected' && <Badge className="mt-1 text-xs mr-1 bg-red-100 text-red-800 hover:bg-red-200">{language === 'ar' ? 'تم رفض الاسترداد' : 'Refund Rejected'}</Badge>}
+
+                                              {/* Cancel Status Pending */}
+                                              {item.cancelStatus === 'requested' && <Badge className="mt-1 text-xs mr-1 bg-amber-100 text-amber-800 hover:bg-amber-200">{language === 'ar' ? 'طلب إلغاء قيد الانتظار' : 'Cancel Pending'}</Badge>}
+                                              {item.cancelStatus === 'rejected' && <Badge className="mt-1 text-xs mr-1 bg-red-100 text-red-800 hover:bg-red-200">{language === 'ar' ? 'تم رفض الإلغاء' : 'Cancel Rejected'}</Badge>}
                                             </div>
                                             <div className="text-right">
                                               <div>${Number(item.price).toFixed(2)}</div>
@@ -578,8 +608,8 @@ const Profile: React.FC = () => {
                                 <h3 className="font-semibold">{editingAddressId ? (language === 'ar' ? 'تعديل العنوان' : 'Edit Address') : (language === 'ar' ? 'عنوان جديد' : 'New Address')}</h3>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div>
-                                        <Label>Label (e.g. Home, Work)</Label>
-                                        <Input value={addressForm.name} onChange={e => setAddressForm({...addressForm, name: e.target.value})} placeholder="Home" />
+                            <Label>{language === 'ar' ? 'التسمية (مثل: المنزل، العمل)' : 'Label (e.g. Home, Work)'}</Label>
+                            <Input value={addressForm.name} onChange={e => setAddressForm({ ...addressForm, name: e.target.value })} placeholder={language === 'ar' ? 'المنزل' : 'Home'} />
                                     </div>
                                     <div>
                                         <Label>{language === 'ar' ? 'العنوان' : 'Address Line'}</Label>
@@ -613,23 +643,23 @@ const Profile: React.FC = () => {
                                             onChange={e => setAddressForm({...addressForm, is_default: e.target.checked})}
                                             className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
                                         />
-                                        <Label htmlFor="isDefault" className="mb-0 cursor-pointer">Set as default address</Label>
+                            <Label htmlFor="isDefault" className="mb-0 cursor-pointer">{language === 'ar' ? 'تعيين كعنوان افتراضي' : 'Set as default address'}</Label>
                                     </div>
                                 </div>
                                 <div className="flex gap-2 justify-end mt-4">
-                                    <Button variant="outline" onClick={resetAddressForm}>Cancel</Button>
+                          <Button variant="outline" onClick={resetAddressForm}>{language === 'ar' ? 'إلغاء' : 'Cancel'}</Button>
                                     <Button onClick={handleSaveAddress} disabled={savingAddress}>
-                                        {savingAddress ? 'Saving...' : 'Save Address'}
+                            {savingAddress ? (language === 'ar' ? 'جاري الحفظ...' : 'Saving...') : (language === 'ar' ? 'حفظ العنوان' : 'Save Address')}
                                     </Button>
                                 </div>
                             </div>
                         ) : (
                             <div className="space-y-4">
-                                {loading && addresses.length === 0 ? <div>Loading...</div> : addresses.length === 0 ? <div className="text-center py-8 text-muted-foreground">No addresses saved. Add one!</div> : (
+                          {loading && addresses.length === 0 ? <div>{language === 'ar' ? 'جاري التحميل...' : 'Loading...'}</div> : addresses.length === 0 ? <div className="text-center py-8 text-muted-foreground">{language === 'ar' ? 'لا توجد عناوين محفوظة. أضف واحدة!' : 'No addresses saved. Add one!'}</div> : (
                                     <div className="grid gap-4">
                                         {addresses.map(addr => (
                                             <div key={addr.id} className={cn("border rounded-lg p-4 relative", addr.is_default && "border-primary bg-primary/5")}>
-                                                {addr.is_default && <Badge className="absolute top-2 right-2">Default</Badge>}
+                                            {addr.is_default && <Badge className="absolute top-2 right-2">{language === 'ar' ? 'افتراضي' : 'Default'}</Badge>}
                                                 <div className="flex justify-between items-start">
                                                     <div>
                                                         <h4 className="font-bold flex items-center gap-2">
@@ -662,27 +692,64 @@ const Profile: React.FC = () => {
               {/* WISHLIST */}
               {activeTab === 'wishlist' && (
                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                    {loading ? <div>Loading...</div> : wishlist.length === 0 ? <div className="col-span-full text-center py-10">Your wishlist is empty</div> : (
-                        wishlist.map(item => (
+                  {loading ? <div>{language === 'ar' ? 'جاري التحميل...' : 'Loading...'}</div> : wishlist.length === 0 ? <div className="col-span-full text-center py-10">{language === 'ar' ? 'قائمة الأمنيات فارغة' : 'Your wishlist is empty'}</div> : (
+                    wishlist.map((item: any) => {
+                      // Backend returns sizes/colors as JSON string or object depending on driver setting. Safely parse if needed.
+                      let hasVariants = false;
+                      try {
+                        const sizes = typeof item.sizes === 'string' ? JSON.parse(item.sizes) : item.sizes;
+                        const colors = typeof item.colors === 'string' ? JSON.parse(item.colors) : item.colors;
+                        hasVariants = (sizes && sizes.length > 0) || (colors && colors.length > 0);
+                      } catch (e) { hasVariants = false; }
+
+                      return (
                             <Card key={item.id} className="group relative">
-                                <div className="aspect-square bg-muted relative overflow-hidden">
-                                    <img src={item.image_url} alt={item.name_en} className="w-full h-full object-cover" />
-                                    <button 
-                                        onClick={() => handleRemoveFromWishlist(item.product_id)}
-                                        className="absolute top-2 right-2 p-2 bg-white/80 rounded-full hover:bg-white text-coral transition-colors"
-                                    >
-                                        <Trash2 className="w-4 h-4" />
-                                    </button>
-                                </div>
+                          <Link to={`/product/${item.slug || item.id}`} className="block aspect-square bg-muted relative overflow-hidden">
+                            <img src={item.image_url || item.image} alt={item.name_en} className="w-full h-full object-cover transition-transform group-hover:scale-105" />
+                          </Link>
+                          <button 
+                            onClick={(e) => { e.preventDefault(); handleRemoveFromWishlist(item.id); }}
+                            className="absolute top-2 right-2 p-2 bg-white/80 rounded-full hover:bg-white text-coral transition-colors z-10"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
                                 <CardContent className="p-3">
-                                    <h3 className="font-medium truncate">{item.name_en}</h3>
+                            <Link to={`/product/${item.slug || item.id}`} className="block font-medium truncate hover:text-primary transition-colors">
+                              {language === 'ar' && item.name_ar ? item.name_ar : item.name_en}
+                            </Link>
                                     <p className="font-bold text-primary">${Number(item.price).toFixed(2)}</p>
-                                    <Button className="w-full mt-2" size="sm" variant="outline">
-                                        {language === 'ar' ? 'أضف للسلة' : 'Add to Cart'}
+                            {hasVariants ? (
+                              <Button
+                                className="w-full mt-2"
+                                size="sm"
+                                variant="outline"
+                                onClick={() => navigate(`/product/${item.slug || item.id}`)}
+                              >
+                                {language === 'ar' ? 'خيارات المنتج' : 'Select Options'}
+                              </Button>
+                            ) : (
+                              <Button
+                                className="w-full mt-2"
+                                size="sm"
+                                onClick={() => {
+                                  addItem({
+                                    id: item.id,
+                                    name: item.name_en,
+                                    price: Number(item.price),
+                                    image: item.image_url,
+                                    qty: 1,
+                                    countInStock: item.countInStock
+                                  });
+                                  toast({ title: "Added", description: "Added to cart" });
+                                }}
+                              >
+                                {language === 'ar' ? 'إضافة للسلة' : 'Add to Cart'}
                                     </Button>
+                            )}
                                 </CardContent>
                             </Card>
-                        ))
+                      )
+                    })
                     )}
                  </div>
               )}
@@ -695,9 +762,9 @@ const Profile: React.FC = () => {
                         {!userData.has_password ? (
                             <div className="p-6 bg-gray-50 dark:bg-muted/50 rounded-lg border border-gray-200 dark:border-muted text-center">
                                 <div className="text-4xl mb-2">🔒</div>
-                                <h3 className="text-lg font-medium text-gray-900 dark:text-foreground">Social Account Linked</h3>
+                        <h3 className="text-lg font-medium text-gray-900 dark:text-foreground">{language === 'ar' ? 'حساب تواصل اجتماعي مرتبط' : 'Social Account Linked'}</h3>
                                 <p className="text-gray-500 dark:text-muted-foreground mt-1">
-                                    You are logged in via Google/Apple. You manage your security through their platform.
+                          {language === 'ar' ? 'أنت مسجل الدخول عبر Google/Apple. يمكنك إدارة أمانك من خلال منصتهم.' : 'You are logged in via Google/Apple. You manage your security through their platform.'}
                                 </p>
                             </div>
                         ) : (
@@ -715,7 +782,7 @@ const Profile: React.FC = () => {
                                     <Input type="password" value={passwordForm.confirmPassword} onChange={e => setPasswordForm({...passwordForm, confirmPassword: e.target.value})} />
                                 </div>
                                 <Button onClick={handleChangePassword} disabled={savingPassword}>
-                                    {savingPassword ? 'Updating...' : 'Update Password'}
+                            {savingPassword ? (language === 'ar' ? 'جاري التحديث...' : 'Updating...') : (language === 'ar' ? 'تحديث كلمة المرور' : 'Update Password')}
                                 </Button>
                             </div>
                         )}
@@ -728,6 +795,12 @@ const Profile: React.FC = () => {
         </div>
       </main>
       <Footer />
+      <RefundModal
+        isOpen={refundModalOpen}
+        onClose={() => setRefundModalOpen(false)}
+        order={refundOrder}
+        onSubmit={submitRefund}
+      />
     </div>
   );
 };

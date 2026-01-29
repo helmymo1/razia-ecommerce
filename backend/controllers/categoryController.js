@@ -17,7 +17,8 @@ const getCategories = async (req, res, next) => {
 // @access  Private/Admin
 const createCategory = async (req, res, next) => {
   try {
-    const { name, name_ar, slug, image, parent_id, description, sort_order } = req.body;
+    const { name, name_ar, slug, parent_id, description, sort_order } = req.body;
+    const image = req.file ? `/uploads/${req.file.filename}` : req.body.image;
     
     // Validation
     if (!name || !slug) {
@@ -50,7 +51,11 @@ const createCategory = async (req, res, next) => {
 // @access  Private/Admin
 const updateCategory = async (req, res, next) => {
   try {
-    const { name, name_ar, slug, image, parent_id, description, sort_order, is_active } = req.body;
+    const { name, name_ar, slug, parent_id, description, sort_order, is_active } = req.body;
+    let image = req.body.image;
+    if (req.file) {
+      image = `/uploads/${req.file.filename}`;
+    }
     const categoryId = req.params.id;
 
     // Check if category exists

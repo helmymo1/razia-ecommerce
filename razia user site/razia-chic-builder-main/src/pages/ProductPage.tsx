@@ -14,11 +14,16 @@ import { useCart } from '@/contexts/CartContext';
 import { Button } from '@/components/ui/button';
 import Meta from '@/components/Meta';
 import { addBaseUrl } from '@/utils/imageUtils';
+import { shareProduct } from '@/utils/shareHelper';
+import api from '@/services/api';
+import { toast } from '@/hooks/use-toast';
+import { useAnalytics } from '@/hooks/useAnalytics';
 
 const ProductPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const { t, language } = useLanguage();
   const { addItem } = useCart();
+  const { track } = useAnalytics();
   
   // Fetch single product
   const { data: product, isLoading: isLoadingProduct, error: productError } = useQuery({
@@ -38,6 +43,8 @@ const ProductPage: React.FC = () => {
   const [selectedColor, setSelectedColor] = useState<string>('');
   const [quantity, setQuantity] = useState(1);
   const [isAdded, setIsAdded] = useState(false);
+  const [isWishlisted, setIsWishlisted] = useState(false); // Local state for immediate feedback
+  // Ideally sync with user wishlist from API on load
 
   // Map to simple variables for Safety Guards
   const loading = isLoadingProduct;
@@ -63,12 +70,16 @@ const ProductPage: React.FC = () => {
     .slice(0, 4);
 
   const handleAddToCart = () => {
-    if (product?.colors?.length > 0 && !selectedColor) {
-      // toast.error(t('selectColor')); // Ideally use toast
+    // Strict Validation Logic
+    const hasColors = product?.colors && product.colors.length > 0;
+    const hasSizes = product?.sizes && product.sizes.length > 0;
+
+    if (hasColors && !selectedColor) {
+      toast({ title: t('selectColor') || "Please select a color", variant: "destructive" });
       return;
     }
-    if (product?.sizes?.length > 0 && !selectedSize) {
-      // toast.error(t('selectSize'));
+    if (hasSizes && !selectedSize) {
+      toast({ title: t('selectSize') || "Please select a size", variant: "destructive" });
       return;
     }
     
@@ -78,12 +89,34 @@ const ProductPage: React.FC = () => {
       nameAr: product?.nameAr,
       price: product?.price,
       image: product?.images[0],
-      size: selectedSize,
-      color: selectedColor,
+      size: selectedSize || 'Standard',
+      color: selectedColor || 'Standard',
     });
     
+    track('add_to_cart', { id: product?.id, name: product?.name, price: product?.price });
+
     setIsAdded(true);
     setTimeout(() => setIsAdded(false), 2000);
+    toast({ title: t('addedToCart') || 'Added to Cart' });
+  };
+
+  const handleWishlist = async () => {
+    try {
+      setIsWishlisted(!isWishlisted); // Optimistic UI
+      await api.put('/users/wishlist', { productId: product?.id });
+      toast.success(isWishlisted ? 'Removed from Wishlist' : 'Added to Wishlist');
+    } catch (error) {
+      setIsWishlisted(!isWishlisted); // Revert
+      toast.error("Failed to update wishlist");
+    }
+  };
+
+  const handleShare = () => {
+    if (!product) return;
+    shareProduct({
+      name: language === 'ar' ? product.nameAr : product.name,
+      description: language === 'ar' ? product.descriptionAr : product.description
+    });
   };
 
   return (
@@ -256,7 +289,6 @@ const ProductPage: React.FC = () => {
               <div className="flex items-center gap-2 sm:gap-4 mb-4 sm:mb-8">
                 <Button
                   onClick={handleAddToCart}
-                  disabled={(product?.colors?.length > 0 && !selectedColor) || (product?.sizes?.length > 0 && !selectedSize)}
                   size="lg"
                   className={`flex-1 font-heading font-semibold h-10 sm:h-14 text-xs sm:text-base ${
                     isAdded ? 'bg-teal text-teal-foreground' : 'bg-primary text-primary-foreground'
@@ -277,12 +309,14 @@ const ProductPage: React.FC = () => {
                 <Button
                   variant="outline"
                   size="icon"
-                  className="w-10 h-10 sm:w-14 sm:h-14 border-coral text-coral hover:bg-coral hover:text-coral-foreground shrink-0"
+                  onClick={handleWishlist}
+                  className={`w-10 h-10 sm:w-14 sm:h-14 border-coral hover:bg-coral hover:text-coral-foreground shrink-0 ${isWishlisted ? 'bg-coral text-white' : 'text-coral'}`}
                 >
-                  <Heart className="w-4 h-4 sm:w-5 sm:h-5" />
+                  <Heart className={`w-4 h-4 sm:w-5 sm:h-5 ${isWishlisted ? 'fill-current' : ''}`} />
                 </Button>
                 <Button
                   variant="outline"
+                  onClick={handleShare}
                   size="icon"
                   className="w-10 h-10 sm:w-14 sm:h-14 shrink-0"
                 >

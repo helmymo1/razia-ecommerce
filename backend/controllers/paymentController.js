@@ -63,6 +63,10 @@ const payWithPaymob = async (req, res) => {
             throw new Error("PAYMOB_INTEGRATION_ID in .env is not a number.");
         }
 
+        // ℹ️ API KEY NOTE: Ensure PAYMOB_SECRET_KEY in .env comes from 'Settings -> Account Info' of your Paymob Dashboard.
+        // It should look like 'sau_sk_...' (Saudi) or 'egy_sk_...' (Egypt) depending on region.
+        // If connecting to global `accept.paymob.com`, ensure the key is compatible.
+
         // Total Amount: Docs say 'amount' might be in cents or major units depending on API version.
         // ERROR LOG CONFIRMED: "Pass 100 for SAR 1". So we MUST use Cents (Integer).
         const amountCents = Math.ceil(parseFloat(order.total) * 100); 
@@ -71,8 +75,7 @@ const payWithPaymob = async (req, res) => {
             amount: amountCents,
             currency: "SAR",
             payment_methods: [
-                integrationId, // The ID for Online Card
-                "card"
+                integrationId // The ID for Online Card (Must be number)
             ],
             items: orderItems.map(item => ({
                 name: item.product_name || "Product", // SQL column is product_name
@@ -104,13 +107,19 @@ const payWithPaymob = async (req, res) => {
 
         console.log("🚀 SENDING PAYMOB INTENTION:", JSON.stringify(payload, null, 2));
 
-        // 4. EXECUTE REQUEST
-        // URL: https://ksa.paymob.com/v1/intention/
-        const response = await axios.post('https://ksa.paymob.com/v1/intention/', payload, {
+        // 4. EXECUTE REQUEST (STANDARD ENDPOINT)
+        // Global/Egypt: https://accept.paymob.com/v1/intention/
+        // KSA: https://accept.paymob.com/v1/intention/ (Unified, usually) or ksa.paymob.com
+        // Currently KSA specific domain is unstable, defaulting to Standard with ENV override.
+        const paymobUrl = process.env.PAYMOB_API_URL || 'https://accept.paymob.com/v1/intention/';
+        console.log(`🚀 SENDING PAYMOB INTENTION TO: ${paymobUrl}`);
+
+        const response = await axios.post(paymobUrl, payload, {
             headers: {
-                'Authorization': `Token ${process.env.PAYMOB_SECRET_KEY}`, // MUST be the Secret Key (sk_test_...)
+                'Authorization': `Token ${process.env.PAYMOB_SECRET_KEY}`,
                 'Content-Type': 'application/json'
-            }
+            },
+            timeout: 15000 // 15s Timeout
         });
 
         // 5. HANDLE RESPONSE

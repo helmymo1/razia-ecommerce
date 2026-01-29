@@ -13,9 +13,10 @@ const PLACEHOLDER_IMAGE = 'https://via.placeholder.com/400x500?text=Category';
 const Categories: React.FC = () => {
   const { t, language } = useLanguage();
 
-  const { data: categories = [], isLoading } = useQuery({
+  const { data: categories = [], isLoading, isError, refetch } = useQuery({
     queryKey: ['categories'],
     queryFn: categoryService.getAll,
+    retry: 1
   });
 
   return (
@@ -36,16 +37,23 @@ const Categories: React.FC = () => {
             <div className="w-20 h-1 bg-gold mx-auto" />
           </motion.div>
 
-          {isLoading ? (
+          {isError ? (
+            <div className="text-center py-12 space-y-4">
+              <p className="text-red-500 font-bold">Unable to load categories.</p>
+              <button onClick={() => refetch()} className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90">
+                Retry Connection
+              </button>
+            </div>
+          ) : isLoading ? (
             <div className="text-center py-12">
-              <p className="text-muted-foreground">Loading categories...</p>
-            </div>
-          ) : categories.length === 0 ? (
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+                <p className="text-muted-foreground">Loading categories...</p>
+              </div>
+            ) : !Array.isArray(categories) || categories.length === 0 ? (
               <div className="text-center py-12 space-y-2">
-                <p className="text-red-500 font-bold">Unable to load categories.</p>
-                <p className="text-sm text-gray-500">Please check if the backend server is running on port 5000.</p>
-            </div>
-          ) : (
+                  <p className="text-gray-500 font-medium">No categories found.</p>
+                </div>
+              ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {categories.map((category: any, index: number) => (
                     <motion.div

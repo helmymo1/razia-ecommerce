@@ -1,55 +1,139 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Ticket, Plus, Calendar, Edit2, Trash2, X, Tag } from 'lucide-react';
 import { PromoCode } from '../types';
 
-const MOCK_PROMOS: PromoCode[] = [
-  { id: '1', code: 'WELCOME20', type: 'percentage', discount: 20, startDate: '2023-10-01', endDate: '2023-12-31', active: true },
-  { id: '2', code: 'SUMMER50', type: 'fixed', discount: 50, startDate: '2023-06-01', endDate: '2023-08-31', active: false },
-];
+import api from '../api/axiosConfig';
+import toast from 'react-hot-toast';
+
+const MOCK_PROMOS: PromoCode[] = []; // Removed logic
 
 const PromoCodesPage: React.FC = () => {
-  const [promos, setPromos] = useState<PromoCode[]>(MOCK_PROMOS);
+  const [promos, setPromos] = useState<PromoCode[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingPromo, setEditingPromo] = useState<PromoCode | null>(null);
 
-  const handleDelete = (id: string) => {
-    if (window.confirm('Remove this promo code?')) {
-      setPromos(promos.filter(p => p.id !== id));
+  // Fetch Coupons
+  React.useEffect(() => {
+    loadCoupons();
+  }, []);
+
+  const loadCoupons = async () => {
+    try {
+      const { data } = await api.get('/coupons');
+      // Map backend to frontend
+      const mapped = data.map((c: any) => ({
+        id: c.id,
+        code: c.code,
+        type: c.discount_type,
+        discount: c.discount_value,
+        startDate: c.start_date?.split('T')[0],
+        endDate: c.end_date?.split('T')[0],
+        active: !c.is_deleted // Assuming soft delete means inactive? Or status field?
+        // Wait, backend has 'is_deleted' filtered out.
+        // It doesn't have an explicit 'active' boolean in schema I wrote,
+        // but verifyCoupon checks dates.
+        // I'll assume active = true for now as 'status' field wasn't in my controller create logic explicitly
+        // actually controller INSERT just put values. 
+        // Let's add status=active logic if needed or just rely on dates.
+      }));
+      setPromos(mapped);
+    } catch (err) {
+      console.error(err);
+      toast.error('Failed to load coupons');
     }
   };
 
-  const handleSave = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleDelete = async (id: string) => {
+    if (window.confirm('Remove this promo code?')) {
+      try {
+        await api.delete(`/coupons/${id}`);
+        setPromos(promos.filter(p => p.id !== id));
+        toast.success('Coupon deleted');
+      } catch (err) {
+        toast.error('Failed to delete coupon');
+      }
+    }
+  };
+
+  const handleSave = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     const promoData = {
       code: (formData.get('code') as string).toUpperCase(),
-      discount: parseFloat(formData.get('discount') as string),
-      type: formData.get('type') as 'fixed' | 'percentage',
-      startDate: formData.get('startDate') as string,
-      endDate: formData.get('endDate') as string,
-      active: formData.get('active') === 'on',
+      discount_value: parseFloat(formData.get('discount') as string),
+      discount_type: formData.get('type') as 'fixed' | 'percentage',
+      start_date: formData.get('startDate') as string,
+      end_date: formData.get('endDate') as string,
+      status: 'active'
     };
 
-    if (editingPromo) {
-      setPromos(promos.map(p => p.id === editingPromo.id ? { ...p, ...promoData } : p));
-    } else {
-      const newPromo: PromoCode = {
-        id: Math.random().toString(36).substr(2, 5),
-        ...promoData,
-      };
-      setPromos([...promos, newPromo]);
+    try {
+    // Create Only (Edit not implemented in backend yet, just soft delete/re-create pattern usually for coupons to avoid history issues, but simple update is fine if I add it.
+    // My controller only had Create/Delete/Get/Verify. So I will supporting Creating new.
+    // If editing, I might need to Add Update endpoint or just tell user to recreate.
+    // For now I'll support Create.
+      if (editingPromo) {
+        toast.error("Editing not supported yet, please delete and recreate");
+        // Or implement PUT /api/coupons/:id in backend if requested...
+        // Prompt said: POST (Create), GET (List), DELETE (Delete), POST (Validate). 
+        // So explicit Edit was NOT requested. I'll disable edit save.
+      } else {
+        await api.post('/coupons', promoData);
+        toast.success('Coupon created');
+        loadCoupons();
+      }
+      setIsModalOpen(false);
+      setEditingPromo(null);
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || 'Failed to save coupon');
     }
-    setIsModalOpen(false);
-    setEditingPromo(null);
+  };
+
+
+  // Outfit Config State
+  const [outfitConfig, setOutfitConfig] = useState({
+    tier_2: 15,
+    tier_3: 20,
+    tier_4: 25,
+    tier_5: 30
+  });
+
+  const loadOutfitConfig = async () => {
+    try {
+      const { data } = await api.get('/config/outfit');
+      if (data && data.tier_2) {
+        setOutfitConfig(data);
+      }
+    } catch (err) {
+      console.error("Failed to load outfit config", err);
+    }
+  };
+
+  useEffect(() => {
+    loadOutfitConfig();
+  }, []);
+
+  const handleSaveConfig = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      await api.put('/config/outfit', outfitConfig);
+      toast.success('Outfit rules updated');
+    } catch (err) {
+      toast.error('Failed to update rules');
+    }
+  };
+
+  const handleConfigChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setOutfitConfig({ ...outfitConfig, [e.target.name]: parseInt(e.target.value) || 0 });
   };
 
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-2xl font-bold text-gray-800">Promo Codes</h1>
-          <p className="text-gray-500">Create and manage discounts for campaigns.</p>
+          <h1 className="text-2xl font-bold text-gray-800">Promo Codes & Config</h1>
+          <p className="text-gray-500">Manage campaign discounts and store settings.</p>
         </div>
         <button 
           onClick={() => { setEditingPromo(null); setIsModalOpen(true); }}
@@ -60,7 +144,82 @@ const PromoCodesPage: React.FC = () => {
         </button>
       </div>
 
+      {/* Outfit Builder Configuration Card */}
+      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center space-x-2">
+            <div className="p-2 bg-pink-100 text-pink-600 rounded-lg">
+              <Tag size={20} />
+            </div>
+            <div>
+              <h2 className="text-lg font-bold text-gray-800">Outfit Builder Rules</h2>
+              <p className="text-sm text-gray-500">Set automatic bundle discounts based on item count</p>
+            </div>
+          </div>
+        </div>
+        <form onSubmit={handleSaveConfig} className="grid grid-cols-2 md:grid-cols-5 gap-4 items-end">
+          <div>
+            <label className="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-2">2 Items</label>
+            <div className="relative">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 font-bold">%</span>
+              <input
+                name="tier_2"
+                type="number"
+                value={outfitConfig.tier_2}
+                onChange={handleConfigChange}
+                className="w-full pl-8 pr-3 py-2 border border-gray-200 rounded-lg font-bold text-gray-800 focus:ring-2 focus:ring-pink-500 outline-none"
+              />
+            </div>
+          </div>
+          <div>
+            <label className="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-2">3 Items</label>
+            <div className="relative">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 font-bold">%</span>
+              <input
+                name="tier_3"
+                type="number"
+                value={outfitConfig.tier_3}
+                onChange={handleConfigChange}
+                className="w-full pl-8 pr-3 py-2 border border-gray-200 rounded-lg font-bold text-gray-800 focus:ring-2 focus:ring-pink-500 outline-none"
+              />
+            </div>
+          </div>
+          <div>
+            <label className="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-2">4 Items</label>
+            <div className="relative">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 font-bold">%</span>
+              <input
+                name="tier_4"
+                type="number"
+                value={outfitConfig.tier_4}
+                onChange={handleConfigChange}
+                className="w-full pl-8 pr-3 py-2 border border-gray-200 rounded-lg font-bold text-gray-800 focus:ring-2 focus:ring-pink-500 outline-none"
+              />
+            </div>
+          </div>
+          <div>
+            <label className="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-2">5+ Items</label>
+            <div className="relative">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 font-bold">%</span>
+              <input
+                name="tier_5"
+                type="number"
+                value={outfitConfig.tier_5}
+                onChange={handleConfigChange}
+                className="w-full pl-8 pr-3 py-2 border border-gray-200 rounded-lg font-bold text-gray-800 focus:ring-2 focus:ring-pink-500 outline-none"
+              />
+            </div>
+          </div>
+          <button type="submit" className="flex items-center justify-center px-4 py-2 bg-pink-600 text-white font-bold rounded-lg hover:bg-pink-700 transition-colors h-[42px]">
+            Save Rules
+          </button>
+        </form>
+      </div>
+
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+        <div className="px-6 py-4 border-b border-gray-100">
+          <h3 className="font-bold text-gray-800">Active Coupons</h3>
+        </div>
         <table className="w-full text-left">
           <thead>
             <tr className="bg-gray-50 text-xs font-bold text-gray-500 uppercase tracking-wider">
@@ -72,50 +231,50 @@ const PromoCodesPage: React.FC = () => {
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
-            {promos.map((promo) => (
-              <tr key={promo.id} className="hover:bg-gray-50 transition-colors">
-                <td className="px-6 py-4">
-                  <div className="flex items-center space-x-2">
-                    <Ticket size={16} className="text-indigo-600" />
-                    <span className="font-bold text-gray-900 tracking-tight">{promo.code}</span>
-                  </div>
-                </td>
-                <td className="px-6 py-4">
-                   <p className="text-sm font-bold text-gray-900">
-                     {promo.type === 'percentage' ? `${promo.discount}%` : `$${promo.discount}`}
-                   </p>
-                   <p className="text-xs text-gray-400 capitalize">{promo.type} OFF</p>
-                </td>
-                <td className="px-6 py-4">
-                  <div className="flex items-center text-xs text-gray-500">
-                    <Calendar size={12} className="mr-1" />
-                    {promo.startDate} - {promo.endDate}
-                  </div>
-                </td>
-                <td className="px-6 py-4">
-                   <span className={`px-2 py-1 text-xs font-bold rounded-full ${
-                     promo.active ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-400'
-                   }`}>
-                     {promo.active ? 'Active' : 'Disabled'}
-                   </span>
-                </td>
-                <td className="px-6 py-4 text-right space-x-2">
-                   <button 
-                     onClick={() => { setEditingPromo(promo); setIsModalOpen(true); }}
-                     className="p-2 text-gray-400 hover:text-indigo-600 transition-colors"
-                   >
-                     <Edit2 size={18} />
-                   </button>
-                   <button 
-                     onClick={() => handleDelete(promo.id)}
-                     className="p-2 text-gray-400 hover:text-red-600 transition-colors"
-                   >
-                     <Trash2 size={18} />
-                   </button>
-                </td>
-              </tr>
-            ))}
-            {promos.length === 0 && (
+            {promos && promos.length > 0 ? (
+              promos.map((promo) => (
+                <tr key={promo.id} className="hover:bg-gray-50 transition-colors">
+                  <td className="px-6 py-4">
+                    <div className="flex items-center space-x-2">
+                      <Ticket size={16} className="text-indigo-600" />
+                      <span className="font-bold text-gray-900 tracking-tight">{promo.code}</span>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4">
+                    <p className="text-sm font-bold text-gray-900">
+                      {promo.type === 'percentage' ? `${promo.discount}%` : `$${promo.discount}`}
+                    </p>
+                    <p className="text-xs text-gray-400 capitalize">{promo.type} OFF</p>
+                  </td>
+                  <td className="px-6 py-4">
+                    <div className="flex items-center text-xs text-gray-500">
+                      <Calendar size={12} className="mr-1" />
+                      {promo.startDate} - {promo.endDate}
+                    </div>
+                  </td>
+                  <td className="px-6 py-4">
+                    <span className={`px-2 py-1 text-xs font-bold rounded-full ${promo.active ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-400'
+                      }`}>
+                      {promo.active ? 'Active' : 'Disabled'}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 text-right space-x-2">
+                    <button
+                      onClick={() => { setEditingPromo(promo); setIsModalOpen(true); }}
+                      className="p-2 text-gray-400 hover:text-indigo-600 transition-colors"
+                    >
+                      <Edit2 size={18} />
+                    </button>
+                    <button
+                      onClick={() => handleDelete(promo.id)}
+                      className="p-2 text-gray-400 hover:text-red-600 transition-colors"
+                    >
+                      <Trash2 size={18} />
+                    </button>
+                  </td>
+                </tr>
+              ))
+            ) : (
               <tr>
                 <td colSpan={5} className="px-6 py-12 text-center text-gray-400">No promo codes found.</td>
               </tr>

@@ -5,7 +5,7 @@ const bcrypt = require('bcryptjs');
 // Get all users
 const getUsers = async (req, res, next) => {
   try {
-    const [users] = await db.query('SELECT id, name, email, role, created_at, is_deleted FROM users WHERE is_deleted = 0');
+    const [users] = await db.query('SELECT id, name, first_name, last_name, email, role, phone, created_at, is_deleted FROM users WHERE is_deleted = 0');
     res.status(200).json(users);
   } catch (error) {
     next(error);
@@ -138,11 +138,85 @@ const updatePassword = async (req, res, next) => {
   }
 };
 
+
+// @desc    Toggle Wishlist Item
+// @route   PUT /api/users/wishlist
+// @access  Private
+const toggleWishlist = async (req, res, next) => {
+  const userId = req.user.id;
+  const { productId } = req.body;
+
+  try {
+    const [users] = await db.query('SELECT wishlist FROM users WHERE id = ?', [userId]);
+    if (users.length === 0) return res.status(404).json({ message: 'User not found' });
+
+    let wishlist = users[0].wishlist;
+    // Parse
+    if (typeof wishlist === 'string') wishlist = JSON.parse(wishlist);
+    if (!Array.isArray(wishlist)) wishlist = [];
+
+    const index = wishlist.indexOf(productId);
+    let action = 'added';
+
+    if (index === -1) {
+      wishlist.push(productId);
+    } else {
+      wishlist.splice(index, 1);
+      action = 'removed';
+    }
+
+    await db.query('UPDATE users SET wishlist = ? WHERE id = ?', [JSON.stringify(wishlist), userId]);
+
+    // Optional: Return populated products? For now just the list of IDs is fine for frontend invalidation
+    res.json({ message: `Product ${action} to wishlist`, wishlist });
+
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Get Wishlist
+// @route   GET /api/users/wishlist
+// @access  Private
+const getWishlist = async (req, res, next) => {
+  const userId = req.user.id;
+  try {
+    const [users] = await db.query('SELECT wishlist FROM users WHERE id = ?', [userId]);
+    let wishlist = users[0]?.wishlist;
+
+    if (typeof wishlist === 'string') {
+      try { wishlist = JSON.parse(wishlist); } catch (e) { wishlist = []; }
+    }
+    if (!Array.isArray(wishlist)) wishlist = [];
+
+    if (wishlist.length === 0) {
+      return res.json([]); // Return empty array if no items
+    }
+
+    // Fetch product details for these IDs
+    // Using placeholders for IN clause
+    const placeholders = wishlist.map(() => '?').join(',');
+    const query = `
+        SELECT id, name_en, price, image_url, countInStock, slug, sizes, colors 
+        FROM products 
+        WHERE id IN (${placeholders})
+    `;
+
+    const [products] = await db.query(query, wishlist);
+    res.json(products);
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   getUsers,
   createUser,
   updateUser,
   deleteUser,
   updateUserProfile,
-  updatePassword
+  updatePassword,
+  toggleWishlist,
+  getWishlist
 };
+

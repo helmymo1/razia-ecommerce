@@ -34,12 +34,21 @@ router.get('/', protect, (req, res) => {
     });
 });
 
+const { updateAbandonedCartJob } = require('../queues/emailQueue');
+
 // Add Item to Cart
 router.post('/', protect, (req, res) => {
     const { product_id, quantity } = req.body;
     getOrCreateCart(req.user.id, (err, cartId) => {
         if (err) return res.status(500).json({ message: 'Error retrieving cart' });
         
+        // Trigger Abandoned Cart Flow (Reset Timer to 1 Hour)
+        updateAbandonedCartJob(cartId, {
+            user: { id: req.user.id, name: req.user.name },
+            userEmail: req.user.email,
+            cartUrl: `${process.env.FRONTEND_URL || 'http://localhost:5173'}/checkout`
+        });
+
         // Check if item exists
         db.query('SELECT id, quantity FROM cart_items WHERE cart_id = ? AND product_id = ?', [cartId, product_id], (err, results) => {
             if (err) return res.status(500).json({ message: 'Error checking item' });
@@ -65,6 +74,16 @@ router.post('/', protect, (req, res) => {
 // Remove Item
 router.delete('/:itemId', protect, (req, res) => {
     // Ideally verify cart belongs to user, simplified here
+    getOrCreateCart(req.user.id, (err, cartId) => {
+        if (!err && cartId) {
+            updateAbandonedCartJob(cartId, {
+                user: { id: req.user.id, name: req.user.name },
+                userEmail: req.user.email,
+                cartUrl: `${process.env.FRONTEND_URL || 'http://localhost:5173'}/checkout`
+            });
+        }
+    });
+
     db.query('DELETE FROM cart_items WHERE id = ?', [req.params.itemId], (err, result) => {
         if (err) return res.status(500).json({ message: 'Error removing item' });
         res.json({ message: 'Item removed' });

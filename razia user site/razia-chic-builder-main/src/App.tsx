@@ -20,6 +20,7 @@ import Profile from "./pages/Profile";
 import Auth from "./pages/Auth";
 import Checkout from "./pages/Checkout";
 import NotFound from "./pages/NotFound";
+import CityCategoryPage from "./pages/CityCategoryPage";
 
 const queryClient = new QueryClient();
 
@@ -27,7 +28,10 @@ import { useEffect } from "react";
 import { toast } from "sonner";
 import io from 'socket.io-client';
 
+import { useAnalytics } from "@/hooks/useAnalytics";
+
 const App = () => {
+  useAnalytics(); // Auto-track page views
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const ref = params.get('ref');
@@ -69,6 +73,7 @@ const App = () => {
                     <Routes>
                       <Route path="/" element={<Index />} />
                       <Route path="/shop" element={<Shop />} />
+                      <Route path="/shop/:category/in/:city" element={<CityCategoryPage />} />
                       <Route path="/product/:id" element={<ProductPage />} />
                       <Route path="/categories" element={<Categories />} />
                       <Route path="/category/:id" element={<Shop />} />

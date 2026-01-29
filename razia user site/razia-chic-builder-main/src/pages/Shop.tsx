@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Helmet } from 'react-helmet-async';
 import { motion } from 'framer-motion';
 import { SlidersHorizontal, X } from 'lucide-react';
 import Navbar from '@/components/Navbar';
@@ -73,6 +74,10 @@ const Shop: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <Helmet>
+        <title>Shop Luxury Abayas & Dresses | Razia Chic</title>
+        <meta name="description" content="Browse our exclusive collection of luxury abayas, dresses, and modest fashion. Find your perfect style at Razia Chic." />
+      </Helmet>
       <Navbar />
       <CartDrawer />
       

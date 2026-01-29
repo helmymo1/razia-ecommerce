@@ -2,7 +2,8 @@ import axios from 'axios';
 
 // Create an instance of axios
 const api = axios.create({
-  baseURL: `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api`, // Dynamic Config
+  // @ts-ignore
+  baseURL: `${import.meta.env.VITE_API_URL || 'http://127.0.0.1:5000'}/api`, // Dynamic Config
   withCredentials: true, // Enable sending cookies
   headers: {
     'Content-Type': 'application/json',
@@ -109,8 +110,22 @@ export const categoryService = {
     const response = await api.get('/categories');
     return getArrayData(response);
   },
-  create: async (data: any) => api.post('/categories', data),
-  update: async (id: string, data: any) => api.put(`/categories/${id}`, data),
+  create: async (data: any) => {
+    if (data instanceof FormData) {
+      return api.post('/categories', data, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+    }
+    return api.post('/categories', data);
+  },
+  update: async (id: string, data: any) => {
+    if (data instanceof FormData) {
+      return api.put(`/categories/${id}`, data, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+    }
+    return api.put(`/categories/${id}`, data);
+  },
   delete: async (id: string) => api.delete(`/categories/${id}`),
 };
 
@@ -133,6 +148,10 @@ export const authService = {
 };
 
 export const orderService = {
+  getById: async (id: string) => {
+    const response = await api.get(`/orders/${id}`);
+    return response.data;
+  },
   getAll: async () => {
     // Uses /api/orders/admin to fetch all orders for admin view
     const response = await api.get('/orders/admin');
@@ -143,6 +162,12 @@ export const orderService = {
   },
   delete: async (id: string) => {
     return api.delete(`/orders/${id}`);
+  },
+  processRefund: async (id: string, requestId: string, decision: 'approved' | 'rejected') => {
+    return api.put(`/orders/${id}/refund/${requestId}/process`, { decision });
+  },
+  manageRequest: async (id: string, data: any) => {
+    return api.put(`/orders/${id}/manage-request`, data);
   }
 };
 

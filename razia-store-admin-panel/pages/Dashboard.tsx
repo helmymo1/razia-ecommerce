@@ -10,7 +10,8 @@ import {
   AreaChart, 
   Area 
 } from 'recharts';
-import { TrendingUp, ShoppingCart, Users, RotateCcw, DollarSign } from 'lucide-react';
+import { TrendingUp, ShoppingCart, Users, RotateCcw, DollarSign, Download } from 'lucide-react';
+import api from '../api/axiosConfig';
 
 const data = [
   { name: 'Jan', sales: 4000, orders: 240 },
@@ -42,6 +43,24 @@ const StatCard = ({ label, value, icon: Icon, color, trend }: any) => (
 );
 
 const Dashboard: React.FC = () => {
+  const handleDownloadReport = async () => {
+    try {
+      const response = await api.get('/analytics/export', {
+        responseType: 'blob',
+      });
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `analytics_report_${new Date().toISOString().split('T')[0]}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    } catch (error) {
+      console.error('Failed to download report:', error);
+      alert('Failed to download report. Please try again.');
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -50,7 +69,12 @@ const Dashboard: React.FC = () => {
           <p className="text-gray-500">Welcome back, Sarah. Here's what's happening today.</p>
         </div>
         <div className="flex space-x-2">
-          <button className="px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium hover:bg-gray-50">Download Report</button>
+          <button
+            onClick={handleDownloadReport}
+            className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors"
+          >
+            <Download size={16} /> Download Report
+          </button>
           <button className="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700">Add Product</button>
         </div>
       </div>

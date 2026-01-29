@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { User, Shield, Key, LogOut, Camera } from 'lucide-react';
+import { authService } from '../api/axiosConfig';
 
 const AdminProfilePage: React.FC = () => {
   return (
@@ -43,7 +44,7 @@ const AdminProfilePage: React.FC = () => {
             </div>
 
             <div className="pt-6 border-t border-gray-100 flex justify-between items-center">
-              <button className="text-red-600 flex items-center font-bold text-sm hover:underline">
+              <button onClick={() => authService.logout()} className="text-red-600 flex items-center font-bold text-sm hover:underline">
                 <LogOut size={18} className="mr-2" /> Log Out
               </button>
               <button className="bg-indigo-600 text-white px-6 py-2 rounded-lg font-bold shadow-lg shadow-indigo-100">

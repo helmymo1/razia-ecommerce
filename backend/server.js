@@ -66,6 +66,9 @@ app.use('/api/admin', require('./routes/adminRoutes'));
 app.use('/api/payment', require('./modules/payments/paymentRoutes')); // Unified Payment Routes
 // app.use('/api/cart', require('./routes/cartRoutes'));
 // app.use('/api/transactions', require('./routes/transactionRoutes'));
+app.use('/api/analytics', require('./routes/analyticsRoutes'));
+app.use('/api/config', require('./modules/config/configRoutes'));
+app.use('/api/webhooks', require('./routes/webhookRoutes'));
 
 // Root Route
 app.get('/', (req, res) => {
@@ -136,6 +139,16 @@ if (require.main === module) {
     initInventoryService();
     initOrderService();
     initShippingService();
+
+    // Initialize Email Worker (Queue Consumer)
+    const { initEmailWorker } = require('./workers/emailWorker');
+    initEmailWorker();
+
+    const { initAnalyticsService } = require('./modules/analytics/analyticsService');
+    initAnalyticsService(); // Create table
+
+    const { initConfigService } = require('./modules/config/configService');
+    initConfigService();
 
     logger.info(`Server running on http://localhost:${PORT}`);
     console.log("⚠️ RATE LIMITING DISABLED FOR TESTING ⚠️");

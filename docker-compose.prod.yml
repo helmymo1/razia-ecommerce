@@ -1,0 +1,60 @@
+# Phase 3: Orchestration
+# File: docker-compose.prod.yml
+
+version: '3.8'
+
+services:
+  # Frontend Application
+  frontend:
+    build:
+      context: "./razia user site/razia-chic-builder-main"
+      dockerfile: Dockerfile
+    restart: always
+    # Frontend handled by Gateway Nginx, no ports exposed directly to host
+
+  # Backend API
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    restart: always
+    # Backend handled by Gateway Nginx, no ports exposed directly to host
+    env_file:
+      - ./backend/.env
+    environment:
+      - MONGO_URI=mongodb://mongo:27017/ebazer
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    depends_on:
+      - mongo
+      - redis
+
+  # Database Service
+  mongo:
+    image: mongo:6
+    restart: always
+    volumes:
+      - mongo_data:/data/db
+
+  # Caching Service
+  redis:
+    image: redis:alpine
+    restart: always
+    volumes:
+      - redis_data:/data
+
+  # Nginx Gateway (Reverse Proxy)
+  nginx:
+    image: nginx:alpine
+    restart: always
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - frontend
+      - backend
+
+volumes:
+  mongo_data:
+  redis_data:

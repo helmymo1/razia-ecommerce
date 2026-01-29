@@ -1,11 +1,11 @@
-
 export enum OrderStatus {
-  PENDING = 'Pending',
-  PROCESSING = 'Processing',
-  SHIPPED = 'Shipped',
-  DELIVERED = 'Delivered',
-  CANCELLED = 'Cancelled',
-  REFUNDED = 'Refunded'
+  PENDING = 'pending',
+  CONFIRMED = 'confirmed',
+  PROCESSING = 'processing',
+  SHIPPED = 'shipped',
+  DELIVERED = 'delivered',
+  CANCELLED = 'cancelled',
+  REFUNDED = 'refunded'
 }
 
 export interface User {
@@ -60,6 +60,25 @@ export interface Order {
   paymentMethod: string;
   createdAt: string;
   trackingNumber?: string;
+  refundRequests?: RefundRequestDetails[];
+  orderNumber?: string;
+  userName?: string;
+  userEmail?: string;
+  userPhoneAccount?: string;
+  deliveryId?: string;
+  deliveryStatus?: string;
+  deliveryError?: string;
+}
+
+export interface RefundRequestDetails {
+  requestId: string;
+  items: string[];
+  reason: string;
+  pickupTime: string;
+  phone: string;
+  address: string;
+  status: 'pending' | 'approved' | 'rejected';
+  createdAt: string;
 }
 
 export interface RefundRequest {

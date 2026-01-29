@@ -76,7 +76,33 @@ const OutfitBuilder: React.FC = () => {
 
   const categories = ['all', ...new Set(products.map((p: Product) => p.category))];
 
-  const filteredProducts = products; // API handles filtering now
+  const filteredProducts = products.filter((p: Product) =>
+    selectedCategory === 'all' ||
+    (p.category && p.category.toLowerCase() === selectedCategory.toLowerCase())
+  );
+
+  const [outfitConfig, setOutfitConfig] = useState({
+    tier_2: 0,
+    tier_3: 15,
+    tier_4: 20,
+    tier_5: 25
+  });
+
+  // Fetch Config
+  useEffect(() => {
+    const fetchConfig = async () => {
+      try {
+        const res = await fetch('http://localhost:5000/api/config/outfit');
+        const data = await res.json();
+        if (data && data.tier_3) {
+          setOutfitConfig(prev => ({ ...prev, ...data }));
+        }
+      } catch (err) {
+        console.error("Failed to fetch outfit config", err);
+      }
+    };
+    fetchConfig();
+  }, []);
 
   // Count all products across all boxes
   const allSelectedProducts = outfitBoxes.flatMap(box => box.products);
@@ -84,15 +110,15 @@ const OutfitBuilder: React.FC = () => {
 
   // Calculate discount based on items
   const getDiscount = (count: number): number => {
-    if (count >= 6) return 30;
-    if (count >= 5) return 25;
-    if (count >= 4) return 20;
-    if (count >= 3) return 15;
+    if (count >= 5) return outfitConfig.tier_5;
+    if (count === 4) return outfitConfig.tier_4;
+    if (count === 3) return outfitConfig.tier_3;
+    if (count === 2) return outfitConfig.tier_2;
     return 0;
   };
 
   const bundleDiscount = getDiscount(itemCount);
-  const totalDiscount = Math.min(bundleDiscount + promoDiscount, 50); // Max 50% discount
+  const totalDiscount = Math.min(bundleDiscount + promoDiscount, 100); // Allow up to 100% if configured
   const originalTotal = allSelectedProducts.reduce((sum, product) => sum + product.price, 0);
   const discountedTotal = originalTotal * (1 - totalDiscount / 100);
   const savings = originalTotal - discountedTotal;
@@ -107,6 +133,7 @@ const OutfitBuilder: React.FC = () => {
       setPromoDiscount(10);
       toast.success(t('referralApplied'));
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const addProductToBox = (product: Product, boxId?: number) => {
@@ -304,11 +331,11 @@ const OutfitBuilder: React.FC = () => {
               <h3 className="font-heading text-lg font-bold">{t('bundleDiscount')}</h3>
               <div className="flex flex-wrap gap-3">
                 {[
-                  { items: 3, discount: 15 },
-                  { items: 4, discount: 20 },
-                  { items: 5, discount: 25 },
-                  { items: 6, discount: 30 },
-                ].map(tier => (
+                  { items: 2, discount: outfitConfig.tier_2 },
+                  { items: 3, discount: outfitConfig.tier_3 },
+                  { items: 4, discount: outfitConfig.tier_4 },
+                  { items: 5, discount: outfitConfig.tier_5 },
+                ].filter(t => t.discount > 0).map(tier => (
                   <div
                     key={tier.items}
                     className={`px-4 py-2 rounded-lg transition-all ${
@@ -318,7 +345,7 @@ const OutfitBuilder: React.FC = () => {
                     }`}
                   >
                     <span className="font-heading font-bold">{tier.discount}%</span>
-                    <span className="text-sm ml-1">({tier.items}+ {t('items')})</span>
+                    <span className="text-sm ml-1">({tier.items}{tier.items === 5 ? '+' : ''} {t('items')})</span>
                   </div>
                 ))}
               </div>

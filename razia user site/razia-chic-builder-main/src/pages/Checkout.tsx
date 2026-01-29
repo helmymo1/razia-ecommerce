@@ -38,6 +38,7 @@ import madaLogo from '@/assets/payments/mada.png';
 import tamaraLogo from '@/assets/payments/tamara.png';
 import tabbyLogo from '@/assets/payments/tabby.png';
 import api, { orderService } from '@/services/api';
+import { useAnalytics } from '@/hooks/useAnalytics';
 
 // Validation schemas
 const shippingSchema = z.object({
@@ -84,6 +85,7 @@ const steps = [
 const Checkout: React.FC = () => {
   const navigate = useNavigate();
   const { items, subtotal, removeItem, updateQuantity, clearCart } = useCart();
+  const { track } = useAnalytics();
   const { language } = useLanguage();
   const { user, loading: authLoading } = useAuth();
   
@@ -113,7 +115,7 @@ const Checkout: React.FC = () => {
     }
   }, [user]);
   const [promoCode, setPromoCode] = useState('');
-  const [appliedPromo, setAppliedPromo] = useState<{ code: string; discount: number } | null>(null);
+  const [appliedPromo, setAppliedPromo] = useState<{ code: string; discount: number; type?: string; value?: number } | null>(null);
   
   // Referral State
   const [referralCode, setReferralCode] = useState<string | null>(null);
@@ -236,36 +238,56 @@ const Checkout: React.FC = () => {
 
   // Fixed shipping cost
   const shippingCost = 25;
-  const promoDiscount = appliedPromo ? (subtotal * appliedPromo.discount) / 100 : 0;
+  const promoDiscount = appliedPromo
+    ? (appliedPromo.type === 'fixed'
+      ? appliedPromo.value
+      : (subtotal * appliedPromo.discount) / 100)
+    : 0;
+
   // Referral Discount
   const referralDiscountAmount = referralDiscount ? (subtotal * referralDiscount) : 0;
 
-  const tax = (subtotal - promoDiscount - referralDiscountAmount) * 0.15; // 15% VAT
-  const total = subtotal - promoDiscount - referralDiscountAmount + shippingCost + tax;
+  const tax = Math.max(0, (subtotal - promoDiscount - referralDiscountAmount) * 0.15); // 15% VAT (Ensure non-negative)
+  const total = Math.max(0, subtotal - promoDiscount - referralDiscountAmount + shippingCost + tax);
 
-  const applyPromoCode = () => {
+  const applyPromoCode = async () => {
     if (!promoCode.trim()) {
       toast.error('Please enter a promo code');
       return;
     }
 
-    // Simulate promo code validation
-    const validCodes: Record<string, number> = {
-      'WELCOME10': 10,
-      'RAZIA15': 15,
-      'VIP20': 20,
-    };
+    try {
+      const response = await api.post('/coupons/verify', { code: promoCode });
+      const coupon = response.data;
 
-    const code = promoCode.toUpperCase();
-    if (validCodes[code]) {
-      setAppliedPromo({ code, discount: validCodes[code] });
-      toast.success(`Promo code applied! ${validCodes[code]}% discount`);
-    } else if (code.startsWith('RAZIA')) {
-      // Referral codes from outfit builder
-      setAppliedPromo({ code, discount: 10 });
-      toast.success('Referral code applied! 10% discount');
-    } else {
-      toast.error('Invalid promo code');
+      // Calculate discount amount (logic depends on discount_type: 'percentage' or 'fixed')
+      const discountValue = parseFloat(coupon.discount_value);
+      setAppliedPromo({
+        code: coupon.code,
+        discount: coupon.discount_type === 'percentage' ? discountValue : 0, // Store percentage directly
+        type: coupon.discount_type,
+        value: discountValue
+      });
+
+      if (coupon.discount_type === 'percentage') {
+        toast.success(`Promo code applied! ${discountValue}% discount`);
+      } else {
+        toast.success(`Promo code applied! SAR ${discountValue} discount`);
+      }
+
+    } catch (error: any) {
+      console.error('Coupon validation error:', error);
+      if (error.response && error.response.status === 404) {
+        // Fallback to referral code check if backend returns 404 for standard coupons
+        if (promoCode.toUpperCase().startsWith('RAZIA')) {
+          setAppliedPromo({ code: promoCode.toUpperCase(), discount: 10, type: 'percentage', value: 10 });
+          toast.success('Referral code applied! 10% discount');
+        } else {
+          toast.error(error.response.data.message || 'Invalid promo code');
+        }
+      } else {
+        toast.error(error.response?.data?.message || 'Failed to apply promo code');
+      }
     }
   };
 
@@ -375,8 +397,9 @@ const Checkout: React.FC = () => {
   };
 
   const processPayment = async () => {
+    let orderId = null;
     try {
-      toast.loading('Processing payment...');
+      toast.loading('Creating Order...');
       
       // Extract product ID directly
       const orderItems = items.map(item => ({
@@ -409,6 +432,18 @@ const Checkout: React.FC = () => {
         referralCode: referralCode || undefined
       });
 
+      orderId = response.id;
+      toast.dismiss();
+      toast.success("Order Created! Initiating Payment...");
+
+    } catch (error: any) {
+      toast.dismiss();
+      console.error("Order Creation Logic Failed:", error);
+      toast.error(`Order Creation Failed: ${error.message || 'Unknown Error'}`);
+      return; // Stop here
+    }
+
+    try {
       // 1. Get Token (from localStorage as AuthContext might lag or be complex object)
       const token = localStorage.getItem('userInfo') 
         ? JSON.parse(localStorage.getItem('userInfo')!).token 
@@ -420,18 +455,14 @@ const Checkout: React.FC = () => {
       }
 
       // 2. Initiate Payment (Paymob)
-      // Note: orderItems passed here are for Paymob display/metadata. 
-      // The actual order is already created in DB.
-      // 2. Initiate Payment (Paymob)
-      // Note: orderItems passed here are for Paymob display/metadata. 
-      // The actual order is already created in DB.
-      // Use imported 'api' instance to ensure Auth Interceptor works
+      console.log("Initiating Payment for Order:", orderId);
+
       const paymentResponse = await api.post(
-        '/payment/initiate', // Use relative path
+        '/payment/initiate', 
           { 
-              items: items.map(item => ({...item, price: item.price})), // Ensure correct structure
+            items: items.map(item => ({ ...item, price: item.price })), 
               shipping_info: shippingData,
-            order_id: response.id // Pass the backend Order ID to link them
+            order_id: orderId 
           }
       );
 
@@ -441,16 +472,27 @@ const Checkout: React.FC = () => {
         window.location.href = paymentResponse.data.iframe_url;
       } else {
         // Fallback if no iframe (e.g. error caught)
-        setOrderNumber(response.id);
+        setOrderNumber(orderId);
         clearCart();
         setCurrentStep(4);
-        toast.success('Order placed!');
+        toast.success('Order placed successfully!');
+        track('purchase', { orderId: orderId, total: total });
       }
 
     } catch (error: any) {
       toast.dismiss();
-      toast.error(error.response?.data?.message || error.message || 'Failed to place order');
-      console.error('Order creation/payment failed:', error);
+      // Detailed Error Logging due to Network Error reports
+      console.error('Payment Initiation Failed:', error);
+      console.error('Error Config:', error.config);
+      if (error.response) {
+        console.error('Error Response:', error.response.data);
+        toast.error(`Payment Failed (Server): ${error.response.data.message || 'Unknown Server Error'}`);
+      } else if (error.request) {
+        console.error('Error Request:', error.request);
+        toast.error("Payment Failed: Network Error (No Response from Server). Check CORS or Ad Blocker.");
+      } else {
+        toast.error(`Payment Failed: ${error.message}`);
+      }
     }
   };
 
@@ -564,7 +606,7 @@ const Checkout: React.FC = () => {
                 <div className="flex items-center gap-2">
                   <Percent className="w-4 h-4 text-green-600" />
                   <span className="font-medium text-green-700 dark:text-green-400">
-                    {appliedPromo.code} - {appliedPromo.discount}% off
+                      {appliedPromo.type === 'fixed' ? `SAR ${appliedPromo.value} off` : `${appliedPromo.discount}% off`}
                   </span>
                 </div>
                 <button onClick={removePromoCode} className="text-red-500 hover:text-red-600">

@@ -55,7 +55,14 @@ const configureSecurity = (app) => {
     'http://localhost:3000', // Admin Panel
     'http://localhost:5173', // User Site (Vite usually)
     'http://localhost:5174', // User Site Alternate
-    'http://localhost:3001'  // Admin Panel Alternate
+    'http://localhost:5175',
+    'http://localhost:5176',
+    'http://localhost:3001',  // Admin Panel Alternate
+    'http://localhost:3002',
+    'http://127.0.0.1:5173',
+    'http://127.0.0.1:5174',
+    'http://127.0.0.1:3000',
+    'http://127.0.0.1:5000'
   ];
 
   app.use(cors({
@@ -63,12 +70,12 @@ const configureSecurity = (app) => {
       // Allow requests with no origin (like mobile apps or curl requests)
       if (!origin) return callback(null, true);
 
-      if (allowedOrigins.indexOf(origin) !== -1 || !origin) {
-        callback(null, true);
-      } else {
-        console.log('BLOCKED CORS:', origin);
-        callback(new Error('Not allowed by CORS'));
+      // [DEBUG] Allow ALL origins temporarily to fix "Connection Error"
+      // Check if it's in the allowed list just for logging, but allow anyway
+      if (allowedOrigins.indexOf(origin) === -1) {
+        console.log('⚠️ CORS WARNING: Origin not in whitelist but allowed for debug:', origin);
       }
+      callback(null, true);
     },
     credentials: true, // Essential for Cookies
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],

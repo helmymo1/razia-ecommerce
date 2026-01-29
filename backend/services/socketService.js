@@ -13,6 +13,14 @@ const initSocketService = (io) => {
     console.log("📡 Emitting Socket Event: order_update (DELIVERED)");
     io.emit('order_update', { message: `Order #${data.orderId.slice(0,8)}... has been DELIVERED!`, status: 'delivered', ...data });
   });
+
+  // Analytics Live Update
+  bus.on('ANALYTICS_NEW_EVENT', (data) => {
+    // We could emit the full stats, but that's expensive for every event.
+    // Instead, just tell Admin to increment active users or refresh.
+    // Simple incremental update:
+    io.emit('stats_updated', data);
+  });
 };
 
 module.exports = { initSocketService };

@@ -57,6 +57,16 @@ const register = async (req, res, next) => {
         maxAge: 30 * 24 * 60 * 60 * 1000 // 30 days
     });
 
+      // Trigger Welcome Sequence
+      const { addEmailJob } = require('../queues/emailQueue');
+      // Using setImmediate to not block response
+      setImmediate(() => {
+          addEmailJob('welcomeStep1', {
+              user: { name, email: user.email },
+              userEmail: user.email // Required by worker
+          });
+      });
+
     res.status(201).json({
       id: user.id,
       name,

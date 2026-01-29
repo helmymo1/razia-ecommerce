@@ -1,52 +1,35 @@
-const nodemailer = require('nodemailer');
+const { addEmailJob } = require('../queues/emailQueue');
+const logger = require('../utils/logger'); // Assuming logger exists
 
-const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-        user: process.env.EMAIL_USER, // Your Gmail address
-        pass: process.env.EMAIL_PASS  // Your Gmail App Password
-    }
-});
-
+/**
+ * Send Queue-based Order Confirmation
+ */
 exports.sendOrderConfirmation = async (userEmail, orderDetails, items) => {
-    // Build HTML Table for items
-    const itemsHtml = items.map(i => `
-        <tr>
-            <td>${i.name}</td>
-            <td>${i.quantity}</td>
-            <td>${i.unit_price || i.price} SAR</td>
-        </tr>
-    `).join('');
-
-    const mailOptions = {
-        from: '"Razia Store" <' + process.env.EMAIL_USER + '>',
-        to: userEmail,
-        subject: `Order Confirmed #${orderDetails.order_number || orderDetails.id}`,
-        html: `
-            <h1>Thank you for your order!</h1>
-            <p>We are preparing your package for shipping to <strong>${orderDetails.shipping_city}</strong>.</p>
-            <h3>Order Summary:</h3>
-            <table border="1" cellpadding="5" cellspacing="0">
-                <thead>
-                    <tr>
-                        <th>Item</th>
-                        <th>Qty</th>
-                        <th>Price</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    ${itemsHtml}
-                </tbody>
-            </table>
-            <p><strong>Total: ${orderDetails.total} SAR</strong></p>
-        `
-    };
-
     try {
-        await transporter.sendMail(mailOptions);
-        console.log(`📧 Order Confirmation Email sent to ${userEmail}`);
+        await addEmailJob('orderConfirmation', {
+            userEmail,
+            orderDetails,
+            items,
+            user: { name: orderDetails.user_full_name || 'Customer' }
+        });
+        logger.info(`Queued Order Confirmation for ${userEmail}`);
     } catch (error) {
-        console.error("Email Service Error:", error);
-        // Don't throw to avoid disrupting the main flow
+        logger.error(`Failed to queue order confirmation: ${error.message}`);
     }
 };
+
+/**
+ * Send Queue-based Welcome Email
+ */
+exports.sendWelcomeEmail = async (user) => {
+    try {
+        await addEmailJob('welcome', {
+            userEmail: user.email,
+            user: { name: user.name }
+        });
+        logger.info(`Queued Welcome Email for ${user.email}`);
+    } catch (error) {
+        logger.error(`Failed to queue welcome email: ${error.message}`);
+    }
+};
+
