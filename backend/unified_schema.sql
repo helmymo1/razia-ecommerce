@@ -89,7 +89,20 @@ CREATE TABLE products (
     is_deleted BOOLEAN DEFAULT 0, -- Soft delete support
     is_featured BOOLEAN DEFAULT 0,
     is_new BOOLEAN DEFAULT 0,
+    image_url TEXT, -- Main image (legacy/shortcut)
+    
+    -- Discount Info
+    discount_type VARCHAR(50) DEFAULT 'no_discount',
+    discount_value DECIMAL(10,2) DEFAULT 0,
+    
+    -- Shipping Info
+    shipping_width DECIMAL(10,2),
+    shipping_height DECIMAL(10,2),
+    shipping_weight DECIMAL(10,2),
+    shipping_cost DECIMAL(10,2),
+
     tags JSON, -- Storing tags as JSON array
+    ai_tags JSON, -- AI generated tags
     sizes JSON, -- Aggregated available sizes
     colors JSON, -- Aggregated available colors
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
