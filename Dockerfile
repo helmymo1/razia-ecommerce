@@ -16,14 +16,11 @@ WORKDIR /app
 COPY ["razia user site/razia-chic-builder-main/package.json", "./"]
 COPY ["razia user site/razia-chic-builder-main/package-lock.json", "./"]
 
-# Install dependencies with clean install
-RUN npm ci --omit=dev || npm install
+# Install ALL dependencies (devDependencies needed for Vite build)
+RUN npm ci || npm install
 
-# Copy source code
+# Copy source code (includes .env.production)
 COPY ["razia user site/razia-chic-builder-main", "."]
-
-# Ensure .env.production is present for Vite build
-COPY ["razia user site/razia-chic-builder-main/.env.production", "./.env.production"]
 
 # Build the application
 RUN npm run build
