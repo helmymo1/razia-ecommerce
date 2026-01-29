@@ -22,6 +22,9 @@ RUN npm ci --omit=dev || npm install
 # Copy source code
 COPY ["razia user site/razia-chic-builder-main", "."]
 
+# Ensure .env.production is present for Vite build
+COPY ["razia user site/razia-chic-builder-main/.env.production", "./.env.production"]
+
 # Build the application
 RUN npm run build
 

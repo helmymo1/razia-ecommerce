@@ -41,8 +41,8 @@ const App = () => {
     }
 
     // Connect to Backend Socket
-    // Connect to Backend Socket
-    const socket = io(import.meta.env.VITE_API_URL || "http://localhost:5000");
+    const socketUrl = import.meta.env.VITE_API_URL ?? window.location.origin;
+    const socket = io(socketUrl || window.location.origin);
 
     socket.on("connect", () => {
       console.log("✅ Socket Connected to Backend");

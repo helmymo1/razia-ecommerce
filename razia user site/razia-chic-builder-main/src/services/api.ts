@@ -1,7 +1,9 @@
 import axios from 'axios';
 
-const BASE_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:5000'; // Dynamic Config
-const API_URL = `${BASE_URL}/api`;
+// In production, VITE_API_URL is empty (same-origin via nginx proxy)
+// In development, fallback to localhost:5000
+const BASE_URL = import.meta.env.VITE_API_URL ?? 'http://127.0.0.1:5000';
+const API_URL = BASE_URL ? `${BASE_URL}/api` : '/api';
 
 const api = axios.create({
   baseURL: API_URL,
@@ -72,7 +74,7 @@ const getColorHex = (name: string) => {
     return colors[name.toLowerCase()] || '#cccccc'; 
 };
 
-export const IMAGE_BASE_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:5000'; // Dynamic Config
+export const IMAGE_BASE_URL = import.meta.env.VITE_API_URL ?? 'http://127.0.0.1:5000';
 
 const transformProduct = (product: any) => {
   // Parse colors/sizes if they are strings (from getProductById)

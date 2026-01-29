@@ -2,7 +2,8 @@ import { useEffect, useCallback } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import axios from 'axios';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:5000';
+const API_ENDPOINT = API_URL ? `${API_URL}/api` : '/api';
 
 export const useAnalytics = () => {
   // Get or Create Visitor ID
@@ -21,7 +22,7 @@ export const useAnalytics = () => {
       // Optional: Get User ID from auth store if available (passed in or retrieved here)
       // For now we assume visitor tracking primarily.
       
-      await axios.post(`${API_URL}/analytics/track`, {
+      await axios.post(`${API_ENDPOINT}/analytics/track`, {
         eventType,
         visitorId,
         metadata,
