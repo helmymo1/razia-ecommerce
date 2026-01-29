@@ -1,46 +1,52 @@
 version: '3.8'
 
 services:
-  backend:
-    build: ./backend
+  mongo:
+    image: mongo:6
     restart: always
-    ports:
-      - "5000:5000"
-    environment:
-      - NODE_ENV=development
-      - PORT=5000
-      - DB_HOST=db
-      - DB_USER=root
-      - DB_PASSWORD=your_root_password
-      - DB_NAME=ebazer_shop
-      - JWT_SECRET=your_jwt_secret_dev
-    depends_on:
-      - db
     volumes:
-      - ./backend:/app
-      - /app/node_modules
-
-  db:
-    image: mysql:8.0
-    restart: always
-    ports:
-      - "3306:3306"
-    environment:
-      - MYSQL_ROOT_PASSWORD=your_root_password
-      - MYSQL_DATABASE=ebazer_shop
-    volumes:
-      - mysql_data:/var/lib/mysql
-      # Initialize DB with schema on first run
-      - ./backend/database_schema.sql:/docker-entrypoint-initdb.d/1_schema.sql
+      - mongo_data:/data/db
+    networks:
+      - app_network
+    # Security: Port 27017 is NOT exposed to host, only internal network
 
   redis:
     image: redis:alpine
     restart: always
+    networks:
+      - app_network
+
+  backend:
+    build: 
+      context: ./backend
+    container_name: razia_backend
+    restart: always
+    depends_on:
+      - mongo
+      - redis
+    env_file:
+      - ./backend/.env
+    environment:
+      - MONGO_URI=mongodb://mongo:27017/razia_store
+      - REDIS_HOST=redis
     ports:
-      - "6379:6379"
-    volumes:
-      - redis_data:/data
+      - "5000:5000"
+    networks:
+      - app_network
+
+  store:
+    build:
+      context: "./razia user site/razia-chic-builder-main"
+    container_name: razia_store
+    restart: always
+    ports:
+      - "80:80"
+    networks:
+      - app_network
+
+networks:
+  app_network:
+    driver: bridge
 
 volumes:
-  mysql_data:
-  redis_data:
+  mongo_data:
