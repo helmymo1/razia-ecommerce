@@ -106,7 +106,20 @@ jobs:
           username: ${{ secrets.USERNAME }}
           password: ${{ secrets.SSH_PASSWORD }}
           script: |
-            cd /root/razia-store || exit 1
+            set -e
+            PROJECT_DIR="/root/razia-store"
+            REPO_URL="https://github.com/${{ github.repository }}.git"
+            
+            # First-time setup: Clone repo if directory doesn't exist
+            if [ ! -d "$PROJECT_DIR" ]; then
+              echo "=== First-time setup: Cloning repository ==="
+              git clone "$REPO_URL" "$PROJECT_DIR"
+            fi
+            
+            cd "$PROJECT_DIR"
+            
+            # Pull latest changes (for docker-compose.prod.yml updates)
+            git pull origin master || true
             
             # Login to GitHub Container Registry
             echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
