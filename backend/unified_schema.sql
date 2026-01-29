@@ -89,6 +89,8 @@ CREATE TABLE products (
     is_featured BOOLEAN DEFAULT 0,
     is_new BOOLEAN DEFAULT 0,
     tags JSON, -- Storing tags as JSON array
+    sizes JSON, -- Aggregated available sizes
+    colors JSON, -- Aggregated available colors
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     
