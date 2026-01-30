@@ -568,7 +568,7 @@ const getUserOrders = async (req, res, next) => {
       FROM orders o
       LEFT JOIN order_items oi ON o.id = oi.order_id
       LEFT JOIN products p ON oi.product_id = p.id
-      WHERE o.user_id = ?
+      WHERE o.user_id = ? AND o.is_paid = 1
       GROUP BY o.id, o.total, o.status, o.created_at
       ORDER BY o.created_at DESC;
     `;
