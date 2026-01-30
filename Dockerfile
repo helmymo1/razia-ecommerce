@@ -30,8 +30,9 @@ RUN npm run build
 # -----------------------------------------------------------------------------
 FROM nginx:alpine AS runner
 
-# Security: Create non-root user
-RUN addgroup -S nginx-group && adduser -S nginx-user -G nginx-group
+# Security: Create non-root user and install curl for healthcheck
+RUN addgroup -S nginx-group && adduser -S nginx-user -G nginx-group && \
+    apk add --no-cache curl
 
 # Copy build output
 COPY --from=builder /app/dist /usr/share/nginx/html
