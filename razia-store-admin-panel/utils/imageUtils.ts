@@ -9,12 +9,13 @@ export const addBaseUrl = (imagePath: string | undefined | null): string => {
   // Clean backslashes if any (windows paths)
   const cleanPath = imagePath.replace(/\\/g, '/');
 
-  // Dynamic Base URL
+  // Dynamic Base URL - in production, use relative path (nginx proxies to backend)
   // @ts-ignore
-  const baseUrl = (import.meta.env.VITE_API_URL || 'http://localhost:5000').replace(/\/api$/, '');
+  const isProd = import.meta.env.PROD;
+  const baseUrl = isProd ? '' : 'http://localhost:5000';
 
   // Ensure we consistently handle the leading slash
   const finalPath = cleanPath.startsWith('/') ? cleanPath : `/${cleanPath}`;
 
-  return `${baseUrl}${finalPath}`; // e.g. http://localhost:5000/uploads/cat.jpg
+  return `${baseUrl}${finalPath}`; // In prod: /uploads/cat.jpg, In dev: http://localhost:5000/uploads/cat.jpg
 };
