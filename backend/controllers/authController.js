@@ -88,17 +88,21 @@ const login = async (req, res, next) => {
   try {
     const [users] = await db.query('SELECT * FROM users WHERE email = ? AND is_deleted = 0', [email]);
     
+      console.log(`[Login Debug] Email: ${email}, Users Found: ${users.length}`);
+
     if (users.length === 0) {
-      return res.status(400).json({ message: 'Invalid credentials' });
+        return res.status(400).json({ message: 'Invalid credentials (User not found)' });
     }
 
     const user = users[0];
     const isMatch = await bcrypt.compare(password, user.password_hash);
 
+      console.log(`[Login Debug] Password Match: ${isMatch}`);
+
     if (isMatch) {
       const token = jwt.sign({ id: user.id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '30d' });
 
-      // Set HttpOnly Cookie
+        // ... existing code ...
       res.cookie('token', token, {
           httpOnly: true,
           secure: process.env.NODE_ENV === 'production',
@@ -115,7 +119,8 @@ const login = async (req, res, next) => {
         token
       });
     } else {
-      res.status(400).json({ message: 'Invalid credentials' });
+        console.log(`[Login Debug] Hash in DB: ${user.password_hash}`);
+        res.status(400).json({ message: 'Invalid credentials (Password mismatch)' });
     }
   } catch (err) {
     next(err);
