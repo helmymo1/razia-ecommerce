@@ -99,6 +99,13 @@ const CategoriesPage: React.FC = () => {
       submissionData.append('image', editingCategory.image);
     }
 
+    console.log('Submitting Category Data:', {
+      nameEn,
+      slug,
+      nameAr: formData.get('nameAr'),
+      desc: formData.get('descriptionEn')
+    });
+
     try {
         if (editingCategory) {
           await categoryService.update(editingCategory.id, submissionData);
@@ -112,7 +119,7 @@ const CategoriesPage: React.FC = () => {
         setEditingCategory(null);
       setPreviewImage(null);
     } catch (err: any) {
-        console.error(err);
+      console.error("Save Error:", err);
       toast.error(err.response?.data?.message || 'Failed to save category');
     }
   };
@@ -163,6 +170,10 @@ const CategoriesPage: React.FC = () => {
                 <div className="flex flex-col space-y-1">
                   <label className="text-[10px] font-black text-emerald-600 uppercase tracking-widest mr-1 text-right">الاسم (بالعربي)</label>
                   <input name="nameAr" defaultValue={editingCategory?.nameAr} dir="rtl" required className="w-full p-3 bg-gray-50 rounded-xl outline-none focus:ring-2 focus:ring-emerald-500 font-bold font-arabic"/>
+                </div>
+                <div className="flex flex-col space-y-1">
+                  <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Description</label>
+                  <textarea name="descriptionEn" defaultValue={editingCategory?.descriptionEn} rows={2} className="w-full p-3 bg-gray-50 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 text-sm" />
                 </div>
               </div>
               
