@@ -553,7 +553,7 @@ const getUserOrders = async (req, res, next) => {
   try {
     // console.log("📂 [OrderController] Fetching orders for user:", req.user.id);
     const query = `
-      SELECT o.id, o.total, o.status, o.created_at,
+      SELECT o.id, o.total, o.status, o.created_at, o.is_paid, o.payment_method,
       COALESCE(JSON_ARRAYAGG(
          JSON_OBJECT(
           'id', oi.id,
@@ -568,7 +568,7 @@ const getUserOrders = async (req, res, next) => {
       FROM orders o
       LEFT JOIN order_items oi ON o.id = oi.order_id
       LEFT JOIN products p ON oi.product_id = p.id
-      WHERE o.user_id = ? AND o.is_paid = 1
+      WHERE o.user_id = ?
       GROUP BY o.id, o.total, o.status, o.created_at
       ORDER BY o.created_at DESC;
     `;
