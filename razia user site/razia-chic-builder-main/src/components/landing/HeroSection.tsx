@@ -37,7 +37,7 @@ const HeroSection: React.FC = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="inline-block px-4 py-2 bg-gold text-gold-foreground text-sm font-bold rounded-full mb-6"
+            className="inline-block text-background text-sm font-bold mb-6 tracking-wider uppercase"
           >
             New Collection 2025
           </motion.span>

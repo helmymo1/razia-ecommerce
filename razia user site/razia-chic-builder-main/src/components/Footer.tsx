@@ -11,6 +11,7 @@ import WaveDivider from '@/components/graphics/WaveDivider';
 import madaLogo from '@/assets/payments/mada.png';
 import tabbyLogo from '@/assets/payments/tabby.png';
 import tamaraLogo from '@/assets/payments/tamara.png';
+import visaLogo from '@/assets/payments/visa.png';
 
 const Footer: React.FC = () => {
   const { t } = useLanguage();
@@ -115,9 +116,7 @@ const Footer: React.FC = () => {
             <div className="flex flex-wrap items-center gap-3">
               {/* Visa */}
               <div className="bg-white rounded px-2 py-1 h-8 flex items-center">
-                <svg viewBox="0 0 48 16" className="h-4 w-auto">
-                  <path fill="#1434CB" d="M19.5 1.5l-3 13h-2.5l3-13h2.5zm12.5 8.4l1.3-3.6.8 3.6h-2.1zm2.8 4.6h2.3l-2-13h-2.1c-.5 0-.9.3-1.1.7l-3.8 12.3h2.7l.5-1.5h3.3l.2 1.5zm-6.8-4.2c0-3.4-4.7-3.6-4.7-5.1 0-.5.5-.9 1.4-.9.8 0 1.8.2 2.5.6l.4-2.1c-.6-.3-1.7-.5-2.8-.5-3 0-5.1 1.6-5.1 3.8 0 1.7 1.5 2.6 2.6 3.1 1.1.6 1.5.9 1.5 1.5 0 .8-.9 1.1-1.7 1.1-1.4 0-2.2-.3-3.4-.7l-.5 2.1c.8.4 2.3.7 3.8.7 3.2 0 5.3-1.6 5.3-4zm-15.5-8.8l-4.5 13h-2.7l-2.2-10.4c-.1-.5-.3-.7-.7-.9-.7-.4-1.8-.7-2.9-.9l.1-.8h4.3c.5 0 1 .4 1.1.9l1.1 5.7 2.7-6.6h2.7z"/>
-                </svg>
+                <img src={visaLogo} alt="Visa" className="h-5 w-auto object-contain" />
               </div>
               
               {/* Mastercard */}

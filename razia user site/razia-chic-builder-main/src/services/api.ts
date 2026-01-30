@@ -172,10 +172,22 @@ export const orderService = {
   },
 };
 
+const transformCategory = (category: any) => {
+  let image = category.image;
+  if (image && typeof image === 'string' && !image.startsWith('http')) {
+    image = `${IMAGE_BASE_URL}/${image.replace(/^\/+/, '')}`;
+  }
+  return {
+    ...category,
+    image
+  };
+};
+
 export const categoryService = {
   getAll: async () => {
     const response = await api.get('/categories');
-    return response.data;
+    const categories = response.data;
+    return Array.isArray(categories) ? categories.map(transformCategory) : [];
   },
 };
 
