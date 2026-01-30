@@ -103,9 +103,7 @@ services:
   # Admin Panel (React Vite)
   # ---------------------------------------------------------------------------
   admin_panel:
-    build: 
-      context: ./razia-store-admin-panel
-      dockerfile: Dockerfile
+    image: ghcr.io/helmymo1/razia-ecommerce/admin:latest
     container_name: razia_admin
     restart: always
     expose:

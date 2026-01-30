@@ -89,6 +89,23 @@ jobs:
           tags: ${{ steps.meta-backend.outputs.tags }}
           labels: ${{ steps.meta-backend.outputs.labels }}
 
+      - name: Extract metadata for Admin Panel
+        id: meta-admin
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}/admin
+          tags: |
+            type=raw,value=latest
+
+      - name: Build and Push Admin Panel
+        uses: docker/build-push-action@v5
+        with:
+          context: ./razia-store-admin-panel
+          file: ./razia-store-admin-panel/Dockerfile
+          push: true
+          tags: ${{ steps.meta-admin.outputs.tags }}
+          labels: ${{ steps.meta-admin.outputs.labels }}
+
   # ===========================================================================
   # Job 2: Deploy to Hostinger VPS via SSH
   # ===========================================================================
