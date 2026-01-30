@@ -3,7 +3,7 @@ import axios from 'axios';
 // Create an instance of axios
 const api = axios.create({
   // @ts-ignore
-  baseURL: `${import.meta.env.VITE_API_URL || 'http://127.0.0.1:5000'}/api`, // Dynamic Config
+  baseURL: import.meta.env.PROD ? '/api' : 'http://127.0.0.1:5000/api', // Use relative path in Prod
   withCredentials: true, // Enable sending cookies
   headers: {
     'Content-Type': 'application/json',
