@@ -70,6 +70,7 @@ services:
       - MYSQL_DATABASE=ebazer_shop
     volumes:
       - mysql_data:/var/lib/mysql
+      - ./backend/unified_schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-pRaziaStore2024!"]
       interval: 30s
