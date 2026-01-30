@@ -37,7 +37,9 @@ const CategoriesPage: React.FC = () => {
       // Map backend fields to frontend interface
       const mapped = data.map((c: any) => ({
         ...c,
+        id: String(c.id), // Ensure ID is string for comparison
         nameEn: c.name || c.nameEn || '',
+        nameAr: c.name_ar || c.nameAr || '',
         descriptionEn: c.description || c.descriptionEn || ''
       }));
       setCategories(mapped);
