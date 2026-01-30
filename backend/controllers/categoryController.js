@@ -1,4 +1,5 @@
 const db = require('../config/db');
+const { v4: uuidv4 } = require('uuid');
 
 // @desc    Get all categories
 // @route   GET /api/categories
@@ -26,13 +27,16 @@ const createCategory = async (req, res, next) => {
         throw new Error('Name (en) and Slug are required');
     }
 
+    // Generate UUID for category ID
+    const categoryId = uuidv4();
+
     const [result] = await db.query(
-        'INSERT INTO categories (name_en, name_ar, slug, image_url, parent_id, description_en, sort_order) VALUES (?, ?, ?, ?, ?, ?, ?)', 
-        [name, name_ar || name, slug, image, parent_id || null, description, sort_order || 0]
+      'INSERT INTO categories (id, name_en, name_ar, slug, image_url, parent_id, description_en, sort_order) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+      [categoryId, name, name_ar || name, slug, image, parent_id || null, description, sort_order || 0]
     );
     
     res.status(201).json({ 
-        id: result.insertId,
+      id: categoryId,
         name,
         slug,
         message: 'Category created successfully' 
