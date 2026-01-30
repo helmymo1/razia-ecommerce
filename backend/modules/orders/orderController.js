@@ -554,6 +554,10 @@ const getUserOrders = async (req, res, next) => {
     // console.log("📂 [OrderController] Fetching orders for user:", req.user.id);
     const query = `
       SELECT o.id, o.total, o.status, o.created_at, o.is_paid, o.payment_method,
+      (SELECT COALESCE(p2.image_url, '/placeholder.png')
+       FROM order_items oi2
+       LEFT JOIN products p2 ON oi2.product_id = p2.id
+       WHERE oi2.order_id = o.id LIMIT 1) as thumbnail,
       COALESCE(JSON_ARRAYAGG(
          JSON_OBJECT(
           'id', oi.id,
@@ -568,8 +572,8 @@ const getUserOrders = async (req, res, next) => {
       FROM orders o
       LEFT JOIN order_items oi ON o.id = oi.order_id
       LEFT JOIN products p ON oi.product_id = p.id
-      WHERE o.user_id = ?
-      GROUP BY o.id, o.total, o.status, o.created_at
+      WHERE o.user_id = ? AND o.is_paid = 1
+      GROUP BY o.id, o.total, o.status, o.created_at, o.is_paid, o.payment_method
       ORDER BY o.created_at DESC;
     `;
     const [orders] = await db.query(query, [req.user.id]);
