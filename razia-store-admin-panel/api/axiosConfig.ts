@@ -143,7 +143,7 @@ export const authService = {
     localStorage.removeItem('token');
     localStorage.removeItem('userInfo');
     localStorage.removeItem('adminInfo');
-    window.location.href = '/#/login';
+    window.location.href = '/admin/login';
   }
 };
 
