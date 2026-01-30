@@ -74,7 +74,8 @@ const getColorHex = (name: string) => {
     return colors[name.toLowerCase()] || '#cccccc'; 
 };
 
-export const IMAGE_BASE_URL = import.meta.env.VITE_API_URL ?? 'http://127.0.0.1:5000';
+// In production, use relative path. In dev, use localhost.
+export const IMAGE_BASE_URL = import.meta.env.DEV ? 'http://127.0.0.1:5000' : '';
 
 const transformProduct = (product: any) => {
   // Parse colors/sizes if they are strings (from getProductById)
