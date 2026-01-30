@@ -92,7 +92,9 @@ const OutfitBuilder: React.FC = () => {
   useEffect(() => {
     const fetchConfig = async () => {
       try {
-        const res = await fetch('http://localhost:5000/api/config/outfit');
+        const isDev = import.meta.env.DEV;
+        const apiBase = isDev ? 'http://127.0.0.1:5000' : '';
+        const res = await fetch(`${apiBase}/api/config/outfit`);
         const data = await res.json();
         if (data && data.tier_3) {
           setOutfitConfig(prev => ({ ...prev, ...data }));

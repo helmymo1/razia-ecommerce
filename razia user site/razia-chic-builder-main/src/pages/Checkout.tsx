@@ -164,7 +164,7 @@ const Checkout: React.FC = () => {
   // Fetch Addresses
   React.useEffect(() => {
     if (user) {
-      axios.get('http://localhost:5000/api/addresses', {
+      api.get('/addresses', {
         headers: { Authorization: `Bearer ${localStorage.getItem('userInfo') ? JSON.parse(localStorage.getItem('userInfo')!).token : ''}` }
       })
       .then(res => {
@@ -221,7 +221,7 @@ const Checkout: React.FC = () => {
         is_default: savedAddresses.length === 0 // Make default if it's the first one
       };
 
-      const res = await axios.post('http://localhost:5000/api/addresses', payload, {
+      const res = await api.post('/addresses', payload, {
         headers: { Authorization: `Bearer ${token}` }
       });
 
