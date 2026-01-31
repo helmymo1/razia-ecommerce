@@ -8,7 +8,7 @@ const initiatePayment = async (user, totalAmount, items, merchantOrderId) => {
         // 1. AUTHENTICATION
         const authRes = await axios.post(`${BASE_URL}/auth/tokens`, {
             api_key: process.env.PAYMOB_API_KEY
-        });
+        }, { timeout: 60000 });
         const token = authRes.data.token;
 
         // 2. ORDER REGISTRATION
@@ -19,7 +19,7 @@ const initiatePayment = async (user, totalAmount, items, merchantOrderId) => {
             currency: "SAR", // KSA Currency
             items: items, // [{name: "Item", amount_cents: 1000, quantity: 1}]
             merchant_order_id: merchantOrderId // Link to our internal DB Order
-        });
+        }, { timeout: 60000 });
         const orderId = orderRes.data.id;
 
         // 3. PAYMENT KEY REQUEST
@@ -53,7 +53,7 @@ const initiatePayment = async (user, totalAmount, items, merchantOrderId) => {
             billing_data: billingData,
             currency: "SAR",
             integration_id: process.env.PAYMOB_INTEGRATION_ID
-        });
+        }, { timeout: 60000 });
 
         return { 
             payment_key: keyRes.data.token,
