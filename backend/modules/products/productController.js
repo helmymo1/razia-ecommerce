@@ -406,17 +406,7 @@ const updateProduct = async (req, res, next) => {
     console.log(`[UpdateProduct] ID=${productId} AI_TAGS=${aiTagsJson}`); // Debug log
 
     // DEBUG: Write to log file
-    const fs = require('fs');
-    const path = require('path');
-    const logPath = path.join(__dirname, '../../debug_products.log');
-    const logData = `[${new Date().toISOString()}] UPDATE PRODUCT ${productId}\n` +
-      `req.body: ${JSON.stringify(req.body, null, 2)}\n` +
-      `Params: ${JSON.stringify({
-        finalNameEn, finalNameAr, finalStock, finalPrice, finalSku, finalDescEn,
-        tagsJson, aiTagsJson, colorsJson, sizesJson,
-        discount_type, discount_value
-      }, null, 2)}\n`;
-    fs.appendFileSync(logPath, logData);
+    console.log(`[UpdateProduct] ID=${productId} Body=${JSON.stringify(req.body)}`);
 
     const [result] = await db.query(
       `UPDATE products SET 
@@ -447,7 +437,7 @@ const updateProduct = async (req, res, next) => {
       ]
     );
 
-    fs.appendFileSync(logPath, `Result: AffectedRows=${result.affectedRows}, Info=${result.info}\n----------------\n`);
+    console.log(`[UpdateProduct] Result: AffectedRows=${result.affectedRows}`);
 
     // ========== IMAGE SYNC LOGIC ==========
     // Parse existing image URLs from frontend (these are the images user wants to KEEP)
