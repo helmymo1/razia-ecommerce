@@ -23,7 +23,7 @@ const getProducts = async (req, res, next) => {
 
     let query = `
       SELECT 
-        p.id, p.name_en, p.name_ar, p.price, p.sku, p.stock_quantity, p.category_id, p.image_url, 
+        p.id, p.name_en, p.name_ar, p.description_en, p.description_ar, p.price, p.sku, p.stock_quantity, p.category_id, p.image_url,
         p.is_new, p.is_featured, p.discount_type, p.discount_value, p.slug, p.created_at, p.sizes, p.colors,
         c.name_en as category_name, c.name_ar as category_name_ar,
         (SELECT image_url FROM product_images WHERE product_id = p.id AND is_primary = 1 LIMIT 1) as primary_image
@@ -349,13 +349,27 @@ const updateProduct = async (req, res, next) => {
         throw new Error('Product not found');
     }
 
-    // Support aliases and bilingual fields - retain existing if undefined
-    const finalNameEn = nameEn || name || existing[0].name_en;
-    const finalNameAr = nameAr || name || existing[0].name_ar;
-    const finalDescEn = descriptionEn || description || existing[0].description_en;
-    const finalDescAr = descriptionAr || description || existing[0].description_ar;
-    const finalCategory = categoryId || category || existing[0].category_id;
-    const finalStock = Number((stock !== undefined) ? stock : (quantity !== undefined ? quantity : existing[0].stock_quantity));
+    // Support aliases and bilingual fields - retain existing ONLY if undefined (allow empty strings/zeros)
+    const resolveVal = (val1, val2, existingVal) => {
+      if (val1 !== undefined) return val1;
+      if (val2 !== undefined) return val2;
+      return existingVal;
+    };
+
+    const finalNameEn = resolveVal(nameEn, name, existing[0].name_en);
+    const finalNameAr = resolveVal(nameAr, name, existing[0].name_ar);
+    const finalDescEn = resolveVal(descriptionEn, description, existing[0].description_en);
+    const finalDescAr = resolveVal(descriptionAr, description, existing[0].description_ar);
+    const finalCategory = categoryId || category || existing[0].category_id; // Category usually strict
+
+    // Stock logic (coalesce to undefined check)
+    let finalStock = existing[0].stock_quantity;
+    if (stock !== undefined) finalStock = Number(stock);
+    else if (quantity !== undefined) finalStock = Number(quantity);
+
+    // Price logic
+    const finalPrice = price !== undefined ? price : existing[0].price;
+    const finalSku = sku !== undefined ? sku : existing[0].sku;
 
     const formatJsonField = (field) => {
         if (!field) return '[]';
@@ -366,12 +380,45 @@ const updateProduct = async (req, res, next) => {
         return '[]';
     };
 
-    const tagsJson = tags ? formatJsonField(tags) : existing[0].tags;
-    const aiTagsJson = aiTags ? formatJsonField(aiTags) : existing[0].ai_tags;
-    const colorsJson = colors ? formatJsonField(colors) : existing[0].colors;
-    const sizesJson = sizes ? formatJsonField(sizes) : existing[0].sizes;
+    // Helper to ensure we always get a valid JSON string for SQL
+    const ensureJsonString = (val, existingVal) => {
+      // logic: if new val provided, format it. If checks fail or empty, fall back to existing. 
+      // If existing is null/undefined, return '[]'.
+      if (val !== undefined && val !== null && val !== '') {
+        return formatJsonField(val);
+      }
+      // Fallback to existing
+      if (existingVal !== undefined && existingVal !== null) {
+        // If existingVal is object/array (from DB JSON parse?) No, mySQL returns string or object depending on driver config.
+        // mysql2 usually returns object for JSON col if configured, or string.
+        // But let's assume valid value.
+        if (typeof existingVal === 'object') return JSON.stringify(existingVal);
+        return existingVal;
+      }
+      return '[]';
+    };
 
-    await db.query(
+    const tagsJson = ensureJsonString(tags, existing[0].tags);
+    const aiTagsJson = ensureJsonString(aiTags, existing[0].ai_tags);
+    const colorsJson = ensureJsonString(colors, existing[0].colors);
+    const sizesJson = ensureJsonString(sizes, existing[0].sizes);
+
+    console.log(`[UpdateProduct] ID=${productId} AI_TAGS=${aiTagsJson}`); // Debug log
+
+    // DEBUG: Write to log file
+    const fs = require('fs');
+    const path = require('path');
+    const logPath = path.join(__dirname, '../../debug_products.log');
+    const logData = `[${new Date().toISOString()}] UPDATE PRODUCT ${productId}\n` +
+      `req.body: ${JSON.stringify(req.body, null, 2)}\n` +
+      `Params: ${JSON.stringify({
+        finalNameEn, finalNameAr, finalStock, finalPrice, finalSku, finalDescEn,
+        tagsJson, aiTagsJson, colorsJson, sizesJson,
+        discount_type, discount_value
+      }, null, 2)}\n`;
+    fs.appendFileSync(logPath, logData);
+
+    const [result] = await db.query(
       `UPDATE products SET 
           name_en=?, name_ar=?, description_en=?, description_ar=?, price=?, sku=?, stock_quantity=?, quantity=?, category_id=?,
           tags=?, ai_tags=?, discount_type=?, discount_value=?,
@@ -381,8 +428,8 @@ const updateProduct = async (req, res, next) => {
       [
           finalNameEn, finalNameAr, 
           finalDescEn, finalDescAr, 
-          price || existing[0].price, 
-          sku || existing[0].sku, 
+        finalPrice,
+        finalSku, 
           finalStock, finalStock, // Update both
           finalCategory,
         tagsJson || '[]',
@@ -400,13 +447,50 @@ const updateProduct = async (req, res, next) => {
       ]
     );
 
-    // Handle New Images Upload
+    fs.appendFileSync(logPath, `Result: AffectedRows=${result.affectedRows}, Info=${result.info}\n----------------\n`);
+
+    // ========== IMAGE SYNC LOGIC ==========
+    // Parse existing image URLs from frontend (these are the images user wants to KEEP)
+    let keepImages = [];
+    if (req.body.images) {
+      try {
+        keepImages = typeof req.body.images === 'string'
+          ? JSON.parse(req.body.images)
+          : req.body.images;
+        if (!Array.isArray(keepImages)) keepImages = [keepImages];
+      } catch (e) {
+        keepImages = [];
+      }
+    }
+
+    // Get current images from DB
+    const [currentImages] = await db.query(
+      'SELECT id, image_url FROM product_images WHERE product_id = ?',
+      [productId]
+    );
+
+    // Find images to DELETE (in DB but not in keepImages)
+    const imagesToDelete = currentImages.filter(
+      img => !keepImages.includes(img.image_url)
+    );
+
+    // Delete removed images
+    if (imagesToDelete.length > 0) {
+      const idsToDelete = imagesToDelete.map(img => img.id);
+      await db.query(
+        'DELETE FROM product_images WHERE id IN (?)',
+        [idsToDelete]
+      );
+    }
+
+    // Handle New File Uploads
     if (req.files && req.files.length > 0) {
+      const existingCount = currentImages.length - imagesToDelete.length;
         const imageValues = req.files.map((file, index) => {
             const imgId = uuidv4();
             const imgUrl = `/uploads/${file.filename}`;
-            const isPrimary = 0; // New uploads are not primary by default unless specified
-            return [imgId, productId, imgUrl, isPrimary, index];
+          const isPrimary = (existingCount === 0 && index === 0) ? 1 : 0;
+          return [imgId, productId, imgUrl, isPrimary, existingCount + index];
         });
 
         await db.query(
@@ -414,19 +498,33 @@ const updateProduct = async (req, res, next) => {
             [imageValues]
         );
         
-        // Update main image if it was empty
-        if (!existing[0].image_url) {
-             await db.query('UPDATE products SET image_url = ? WHERE id = ?', [imageValues[0][2], productId]);
+      // Update main product image_url if it was empty or deleted
+      const [remainingImages] = await db.query(
+        'SELECT image_url FROM product_images WHERE product_id = ? ORDER BY is_primary DESC, sort_order ASC LIMIT 1',
+        [productId]
+      );
+      if (remainingImages.length > 0) {
+        await db.query('UPDATE products SET image_url = ? WHERE id = ?', [remainingImages[0].image_url, productId]);
+      } else if (imageValues.length > 0) {
+        await db.query('UPDATE products SET image_url = ? WHERE id = ?', [imageValues[0][2], productId]);
         }
+    } else if (imagesToDelete.length > 0) {
+      // If we deleted images but no new uploads, update the main image_url
+      const [remainingImages] = await db.query(
+        'SELECT image_url FROM product_images WHERE product_id = ? ORDER BY is_primary DESC, sort_order ASC LIMIT 1',
+        [productId]
+      );
+      await db.query('UPDATE products SET image_url = ? WHERE id = ?',
+        [remainingImages.length > 0 ? remainingImages[0].image_url : null, productId]);
     }
 
     // Audit Log
     await logAdminAction(req.user.id, 'UPDATE_PRODUCT', productId, { name: finalNameEn, sku });
 
-    // Invalidate Cache
+    // Invalidate Cache - clear both possible patterns
     await redis.del(`product:${productId}`);
-    await redis.clearPattern('products:*');
-    // cache.flush(); // Removed legacy
+    await redis.clearPattern('products:*');  // Old pattern
+    await redis.clearPattern('products_page_*');  // Actual cache key pattern
 
     const [updatedProduct] = await db.query('SELECT * FROM products WHERE id = ?', [productId]);
     res.json(updatedProduct[0]);

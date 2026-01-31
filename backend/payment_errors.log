@@ -44,3 +44,27 @@
 
 [2026-01-29T11:39:51.563Z] PAYMENT ERROR:
 "timeout of 15000ms exceeded"
+
+[2026-01-31T12:38:57.016Z] PAYMENT ERROR:
+{
+  "amount": [
+    "Ensure this value is greater than or equal to 1."
+  ]
+}
+
+[2026-01-31T12:42:01.364Z] PAYMENT ERROR:
+{
+  "amount": [
+    "Ensure this value is greater than or equal to 1."
+  ]
+}
+
+[2026-01-31T12:42:49.269Z] PAYMENT ERROR:
+{
+  "amount": [
+    "Ensure this value is greater than or equal to 1."
+  ]
+}
+
+[2026-01-31T12:50:10.534Z] PAYMENT ERROR:
+"timeout of 15000ms exceeded"

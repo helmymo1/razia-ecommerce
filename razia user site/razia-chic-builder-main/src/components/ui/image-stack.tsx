@@ -95,9 +95,10 @@ export default function ImageStack({
     images.map((src, index) => ({ id: index, src }))
   );
 
+  // Fix: Only reset stack if actual image URLs change, to prevent reset on parent re-render
   useEffect(() => {
     setStack(images.map((src, index) => ({ id: index, src })));
-  }, [images]);
+  }, [JSON.stringify(images)]);
 
   const sendToBack = (id: number) => {
     setStack(prev => {
@@ -135,7 +136,11 @@ export default function ImageStack({
       onMouseLeave={() => pauseOnHover && setIsPaused(false)}
     >
       {stack.map((card, index) => {
-        const randomRotate = randomRotation ? Math.random() * 10 - 5 : 0;
+        // Deterministic rotation based on ID to avoid jitter on re-renders
+        const randomRotate = randomRotation
+          ? ((card.id * 137.5) % 10) - 5
+          : 0;
+
         return (
           <CardRotate
             key={card.id}
@@ -144,7 +149,7 @@ export default function ImageStack({
             disableDrag={shouldDisableDrag}
           >
             <motion.div
-              className="rounded-2xl overflow-hidden w-full h-full shadow-xl"
+              className="rounded-2xl overflow-hidden w-full h-full shadow-xl bg-white"
               onClick={() => shouldEnableClick && sendToBack(card.id)}
               animate={{
                 rotateZ: (stack.length - index - 1) * 4 + randomRotate,
@@ -154,8 +159,8 @@ export default function ImageStack({
               initial={false}
               transition={{
                 type: 'spring',
-                stiffness: animationConfig.stiffness,
-                damping: animationConfig.damping
+                stiffness: 180, // Softer spring
+                damping: 25     // Less wobble
               }}
             >
               <img

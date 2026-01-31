@@ -17,6 +17,7 @@ import OutfitBuilder from "./pages/OutfitBuilder";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
 import Profile from "./pages/Profile";
+import OrderDetails from "./pages/OrderDetails";
 import Auth from "./pages/Auth";
 import Checkout from "./pages/Checkout";
 import NotFound from "./pages/NotFound";
@@ -81,6 +82,7 @@ const App = () => {
                       <Route path="/about" element={<About />} />
                       <Route path="/contact" element={<Contact />} />
                       <Route path="/profile" element={<Profile />} />
+                      <Route path="/orders/:id" element={<OrderDetails />} />
                       <Route path="/auth" element={<Auth />} />
                       <Route path="/checkout" element={<Checkout />} />
                       <Route path="*" element={<NotFound />} />

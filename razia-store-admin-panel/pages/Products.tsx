@@ -103,22 +103,69 @@ const ProductsPage: React.FC = () => {
     }
   };
 
-  const openModal = (product: Product | null = null) => {
-    setEditingProduct(product);
-    setFormColors(product ? product.colors : []);
-    setFormSizes(product ? product.sizes : []);
-    setFormImages(product ? product.images : []);
+  const openModal = async (product: Product | null = null) => {
+    if (product) {
+      // Fetch FULL product data for editing (includes all images, descriptions, etc.)
+      try {
+        const fullProduct = await productService.getById(product.id);
+        const mappedProduct: Product = {
+          id: fullProduct.id,
+          nameEn: fullProduct.name || fullProduct.nameEn,
+          nameAr: fullProduct.nameAr,
+          descriptionEn: fullProduct.description || fullProduct.descriptionEn || '',
+          descriptionAr: fullProduct.descriptionAr || '',
+          price: parseFloat(fullProduct.price),
+          sku: fullProduct.sku,
+          discount: parseFloat(fullProduct.discount_value || 0),
+          categoryId: fullProduct.category_id,
+          colors: Array.isArray(fullProduct.colors)
+            ? fullProduct.colors
+            : (typeof fullProduct.colors === 'string' ? fullProduct.colors.split(',').filter(Boolean) : []),
+          sizes: Array.isArray(fullProduct.sizes)
+            ? fullProduct.sizes
+            : (typeof fullProduct.sizes === 'string' ? fullProduct.sizes.split(',').filter(Boolean) : []),
+          stock: fullProduct.stock || fullProduct.stock_quantity,
+          images: fullProduct.images || []
+        };
+        setEditingProduct(mappedProduct);
+        setFormColors(mappedProduct.colors);
+        setFormSizes(mappedProduct.sizes);
+        setFormImages(mappedProduct.images);
+      } catch (error) {
+        console.error('Failed to load product details:', error);
+        alert('Failed to load product details');
+        return;
+      }
+    } else {
+      setEditingProduct(null);
+      setFormColors([]);
+      setFormSizes([]);
+      setFormImages([]);
+    }
     setFormFiles([]); // Reset files
     setIsModalOpen(true);
   };
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setFormFiles([...formFiles, file]); // Save File
-      const reader = new FileReader();
-      reader.onloadend = () => setFormImages([...formImages, reader.result as string]);
-      reader.readAsDataURL(file);
+    const files = e.target.files;
+    if (files && files.length > 0) {
+      const newFiles = Array.from(files);
+      setFormFiles([...formFiles, ...newFiles]); // Save Files
+
+      const newPreviews: string[] = [];
+      let processedCount = 0;
+
+      newFiles.forEach(file => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          newPreviews.push(reader.result as string);
+          processedCount++;
+          if (processedCount === newFiles.length) {
+            setFormImages(prev => [...prev, ...newPreviews]);
+          }
+        };
+        reader.readAsDataURL(file);
+      });
     }
   };
 
@@ -297,7 +344,7 @@ const ProductsPage: React.FC = () => {
                     <Upload size={24}/>
                     <span className="text-[10px] font-black uppercase mt-1">Upload</span>
                   </button>
-                  <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handleFileUpload}/>
+                  <input type="file" multiple ref={fileInputRef} className="hidden" accept="image/*" onChange={handleFileUpload} />
                 </div>
                 <div className="flex space-x-2">
                   <input type="text" value={imageUrlInput} onChange={e => setImageUrlInput(e.target.value)} placeholder="Or paste image URL..." className="flex-1 p-3 bg-gray-50 rounded-xl outline-none text-sm"/>

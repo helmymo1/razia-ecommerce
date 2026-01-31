@@ -1,6 +1,6 @@
+import { motion } from 'framer-motion';
 import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { motion } from 'framer-motion';
 import { Minus, Plus, Heart, Share2, ShoppingBag, Check } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -104,10 +104,10 @@ const ProductPage: React.FC = () => {
     try {
       setIsWishlisted(!isWishlisted); // Optimistic UI
       await api.put('/users/wishlist', { productId: product?.id });
-      toast.success(isWishlisted ? 'Removed from Wishlist' : 'Added to Wishlist');
+      toast({ title: isWishlisted ? 'Removed from Wishlist' : 'Added to Wishlist' });
     } catch (error) {
       setIsWishlisted(!isWishlisted); // Revert
-      toast.error("Failed to update wishlist");
+      toast({ title: "Failed to update wishlist", variant: "destructive" });
     }
   };
 
@@ -225,19 +225,27 @@ const ProductPage: React.FC = () => {
                     {t('color')}: <span className="text-muted-foreground font-normal text-xs sm:text-base">{selectedColor}</span>
                   </h3>
                   <div className="flex flex-wrap gap-1.5 sm:gap-3">
-                      {product?.colors?.map((color: any) => (
-                      <button
-                        key={color.hex}
-                        onClick={() => setSelectedColor(language === 'ar' ? color.nameAr : color.name)}
-                        className={`w-6 h-6 sm:w-10 sm:h-10 rounded-full border-2 transition-all shadow-sm ${
-                          selectedColor === (language === 'ar' ? color.nameAr : color.name)
-                            ? 'border-primary scale-110 ring-2 ring-primary/20'
-                            : 'border-border/50 hover:border-primary/50'
-                        }`}
-                        style={{ backgroundColor: color.hex }}
-                        title={language === 'ar' ? color.nameAr : color.name}
-                      />
-                    ))}
+                      {product?.colors?.map((color: any, index: number) => {
+                        // Handle both formats: simple hex string OR object with {hex, name, nameAr}
+                        const colorHex = typeof color === 'string' ? color : color.hex;
+                        const colorName = typeof color === 'string'
+                          ? color  // Use hex as display name for simple format
+                          : (language === 'ar' ? color.nameAr : color.name);
+
+                        return (
+                          <button
+                            key={colorHex || index}
+                            onClick={() => setSelectedColor(colorHex)}
+                            className={`w-6 h-6 sm:w-10 sm:h-10 rounded-full border-2 transition-all shadow-sm ${
+                              selectedColor === colorHex
+                                ? 'border-primary scale-110 ring-2 ring-primary/20'
+                                : 'border-border/50 hover:border-primary/50'
+                              }`}
+                            style={{ backgroundColor: colorHex }}
+                            title={colorName}
+                          />
+                        );
+                      })}
                   </div>
                 </div>
                 )}

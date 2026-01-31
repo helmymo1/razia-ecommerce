@@ -75,6 +75,10 @@ export const productService = {
     const response = await api.get('/products?limit=1000'); // Fetch all for admin
     return getArrayData(response);
   },
+  getById: async (id: string) => {
+    const response = await api.get(`/products/${id}`);
+    return response.data;
+  },
   create: async (data: any) => {
     // Check if FormData (file uploads)
     if (data instanceof FormData) {

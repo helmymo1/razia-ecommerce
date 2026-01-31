@@ -45,17 +45,32 @@ const redisWrapper = {
             console.warn('Redis Del Error:', err.message);
         }
     },
-    // Scan/Keys invalidation helper
+    // Scan/Keys invalidation helper - properly awaits completion
     clearPattern: async (pattern) => {
         try {
            if (redisClient.status !== 'ready') return;
-           const stream = redisClient.scanStream({ match: pattern });
-           stream.on('data', (keys) => {
-               if (keys.length) {
-                   const pipeline = redisClient.pipeline();
-                   keys.forEach(key => pipeline.del(key));
-                   pipeline.exec();
-               }
+
+            return new Promise((resolve, reject) => {
+               const stream = redisClient.scanStream({ match: pattern });
+               const deletionPromises = [];
+
+               stream.on('data', (keys) => {
+                   if (keys.length) {
+                       const pipeline = redisClient.pipeline();
+                       keys.forEach(key => pipeline.del(key));
+                       deletionPromises.push(pipeline.exec());
+                   }
+               });
+
+               stream.on('end', async () => {
+                   await Promise.all(deletionPromises);
+                   resolve();
+               });
+
+               stream.on('error', (err) => {
+                   console.warn('Redis Clear Stream Error:', err.message);
+                   resolve(); // Don't reject, graceful degradation
+               });
            });
         } catch (err) {
             console.warn('Redis Clear Error:', err.message);

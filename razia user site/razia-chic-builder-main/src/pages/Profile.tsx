@@ -33,6 +33,8 @@ interface OrderItem {
   qty: number;
   price: number;
   status: string;
+  cancelStatus?: string;
+  refundStatus?: string;
 }
 interface Order {
   id: string;
@@ -40,6 +42,8 @@ interface Order {
   status: string;
   total: number;
   items: OrderItem[] | string;
+  payment_status?: string;
+  refund_requests?: any;
 }
 
 interface UserData {
@@ -165,6 +169,7 @@ const Profile: React.FC = () => {
       const parsedOrders = res.data.map((o: any) => ({
           ...o,
           items: typeof o.items === 'string' ? JSON.parse(o.items) : o.items,
+        refund_requests: typeof o.refund_requests === 'string' ? JSON.parse(o.refund_requests) : o.refund_requests,
           total: parseFloat(o.total)
       }));
       setOrders(parsedOrders);
@@ -571,9 +576,12 @@ const Profile: React.FC = () => {
                                     <Button
                                       variant="outline"
                                       size="sm"
+                                      disabled={['refund_requested', 'refunded'].includes(order.payment_status) || (order.refund_requests && (Array.isArray(order.refund_requests) ? order.refund_requests.length > 0 : !!order.refund_requests))}
                                       onClick={() => handleRequestRefund(order.id)}
                                     >
-                                      {language === 'ar' ? 'طلب استرجاع' : 'Request Refund'}
+                                      {order.payment_status === 'refunded' ? (language === 'ar' ? 'تم الاسترجاع' : 'Refunded') :
+                                        order.payment_status === 'refund_requested' || (order.refund_requests && (Array.isArray(order.refund_requests) ? order.refund_requests.length > 0 : !!order.refund_requests)) ? (language === 'ar' ? 'تم طلب الاسترجاع' : 'Refund Requested') :
+                                          (language === 'ar' ? 'طلب استرجاع' : 'Request Refund')}
                                     </Button>
                                   )}
                                   <Button variant="outline" size="sm" asChild>
@@ -735,10 +743,9 @@ const Profile: React.FC = () => {
                                   addItem({
                                     id: item.id,
                                     name: item.name_en,
+                                    nameAr: item.name_ar || item.name_en,
                                     price: Number(item.price),
                                     image: item.image_url,
-                                    qty: 1,
-                                    countInStock: item.countInStock
                                   });
                                   toast({ title: "Added", description: "Added to cart" });
                                 }}

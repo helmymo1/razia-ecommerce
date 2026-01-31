@@ -97,6 +97,11 @@ const transformProduct = (product: any) => {
   // Ensure colors are objects if they are strings
   colors = colors.map((c: any) => {
       if (typeof c === 'string') {
+        // Check if it's already a hex code (starts with #)
+        if (c.startsWith('#')) {
+          return { name: c, nameAr: c, hex: c };
+        }
+        // Otherwise try to look up the named color
           return { name: c, nameAr: c, hex: getColorHex(c) };
       }
       return c;

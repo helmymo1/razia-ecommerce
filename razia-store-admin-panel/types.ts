@@ -34,6 +34,7 @@ export interface Product {
   descriptionEn: string;
   descriptionAr: string;
   price: number;
+  sku?: string;
   discount: number;
   categoryId: string;
   colors: string[];

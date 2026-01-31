@@ -82,7 +82,7 @@ const getOrderById = async (req, res, next) => {
   try {
     const [order] = await db.query(`
       SELECT o.*, 
-             CONCAT(u.first_name, ' ', u.last_name) as user_name, u.email as user_email, u.phone_number as user_phone_account
+             CONCAT(u.first_name, ' ', u.last_name) as user_name, u.email as user_email, u.phone as user_phone_account
       FROM orders o
       LEFT JOIN users u ON o.user_id = u.id
       WHERE o.id = ?
@@ -553,7 +553,7 @@ const getUserOrders = async (req, res, next) => {
   try {
     // console.log("📂 [OrderController] Fetching orders for user:", req.user.id);
     const query = `
-      SELECT o.id, o.total, o.status, o.created_at, o.is_paid, o.payment_method,
+      SELECT o.id, o.total, o.status, o.created_at, o.is_paid, o.payment_method, o.payment_status, o.refund_requests,
       (SELECT COALESCE(p2.image_url, '/placeholder.png')
        FROM order_items oi2
        LEFT JOIN products p2 ON oi2.product_id = p2.id
@@ -572,8 +572,8 @@ const getUserOrders = async (req, res, next) => {
       FROM orders o
       LEFT JOIN order_items oi ON o.id = oi.order_id
       LEFT JOIN products p ON oi.product_id = p.id
-      WHERE o.user_id = ? AND o.is_paid = 1
-      GROUP BY o.id, o.total, o.status, o.created_at, o.is_paid, o.payment_method
+      WHERE o.user_id = ?
+      GROUP BY o.id, o.total, o.status, o.created_at, o.is_paid, o.payment_method, o.payment_status, o.refund_requests
       ORDER BY o.created_at DESC;
     `;
     const [orders] = await db.query(query, [req.user.id]);
