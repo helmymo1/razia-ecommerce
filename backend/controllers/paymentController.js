@@ -147,7 +147,9 @@ const payWithPaymob = async (req, res) => {
 
         // REMOVED fs.appendFileSync to prevent Server Permission Errors
         console.error("❌ PAYMOB INTENTION FAILED:", JSON.stringify(errorData, null, 2));
-        res.status(400).json({ message: "Payment Failed", detail: errorData });
+
+        const detailMsg = typeof errorData === 'object' ? JSON.stringify(errorData) : String(errorData);
+        res.status(400).json({ message: "Payment Failed: " + detailMsg, detail: errorData });
     }
 };
 
