@@ -119,7 +119,7 @@ const payWithPaymob = async (req, res) => {
                 'Authorization': `Token ${process.env.PAYMOB_SECRET_KEY}`,
                 'Content-Type': 'application/json'
             },
-            timeout: 15000 // 15s Timeout
+            timeout: 60000 // 60s Timeout (Increased from 15s)
         });
 
         // 5. HANDLE RESPONSE
@@ -145,11 +145,7 @@ const payWithPaymob = async (req, res) => {
     } catch (error) {
         const errorData = error.response?.data || error.message;
 
-        // LOG TO FILE to ensure we see it
-        const fs = require('fs');
-        const logMsg = `\n[${new Date().toISOString()}] PAYMENT ERROR:\n${JSON.stringify(errorData, null, 2)}\n`;
-        fs.appendFileSync('payment_errors.log', logMsg);
-
+        // REMOVED fs.appendFileSync to prevent Server Permission Errors
         console.error("❌ PAYMOB INTENTION FAILED:", JSON.stringify(errorData, null, 2));
         res.status(400).json({ message: "Payment Failed", detail: errorData });
     }
